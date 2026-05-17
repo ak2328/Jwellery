@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jewellery App — Complete System Design</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:1100px;margin:0 auto}
+h1{color:#f97316;font-size:2rem;margin-bottom:.5rem;text-align:center}
+.subtitle{color:#94a3b8;margin-bottom:2rem;text-align:center}
+h2{color:#38bdf8;margin:2.5rem 0 1rem;border-bottom:1px solid #1e293b;padding-bottom:.5rem}
+h3{color:#a78bfa;margin:1.5rem 0 .5rem}
+h4{color:#fbbf24;margin:1rem 0 .3rem}
+pre{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:1.2rem;overflow-x:auto;margin:.8rem 0;font-size:.78rem;color:#a5f3fc;line-height:1.5}
+code{background:#334155;padding:2px 6px;border-radius:4px;font-size:.85rem;color:#a5f3fc}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #334155;font-size:.9rem}
+th{color:#fbbf24;background:#1e293b}
+.card{background:#1e293b;border-radius:12px;padding:1.2rem;margin:.8rem 0;border:1px solid #334155}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin:1rem 0}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.7rem;margin:2px}
+.t-page{background:#2563eb;color:#fff}
+.t-comp{background:#7c3aed;color:#fff}
+.t-hook{background:#059669;color:#fff}
+.t-lib{background:#d97706;color:#fff}
+.note{background:#1e293b;border-left:4px solid #fbbf24;padding:1rem;margin:1rem 0;border-radius:0 8px 8px 0;font-size:.9rem}
+</style>
+</head>
+<body>
+
+<h1>🏗️ Complete System Design — Jewellery Seller App</h1>
+<p class="subtitle">Cloudflare Pages + Supabase + R2 | $0/month</p>
+
+<!-- ==================== SECTION 1: ARCHITECTURE ==================== -->
+<h2>1. System Architecture Diagram</h2>
+
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              CUSTOMERS (Browser / Mobile)                         │
+└───────────────────────────────────────┬─────────────────────────────────────────┘
+                                        │ HTTPS
+                                        ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         CLOUDFLARE PAGES (Frontend Host)                          │
+│                                                                                  │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐  ┌─────────────────────┐  │
+│  │  Home Page  │  │  Collection  │  │  Product     │  │  Checkout / Orders  │  │
+│  │             │  │  (catalog)   │  │  Detail      │  │                     │  │
+│  └─────────────┘  └──────────────┘  └──────────────┘  └─────────────────────┘  │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐  ┌─────────────────────┐  │
+│  │  Auth Pages │  │  My Orders   │  │  Wishlist    │  │  Admin Panel        │  │
+│  │  Login/Sign │  │              │  │              │  │  (Products/Orders)  │  │
+│  └─────────────┘  └──────────────┘  └──────────────┘  └─────────────────────┘  │
+│                                                                                  │
+│  Global CDN • HTTPS • Custom Domain • DDoS Protection • $0/mo                   │
+└───────────────────────────────────────┬─────────────────────────────────────────┘
+                                        │
+                    ┌───────────────────┼────────────────────┐
+                    │                   │                    │
+                    ▼                   ▼                    ▼
+┌──────────────────────┐  ┌─────────────────────┐  ┌────────────────────┐
+│   SUPABASE AUTH      │  │   SUPABASE DB       │  │  CLOUDFLARE R2     │
+│                      │  │   (PostgreSQL)      │  │  (Image Storage)   │
+│  • Email signup      │  │                     │  │                    │
+│  • Phone OTP         │  │  • products         │  │  • Product photos  │
+│  • Google OAuth      │  │  • categories       │  │  • Brand assets    │
+│  • Session mgmt      │  │  • customers        │  │  • User uploads    │
+│  • Password reset    │  │  • orders           │  │                    │
+│  • JWT tokens        │  │  • order_items      │  │  10GB free         │
+│                      │  │  • addresses        │  │  $0 egress         │
+│  50K MAU free        │  │  • inventory        │  │                    │
+│                      │  │  • wishlists        │  └────────────────────┘
+└──────────────────────┘  │  • reviews          │
+                          │  • coupons          │
+                          │  • admin_users      │
+                          │  • product_images   │
+                          │                     │
+                          │  500MB free         │
+                          │  Auto REST API      │
+                          │  Row Level Security │
+                          └─────────────────────┘
+</pre>
+
+<!-- ==================== SECTION 2: DATA FLOW ==================== -->
+<h2>2. Data Flow Diagrams</h2>
+
+<h3>Customer Shopping Flow</h3>
+<pre>
+Browse Products          Add to Cart           Checkout              Order Placed
+─────────────           ───────────           ────────              ────────────
+supabase                localStorage          supabase              supabase
+.from('products')       (client-side,         .auth.getUser()       .from('orders')
+.select('*')            no DB call)           .from('addresses')    .insert({...})
+     │                       │                .select()             .from('order_items')
+     ▼                       ▼                     │                .insert([...])
+[Product Grid]          [Cart Drawer]              ▼                     │
+                                              [Address Form]             ▼
+                                              [Payment Select]     [Order Confirmation]
+                                                                   [WhatsApp Notify]
+</pre>
+
+<h3>Admin Flow</h3>
+<pre>
+Admin Login              Manage Products         Manage Orders
+───────────              ───────────────         ─────────────
+supabase                 supabase                supabase
+.auth.signIn()           .from('products')       .from('orders')
+     │                   .insert/update/delete   .select('*, order_items(*)')
+     ▼                        │                  .update({status})
+[Verify admin_users]          ▼                       │
+[Show Dashboard]         [Product Form]               ▼
+                         [Image Upload → R2]     [Order List + Status Update]
+</pre>
+
+<!-- ==================== SECTION 3: DATABASE ==================== -->
+<h2>3. Complete Database Schema</h2>
+
+<h3>Entity Relationship Diagram</h3>
+<pre>
+┌─────────────────┐         ┌─────────────────┐         ┌──────────────────┐
+│   categories    │         │    products     │         │  product_images  │
+│─────────────────│         │─────────────────│         │──────────────────│
+│ id (PK)         │◄───┐    │ id (PK)         │────────►│ product_id (FK)  │
+│ name            │    └────│ category_id(FK) │         │ image_url        │
+│ slug            │         │ name            │         │ is_primary       │
+│ image           │         │ description     │         │ sort_order       │
+│ sort_order      │         │ price (₹)       │         └──────────────────┘
+└─────────────────┘         │ compare_price   │
+                            │ weight_grams    │◄─────────────────────┐
+                            │ material        │                      │
+                            │ image           │◄──────────┐          │
+                            │ is_active       │           │          │
+                            │ is_new          │           │          │
+                            │ created_at      │           │          │
+                            └────────┬────────┘           │          │
+                                     │                    │          │
+              ┌──────────────────────┼────────────────────┼──────────┤
+              │                      │                    │          │
+              ▼                      ▼                    │          │
+    ┌──────────────────┐   ┌──────────────────┐          │          │
+    │    inventory     │   │     reviews      │          │          │
+    │──────────────────│   │──────────────────│          │          │
+    │ product_id (FK)  │   │ product_id (FK)  │          │          │
+    │ stock_count      │   │ customer_id (FK) │          │          │
+    │ reserved_count   │   │ rating (1-5)     │          │          │
+    │ low_stock_thresh │   │ comment          │          │          │
+    └──────────────────┘   │ is_approved      │          │          │
+                           └──────────────────┘          │          │
+                                                         │          │
+┌─────────────────┐        ┌──────────────────┐          │          │
+│ auth.users      │        │    customers     │          │          │
+│ (Supabase mgd)  │        │──────────────────│          │          │
+│─────────────────│        │ id (PK/FK→auth)  │          │          │
+│ id              │───────►│ name             │          │          │
+│ email           │        │ phone            │          │          │
+│ encrypted_pass  │        │ created_at       │          │          │
+└─────────────────┘        └────────┬─────────┘          │          │
+                                    │                    │          │
+                    ┌───────────────┼────────────────┐   │          │
+                    │               │                │   │          │
+                    ▼               ▼                ▼   │          │
+          ┌──────────────┐ ┌──────────────┐ ┌───────────────┐      │
+          │  addresses   │ │  wishlists   │ │    orders     │      │
+          │──────────────│ │──────────────│ │───────────────│      │
+          │ customer_id  │ │ customer_id  │ │ customer_id   │      │
+          │ full_name    │ │ product_id ──┼─┼───────────────┼──────┘
+          │ phone        │ └──────────────┘ │ address_id    │
+          │ address_line │                  │ order_number  │
+          │ city         │                  │ status        │
+          │ state        │◄─────────────────│ subtotal      │
+          │ pincode      │                  │ discount      │
+          │ is_default   │                  │ shipping_fee  │
+          └──────────────┘                  │ total         │
+                                            │ payment_method│
+                                            │ payment_status│
+                                            │ created_at    │
+                                            └───────┬───────┘
+                                                    │
+                                                    ▼
+                                           ┌──────────────────┐
+                                           │   order_items    │
+                                           │──────────────────│
+                                           │ order_id (FK)    │
+                                           │ product_id (FK)──┼────────┘
+                                           │ product_name     │
+                                           │ quantity         │
+                                           │ unit_price       │
+                                           │ size             │
+                                           └──────────────────┘
+
+┌──────────────────┐        ┌──────────────────┐
+│     coupons      │        │   admin_users    │
+│──────────────────│        │──────────────────│
+│ code             │        │ email            │
+│ discount_type    │        │ name             │
+│ discount_value   │        │ role (owner/mgr) │
+│ min_order_amount │        └──────────────────┘
+│ max_uses         │
+│ valid_until      │
+│ is_active        │
+└──────────────────┘
+</pre>
+
+<!-- ==================== SECTION 4: FRONTEND STRUCTURE ==================== -->
+<h2>4. Frontend Code Structure (What to Build)</h2>
+
+<pre>
+client/src/
+├── lib/
+│   ├── supabase.ts              ✅ DONE — Supabase client connection
+│   └── CartContext.tsx           ✅ DONE — Client-side cart state
+│
+├── hooks/
+│   ├── useProducts.ts           ✅ DONE — Fetch/add products from Supabase
+│   ├── useAuth.ts               🔨 BUILD — Login/signup/logout/session
+│   ├── useOrders.ts             🔨 BUILD — Place order, fetch my orders
+│   ├── useWishlist.ts           🔨 BUILD — Add/remove wishlist items
+│   └── useAdmin.ts             🔨 BUILD — Admin CRUD operations
+│
+├── pages/
+│   ├── ManiDOroHome.tsx         ✅ DONE (rename for rebrand)
+│   ├── CollectionPage.tsx       ✅ DONE — Fetches from Supabase
+│   ├── ProductPage.tsx          ✅ DONE — Fetches from Supabase
+│   ├── BespokePage.tsx          ✅ DONE
+│   ├── ContactPage.tsx          ✅ DONE
+│   ├── AuthPage.tsx             🔨 BUILD — Login / Signup / OTP
+│   ├── CheckoutPage.tsx         🔨 BUILD — Address + Payment + Place Order
+│   ├── MyOrdersPage.tsx         🔨 BUILD — Customer's order history
+│   ├── WishlistPage.tsx         🔨 BUILD — Saved products
+│   └── admin/
+│       ├── AdminDashboard.tsx   🔨 BUILD — Stats overview
+│       ├── AdminProducts.tsx    🔨 BUILD — CRUD products + image upload
+│       └── AdminOrders.tsx      🔨 BUILD — View/update order status
+│
+├── components/
+│   ├── CartDrawer.tsx           ✅ DONE
+│   ├── AuthGuard.tsx            🔨 BUILD — Protect routes (redirect if not logged in)
+│   ├── AdminGuard.tsx           🔨 BUILD — Protect admin routes
+│   └── ImageUpload.tsx          🔨 BUILD — Upload to R2
+│
+└── App.tsx                      ✅ DONE (add new routes)
+</pre>
+
+<!-- ==================== SECTION 5: HOOKS CODE ==================== -->
+<h2>5. Frontend Hooks — Code to Write</h2>
+
+<div class="card">
+<h4>useAuth.ts</h4>
+<span class="t-hook tag">HOOK</span>
+<pre>
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
+
+export function useAuth() {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Get current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => setUser(session?.user ?? null)
+    )
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const signUp = async (email: string, password: string, name: string) => {
+    const { data, error } = await supabase.auth.signUp({ email, password })
+    if (!error && data.user) {
+      await supabase.from('customers').insert({ id: data.user.id, name })
+    }
+    return { data, error }
+  }
+
+  const signIn = async (email: string, password: string) => {
+    return await supabase.auth.signInWithPassword({ email, password })
+  }
+
+  const signOut = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+  }
+
+  return { user, loading, signUp, signIn, signOut }
+}
+</pre>
+</div>
+
+<div class="card">
+<h4>useOrders.ts</h4>
+<span class="t-hook tag">HOOK</span>
+<pre>
+import { supabase } from '../lib/supabase'
+
+export function useOrders() {
+  const placeOrder = async (orderData: {
+    addressId: string
+    items: { productId: string; name: string; quantity: number; price: number; size?: string }[]
+    subtotal: number
+    total: number
+    paymentMethod: string
+  }) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not logged in')
+
+    // Generate order number
+    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
+
+    // Insert order
+    const { data: order, error } = await supabase.from('orders').insert({
+      order_number: orderNumber,
+      customer_id: user.id,
+      address_id: orderData.addressId,
+      subtotal: orderData.subtotal,
+      total: orderData.total,
+      payment_method: orderData.paymentMethod,
+      status: 'pending',
+      payment_status: orderData.paymentMethod === 'COD' ? 'pending' : 'pending'
+    }).select().single()
+
+    if (error) return { error }
+
+    // Insert order items
+    const items = orderData.items.map(item => ({
+      order_id: order.id,
+      product_id: item.productId,
+      product_name: item.name,
+      quantity: item.quantity,
+      unit_price: item.price,
+      size: item.size
+    }))
+    await supabase.from('order_items').insert(items)
+
+    return { order, error: null }
+  }
+
+  const getMyOrders = async () => {
+    const { data } = await supabase
+      .from('orders')
+      .select('*, order_items(*)')
+      .order('created_at', { ascending: false })
+    return data || []
+  }
+
+  return { placeOrder, getMyOrders }
+}
+</pre>
+</div>
+
+<div class="card">
+<h4>useWishlist.ts</h4>
+<span class="t-hook tag">HOOK</span>
+<pre>
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
+
+export function useWishlist() {
+  const [items, setItems] = useState([])
+
+  const fetch = async () => {
+    const { data } = await supabase
+      .from('wishlists')
+      .select('*, products(*)')
+    setItems(data || [])
+  }
+
+  const add = async (productId: string) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    await supabase.from('wishlists').insert({ customer_id: user.id, product_id: productId })
+    await fetch()
+  }
+
+  const remove = async (productId: string) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    await supabase.from('wishlists').delete()
+      .eq('customer_id', user.id).eq('product_id', productId)
+    await fetch()
+  }
+
+  useEffect(() => { fetch() }, [])
+  return { items, add, remove }
+}
+</pre>
+</div>
+
+<div class="card">
+<h4>useAdmin.ts</h4>
+<span class="t-hook tag">HOOK</span>
+<pre>
+import { supabase } from '../lib/supabase'
+
+export function useAdmin() {
+  const isAdmin = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return false
+    const { data } = await supabase.from('admin_users').select().eq('id', user.id).single()
+    return !!data
+  }
+
+  const getAllOrders = async () => {
+    const { data } = await supabase
+      .from('orders')
+      .select('*, customers(name, phone), order_items(*), addresses(*)')
+      .order('created_at', { ascending: false })
+    return data || []
+  }
+
+  const updateOrderStatus = async (orderId: string, status: string) => {
+    return await supabase.from('orders')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', orderId)
+  }
+
+  const addProduct = async (product: any, imageUrl: string) => {
+    return await supabase.from('products').insert({ ...product, image: imageUrl })
+  }
+
+  const updateProduct = async (id: string, updates: any) => {
+    return await supabase.from('products').update(updates).eq('id', id)
+  }
+
+  const deleteProduct = async (id: string) => {
+    return await supabase.from('products').update({ is_active: false }).eq('id', id)
+  }
+
+  return { isAdmin, getAllOrders, updateOrderStatus, addProduct, updateProduct, deleteProduct }
+}
+</pre>
+</div>
+
+<!-- ==================== SECTION 6: PAGE MAPPING ==================== -->
+<h2>6. Page → Database Mapping</h2>
+
+<table>
+<tr><th>Page</th><th>Supabase Tables Used</th><th>Operations</th></tr>
+<tr><td>Home</td><td>products</td><td>SELECT (featured/new)</td></tr>
+<tr><td>Collection</td><td>products, categories</td><td>SELECT with filters</td></tr>
+<tr><td>Product Detail</td><td>products, product_images, reviews, inventory</td><td>SELECT</td></tr>
+<tr><td>Auth (Login/Signup)</td><td>auth.users, customers</td><td>signUp, signIn</td></tr>
+<tr><td>Checkout</td><td>addresses, orders, order_items, inventory</td><td>SELECT addresses, INSERT order</td></tr>
+<tr><td>My Orders</td><td>orders, order_items</td><td>SELECT (own orders)</td></tr>
+<tr><td>Wishlist</td><td>wishlists, products</td><td>SELECT, INSERT, DELETE</td></tr>
+<tr><td>Admin: Products</td><td>products, categories, inventory, product_images</td><td>FULL CRUD</td></tr>
+<tr><td>Admin: Orders</td><td>orders, order_items, customers, addresses</td><td>SELECT, UPDATE status</td></tr>
+<tr><td>Admin: Dashboard</td><td>orders, products, customers</td><td>SELECT (counts, totals)</td></tr>
+</table>
+
+<!-- ==================== SECTION 7: ROUTES ==================== -->
+<h2>7. App Routes (App.tsx)</h2>
+
+<pre>
+// App.tsx — Add these routes
+import { Route, Switch } from "wouter"
+
+&lt;Switch&gt;
+  &lt;Route path="/" component={HomePage} /&gt;
+  &lt;Route path="/collection" component={CollectionPage} /&gt;
+  &lt;Route path="/product/:id" component={ProductPage} /&gt;
+  &lt;Route path="/bespoke" component={BespokePage} /&gt;
+  &lt;Route path="/contact" component={ContactPage} /&gt;
+
+  {/* NEW — Auth */}
+  &lt;Route path="/login" component={AuthPage} /&gt;
+  &lt;Route path="/signup" component={AuthPage} /&gt;
+
+  {/* NEW — Customer (protected) */}
+  &lt;Route path="/checkout" component={CheckoutPage} /&gt;
+  &lt;Route path="/orders" component={MyOrdersPage} /&gt;
+  &lt;Route path="/wishlist" component={WishlistPage} /&gt;
+
+  {/* NEW — Admin (protected) */}
+  &lt;Route path="/admin" component={AdminDashboard} /&gt;
+  &lt;Route path="/admin/products" component={AdminProducts} /&gt;
+  &lt;Route path="/admin/orders" component={AdminOrders} /&gt;
+
+  &lt;Route component={NotFound} /&gt;
+&lt;/Switch&gt;
+</pre>
+
+<!-- ==================== SECTION 8: IMAGE UPLOAD FLOW ==================== -->
+<h2>8. Image Upload Flow (R2)</h2>
+
+<pre>
+Admin clicks "Upload Image"
+        │
+        ▼
+[File picker → select JPG/PNG]
+        │
+        ▼
+Frontend uploads to Cloudflare R2 (via Worker or direct)
+        │
+        ▼
+Gets public URL: https://pub-xxx.r2.dev/products/new-ring.jpg
+        │
+        ▼
+Saves URL in Supabase: supabase.from('products').update({ image: url })
+        │
+        ▼
+Product page displays: &lt;img src={product.image} /&gt;
+</pre>
+
+<!-- ==================== SECTION 9: SECURITY ==================== -->
+<h2>9. Security Model</h2>
+
+<table>
+<tr><th>Who</th><th>Can Do</th><th>Enforced By</th></tr>
+<tr><td>Anonymous visitor</td><td>View products, categories, approved reviews</td><td>RLS: public SELECT policies</td></tr>
+<tr><td>Logged-in customer</td><td>+ Place orders, manage addresses, wishlist, write reviews</td><td>RLS: auth.uid() = customer_id</td></tr>
+<tr><td>Admin</td><td>+ CRUD products, manage all orders, view all customers</td><td>RLS: auth.uid() IN admin_users</td></tr>
+<tr><td>Nobody</td><td>See other customers' orders/addresses, modify products without admin</td><td>RLS denies by default</td></tr>
+</table>
+
+<!-- ==================== SECTION 10: DEPLOYMENT ==================== -->
+<h2>10. Deployment & CI/CD</h2>
+
+<pre>
+Developer pushes to GitHub (main branch)
+        │
+        ▼ (automatic)
+Cloudflare Pages detects push
+        │
+        ▼ (automatic)
+Runs: npx vite build
+        │
+        ▼ (automatic)
+Deploys to https://yourdomain.in (~30 seconds)
+        │
+        ▼
+Live! All API calls go to Supabase. Images from R2/Pages.
+</pre>
+
+<div class="note">
+<strong>Total services:</strong> Cloudflare Pages (hosting) + Supabase (DB/Auth/API) + Cloudflare R2 (images)<br>
+<strong>Total cost:</strong> $0/month within free tiers<br>
+<strong>No servers to manage. No ports to open. No security flags.</strong>
+</div>
+
+</body>
+</html>

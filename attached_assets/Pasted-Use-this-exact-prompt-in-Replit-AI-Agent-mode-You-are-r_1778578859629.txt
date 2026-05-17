@@ -1,0 +1,145 @@
+Use this exact prompt in Replit AI / Agent mode:
+
+---
+
+You are rebuilding my luxury jewelry website to match the Figma design exactly. Do NOT improvise layout structure, spacing, borders, colors, sizing, typography, or alignment. Follow the Figma carefully and create a premium editorial luxury aesthetic.
+
+Figma:
+[Figma Design File](https://www.figma.com/design/KezKaowZ1EvqFzJTp5gHb4/Untitled?node-id=0-1&p=f&t=3HrZgiKhI7V73OCa-0&utm_source=chatgpt.com)
+
+Critical fixes required:
+
+1. Remove all black borders and hard divider lines currently added in the website.
+   The Figma uses subtle color separation, soft section transitions, and elegant spacing — NOT black strokes.
+   Replace all black outlines with:
+
+* soft neutral separators
+* background contrast sections
+* subtle shadows only where needed
+* elegant whitespace
+
+2. The layout width and margins are incorrect.
+   Currently the content stretches almost full screen.
+   Fix the container system to match premium luxury websites:
+
+* max-width around 1200px–1400px
+* centered content
+* proper left/right breathing space
+* responsive margins
+* balanced whitespace exactly like the Figma
+
+3. New Arrivals section must be redesigned completely.
+
+Current cards look basic and static.
+I want luxury interactive product cards.
+
+Requirements:
+
+* Use the jewelry images from the Figma
+* Match the editorial layout
+* Keep image proportions elegant
+* Maintain soft luxury spacing
+* No thick borders
+* Use refined hover animations
+
+On hover:
+
+* reveal product details smoothly
+* show:
+
+  * product name
+  * category
+  * short luxury description
+  * price
+  * “View Product” CTA
+* image should slightly zoom
+* overlay should fade in smoothly
+* animation should feel premium and cinematic
+* use soft transitions (300ms–500ms)
+
+The hover interaction should feel similar to luxury fashion/jewelry brands like Cartier, Tiffany, or Mejuri.
+
+4. Homepage hero image issue:
+   The woman image in the homepage is supposed to:
+
+* stay inside its frame
+* preserve exact aspect ratio
+* use the black-and-white styling from the Figma
+* not overflow or stretch
+* maintain elegant cropping
+
+5. Add the founder quote section to the homepage.
+
+Create a luxury editorial testimonial block exactly matching the Figma style:
+
+“The beauty of Mani D'Oro lies in the intentional imperfection. We do not chase machine-made precision; we chase the soul of the hand.”
+
+— Elena Moretti
+Founder & Creative Director
+
+Design requirements:
+
+* serif typography
+* elegant spacing
+* centered composition
+* premium editorial feel
+* subtle background contrast
+* optional portrait image support
+* responsive on mobile
+
+6. Collection page is incomplete.
+   I already designed another page in Figma for Collections.
+   Read the additional frames/pages from the Figma and fully develop them as separate sections/pages.
+
+Requirements:
+
+* parse ALL frames from the Figma
+* create matching layouts
+* preserve typography hierarchy
+* preserve spacing system
+* preserve color palette
+* preserve luxury aesthetic
+* maintain responsive behavior
+
+7. Global styling improvements:
+
+* luxury serif typography
+* refined neutral palette
+* elegant hover states
+* soft transitions everywhere
+* no harsh shadows
+* no generic ecommerce styling
+* no oversized buttons
+* maintain editorial luxury branding
+
+8. Make the site responsive properly:
+   Desktop:
+
+* balanced composition
+* editorial layout
+
+Tablet:
+
+* maintain spacing consistency
+
+Mobile:
+
+* stacked elegant layout
+* typography scaling
+* preserved premium feel
+
+9. Important:
+   Do NOT create generic Tailwind-looking components.
+   This must feel like a handcrafted luxury jewelry brand website.
+
+Prioritize:
+
+* elegance
+* whitespace
+* typography
+* composition
+* premium interactions
+* subtle animations
+* visual hierarchy
+
+The final result should look production-grade and visually close to the Figma design.

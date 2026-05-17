@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 48 100% 97%;
+    --foreground: 60 43% 9%;
+    --muted: 45 30% 92%;
+    --muted-foreground: 45 15% 45%;
+    --popover: 48 100% 97%;
+    --popover-foreground: 60 43% 9%;
+    --border: 45 20% 85%;
+    --input: 45 20% 85%;
+    --card: transparent;
+    --card-foreground: 60 43% 9%;
+    --primary: 60 43% 9%;
+    --primary-foreground: 48 100% 97%;
+    --secondary: 45 30% 92%;
+    --secondary-foreground: 60 43% 9%;
+    --accent: 45 30% 92%;
+    --accent-foreground: 60 43% 9%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 48 100% 97%;
+    --ring: 45 20% 75%;
+    --radius: 0rem;
+  }
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Noto Serif', Georgia, serif;
+    font-weight: 400;
+  }
+}
+
+@layer components {
+  .luxury-btn-gold {
+    @apply inline-flex items-center justify-center;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: #795900;
+    color: #fef9e9;
+    padding: 1.1rem 2.5rem;
+    border: none;
+    transition: background 0.3s ease;
+    cursor: pointer;
+  }
+  .luxury-btn-gold:hover {
+    background: #5e4500;
+  }
+
+  .luxury-btn-outline {
+    @apply inline-flex items-center justify-center;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: transparent;
+    color: #1d1c12;
+    padding: 1.1rem 2.5rem;
+    border: 1px solid #1d1c12;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .luxury-btn-outline:hover {
+    background: #1d1c12;
+    color: #fef9e9;
+  }
+
+  .section-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #795900;
+  }
+
+  .product-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(29,28,18,0.92) 0%, rgba(29,28,18,0.6) 50%, rgba(29,28,18,0) 100%);
+    opacity: 0;
+    transition: opacity 0.45s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .product-card:hover .product-card-overlay {
+    opacity: 1;
+  }
+
+  .product-card-details {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem;
+    transform: translateY(12px);
+    opacity: 0;
+    transition: all 0.45s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .product-card:hover .product-card-details {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .product-card img {
+    transition: transform 0.7s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .product-card:hover img {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s ease forwards;
+}
