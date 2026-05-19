@@ -151,11 +151,24 @@ export const MainContentSection = (): JSX.Element => {
               <article
                 key={product.id}
                 data-testid={`card-product-${product.id}`}
-                className="product-card relative overflow-hidden cursor-pointer"
+                className="product-card relative overflow-hidden cursor-pointer select-none"
                 style={{ aspectRatio: "3/4" }}
                 onClick={() => setLocation(`/product/${product.id}`)}
+                onCopy={(e) => e.preventDefault()}
               >
-                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                <img 
+                  src={product.image} 
+                  alt={product.name} 
+                  onContextMenu={(e) => e.preventDefault()}
+                  onDragStart={(e) => e.preventDefault()}
+                  className="w-full h-full object-cover select-none pointer-events-none" 
+                />
+                {/* Transparent Overlay for Copy Protection */}
+                <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
+                {/* Watermark Logo */}
+                <div className="absolute top-4 right-4 w-10 opacity-[0.25] pointer-events-none z-10 transition-opacity duration-500 group-hover:opacity-0 mix-blend-multiply sm:mix-blend-normal">
+                  <img src="/logo.png" alt="Mani D'Oro" className="w-full h-auto drop-shadow-md" />
+                </div>
                 <div className="product-card-overlay" />
                 <div className="product-card-details">
                   <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#c9a84c] mb-2" style={{ fontFamily: "'Manrope', sans-serif" }}>{product.category}</p>

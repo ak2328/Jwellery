@@ -642,7 +642,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                   </div>
 
                   {/* Interactive Thumbnail Gallery Grid */}
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-4" onCopy={(e) => e.preventDefault()}>
                     {galleryImages.map((img: string, idx: number) => (
                       <div
                         key={idx}
@@ -650,14 +650,22 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                           setSelectedImage(img);
                           setSelectedImageIndex(idx);
                         }}
-                        className={`aspect-square bg-[#fef9e9]/80 border overflow-hidden cursor-pointer group relative transition-all ${
+                        className={`aspect-square bg-[#fef9e9]/80 border overflow-hidden cursor-pointer group relative transition-all select-none ${
                           selectedImageIndex === idx
                             ? 'border-[#c9a84c] ring-2 ring-[#c9a84c]/30'
                             : 'border-[#1d1c12]/10 opacity-75 hover:opacity-100'
                         }`}
                       >
-                        <img src={img} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" alt={`Detail ${idx + 1}`} />
-                        <div className="absolute inset-0 bg-[#c9a84c]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <img 
+                          src={img} 
+                          onContextMenu={(e) => e.preventDefault()}
+                          onDragStart={(e) => e.preventDefault()}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 select-none pointer-events-none" 
+                          alt={`Detail ${idx + 1}`} 
+                        />
+                        <div className="absolute inset-0 bg-[#c9a84c]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                        {/* Transparent Overlay for Copy Protection */}
+                        <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
                       </div>
                     ))}
                   </div>
