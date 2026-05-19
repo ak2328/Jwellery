@@ -625,7 +625,8 @@ export const CollectionPage = (): JSX.Element => {
                       key={product.id}
                       data-testid={`card-product-${product.id}`}
                       onClick={() => setLocation(`/product/${product.id}`)}
-                      className="product-card relative overflow-hidden cursor-pointer group"
+                      onCopy={(e) => e.preventDefault()}
+                      className="product-card relative overflow-hidden cursor-pointer group select-none"
                       style={{ aspectRatio: "3/4" }}
                     >
                       {product.isNew && (

@@ -530,7 +530,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
               return (
                 <>
                   <div 
-                    className="relative border border-[#1d1c12]/10 bg-[#fef9e9]/50 aspect-[4/5] overflow-hidden group cursor-pointer"
+                    className="relative border border-[#1d1c12]/10 bg-[#fef9e9]/50 aspect-[4/5] overflow-hidden group cursor-pointer select-none"
                     onClick={() => {
                       setZoomLevel(1);
                       setIsLightboxOpen(true);
@@ -538,6 +538,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                     onTouchStart={onTouchStart}
                     onTouchMove={onTouchMove}
                     onTouchEnd={onTouchEndHandler}
+                    onCopy={(e) => e.preventDefault()}
                   >
                     <img
                       src={selectedImage || product.image}
@@ -1061,11 +1062,12 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
           
           {/* Image Container */}
           <div 
-            className="relative w-full h-full flex items-center justify-center overflow-hidden"
+            className="relative w-full h-full flex items-center justify-center overflow-hidden select-none"
             onClick={(e) => e.stopPropagation()}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEndHandler}
+            onCopy={(e) => e.preventDefault()}
           >
             <img
               src={selectedImage || product?.image}
