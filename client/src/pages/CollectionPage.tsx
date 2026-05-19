@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { NavbarSection } from "./sections/NavbarSection";
 import { FooterSection } from "./sections/FooterSection";
@@ -342,14 +342,14 @@ export const CollectionPage = (): JSX.Element => {
       const { supabase } = await import("../lib/supabase");
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*, categories(name)")
         .eq("is_active", true)
         .order("created_at", { ascending: false });
 
       if (!error && data && data.length > 0) {
         setProducts(data.map((p: any) => ({
           id: p.id,
-          category: p.material || "Pendants",
+          category: p.categories?.name || p.category || p.material || "Pendants",
           name: p.name,
           description: p.description,
           price: `₹${Number(p.price).toLocaleString("en-IN")}`,

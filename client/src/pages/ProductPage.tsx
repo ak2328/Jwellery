@@ -14,6 +14,42 @@ interface Product {
   isNew: boolean;
 }
 
+const getGalleryImages = (prod: any) => {
+  if (prod.gallery && Array.isArray(prod.gallery) && prod.gallery.length > 0) {
+    return prod.gallery;
+  }
+  if (prod.id === "unisex-gold-bracelet") {
+    return [
+      "/products/bracelet-unisex-1.jpg",
+      "/products/bracelet-unisex-2.jpg",
+      "/products/bracelet-unisex-3.jpg",
+      "/products/bracelet-unisex-4.jpg",
+    ];
+  }
+  if (prod.id === "pendant-set") {
+    return [
+      "/products/pendant-pendant-set-1.jpg",
+      "/products/pendant-pendant-set-2.jpg",
+      "/products/pendant-pendant-set-3.jpg",
+      "/products/pendant-pendant-set-4.jpg"
+    ];
+  }
+  if (prod.id && prod.id.endsWith("-pendant")) {
+    const base = prod.id.replace("-pendant", "");
+    return [
+      `/products/pendant-${base}-pendant-1.jpg`,
+      `/products/pendant-${base}-pendant-2.jpg`,
+      `/products/pendant-${base}-pendant-3.jpg`,
+      `/products/pendant-${base}-pendant-4.jpg`,
+    ];
+  }
+  return [
+    prod.image,
+    "/bespoke/sketch-design.png",
+    "/figmaAssets/jeweler-working-on-a-custom-piece.png",
+  ];
+};
+
 export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element => {
   const [, setLocation] = useLocation();
   const [product, setProduct] = useState<Product | null>(null);
@@ -25,6 +61,10 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
   const [cartSize, setCartSize] = useState("Standard");
   const [addedToCart, setAddedToCart] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const { addItem } = useCart();
 
   useEffect(() => {
@@ -43,7 +83,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
         const { supabase } = await import("../lib/supabase");
         const { data, error } = await supabase
           .from("products")
-          .select("*")
+          .select("*, product_images(image_url)")
           .eq("id", params.id)
           .single();
 
@@ -56,6 +96,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             price: `₹${Number(data.price).toLocaleString("en-IN")}`,
             image: data.image,
             isNew: data.is_new,
+            gallery: data.product_images?.map((img: any) => img.image_url),
           });
           setLoading(false);
           return;
@@ -385,25 +426,32 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
     );
   }
 
-  const getGalleryImages = (prod: any) => {
-    if (prod.gallery && Array.isArray(prod.gallery) && prod.gallery.length > 0) {
-      return prod.gallery;
-    }
-    if (prod.id === "unisex-gold-bracelet") {
-      return [
-        "/products/bracelet-unisex-1.jpg",
-        "/products/bracelet-unisex-2.jpg",
-        "/products/bracelet-unisex-3.jpg",
-        "/products/bracelet-unisex-4.jpg",
-      ];
-    }
-    return [
-      prod.image,
-      "/bespoke/sketch-design.png",
-      "/figmaAssets/jeweler-working-on-a-custom-piece.png",
-    ];
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
   };
 
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEndHandler = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    const galleryImages = getGalleryImages(product);
+
+    if (isLeftSwipe && selectedImageIndex < galleryImages.length - 1) {
+      setSelectedImageIndex(selectedImageIndex + 1);
+      setSelectedImage(galleryImages[selectedImageIndex + 1]);
+    } else if (isRightSwipe && selectedImageIndex > 0) {
+      setSelectedImageIndex(selectedImageIndex - 1);
+      setSelectedImage(galleryImages[selectedImageIndex - 1]);
+    }
+  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -472,7 +520,16 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
               });
               return (
                 <>
-                  <div className="relative border border-[#1d1c12]/10 bg-[#fef9e9]/50 aspect-[4/5] overflow-hidden group">
+                  <div 
+                    className="relative border border-[#1d1c12]/10 bg-[#fef9e9]/50 aspect-[4/5] overflow-hidden group cursor-pointer"
+                    onClick={() => {
+                      setZoomLevel(1);
+                      setIsLightboxOpen(true);
+                    }}
+                    onTouchStart={onTouchStart}
+                    onTouchMove={onTouchMove}
+                    onTouchEnd={onTouchEndHandler}
+                  >
                     <img
                       src={selectedImage || product.image}
                       alt={product.name}
@@ -502,7 +559,8 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                         {galleryImages.map((_: string, di: number) => (
                           <button
                             key={di}
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setSelectedImageIndex(di);
                               setSelectedImage(galleryImages[di]);
                             }}
@@ -525,7 +583,8 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                     {galleryImages.length > 1 && (
                       <button
                         aria-label="Previous image"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           if (!canPrev) return;
                           const ni = selectedImageIndex - 1;
                           setSelectedImageIndex(ni);
@@ -545,7 +604,8 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                     {galleryImages.length > 1 && (
                       <button
                         aria-label="Next image"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           if (!canNext) return;
                           const ni = selectedImageIndex + 1;
                           setSelectedImageIndex(ni);
@@ -622,7 +682,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             <div className="flex flex-col gap-4 border-t border-[#1d1c12]/10 pt-6">
               <div className="flex gap-6 border-b border-[#1d1c12]/5 pb-2">
                 {[
-                  { value: "heritage", label: "Heritage Details" },
+                  { value: "heritage", label: "Details Legacy" },
                   { value: "materials", label: "Spec Materials" },
                   { value: "sourcing", label: "Ethical Sourcing" }
                 ].map((tab) => (
@@ -694,7 +754,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                     color: "rgba(29,28,18,0.5)",
                   }}
                 >
-                  Reserve This Piece
+                  Add to Cart
                 </span>
                 <span
                   style={{
@@ -794,7 +854,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                         <line x1="3" y1="6" x2="21" y2="6" />
                         <path d="M16 10a4 4 0 01-8 0" />
                       </svg>
-                      Reserve
+                      Add to Cart
                     </>
                   )}
                 </button>
@@ -962,6 +1022,60 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
 
         </div>
       </section>
+
+      {/* Lightbox */}
+      {isLightboxOpen && (
+        <div 
+          className="fixed inset-0 z-[1000] flex flex-col items-center justify-center bg-[#1d1c12]/95 backdrop-blur-sm"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          {/* Close Button */}
+          <button 
+            className="absolute top-6 right-6 text-[#fef9e9] opacity-70 hover:opacity-100 transition-opacity z-[1010]"
+            onClick={() => setIsLightboxOpen(false)}
+            aria-label="Close lightbox"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <line x1="4" y1="4" x2="20" y2="20" />
+              <line x1="20" y1="4" x2="4" y2="20" />
+            </svg>
+          </button>
+          
+          {/* Image Container */}
+          <div 
+            className="relative w-full h-full flex items-center justify-center overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEndHandler}
+          >
+            <img
+              src={selectedImage || product?.image}
+              alt="Zoomed view"
+              className="max-w-full max-h-[80vh] object-contain transition-transform duration-200"
+              style={{ transform: `scale(${zoomLevel})` }}
+            />
+          </div>
+
+          {/* Zoom Slider */}
+          <div 
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 w-64 flex items-center gap-4 bg-[#1d1c12]/50 px-6 py-3 rounded-full border border-[#fef9e9]/10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fef9e9" strokeWidth="2" className="opacity-70"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            <input 
+              type="range" 
+              min="1" 
+              max="3" 
+              step="0.1" 
+              value={zoomLevel}
+              onChange={(e) => setZoomLevel(parseFloat(e.target.value))}
+              className="flex-1 cursor-pointer accent-[#c9a84c]"
+            />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fef9e9" strokeWidth="2" className="opacity-70"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <FooterSection />

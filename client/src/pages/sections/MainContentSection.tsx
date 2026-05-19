@@ -1,3 +1,5 @@
+import { useLocation } from "wouter";
+
 const products = [
   {
     id: "aurelius-band",
@@ -33,6 +35,8 @@ const archiveItems = [
 ];
 
 export const MainContentSection = (): JSX.Element => {
+  const [, setLocation] = useLocation();
+
   return (
     <main className="relative w-full bg-[#fef9e9]">
 
@@ -149,6 +153,7 @@ export const MainContentSection = (): JSX.Element => {
                 data-testid={`card-product-${product.id}`}
                 className="product-card relative overflow-hidden cursor-pointer"
                 style={{ aspectRatio: "3/4" }}
+                onClick={() => setLocation(`/product/${product.id}`)}
               >
                 <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                 <div className="product-card-overlay" />
@@ -168,7 +173,12 @@ export const MainContentSection = (): JSX.Element => {
           {/* Product labels below grid — visible only on lg+ where there's room */}
           <div className="hidden lg:grid grid-cols-3 gap-5 mt-0">
             {products.map((product) => (
-              <div key={`label-${product.id}`} className="pt-4 pb-1" style={{ borderTop: "1px solid rgba(29,28,18,0.09)" }}>
+              <div 
+                key={`label-${product.id}`} 
+                className="pt-4 pb-1 cursor-pointer" 
+                style={{ borderTop: "1px solid rgba(29,28,18,0.09)" }}
+                onClick={() => setLocation(`/product/${product.id}`)}
+              >
                 <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-[#43664b] mb-1" style={{ fontFamily: "'Manrope', sans-serif" }}>{product.category}</p>
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-normal italic text-[#1d1c12]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.name}</h3>

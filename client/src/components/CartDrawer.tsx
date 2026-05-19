@@ -58,7 +58,7 @@ export function CartDrawer() {
                 lineHeight: 1,
               }}
             >
-              Your Atelier
+              Your Cart
             </span>
             <span
               style={{
