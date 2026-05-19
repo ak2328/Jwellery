@@ -12,13 +12,17 @@ interface Product {
   price: string;
   image: string;
   isNew: boolean;
+  gallery?: string[];
 }
 
 const getGalleryImages = (prod: any) => {
   if (prod.gallery && Array.isArray(prod.gallery) && prod.gallery.length > 0) {
     return prod.gallery;
   }
-  if (prod.id === "unisex-gold-bracelet") {
+  
+  const nameLower = prod.name ? prod.name.toLowerCase() : "";
+
+  if (prod.id === "unisex-gold-bracelet" || nameLower === "unisex gold bracelet") {
     return [
       "/products/bracelet-unisex-1.jpg",
       "/products/bracelet-unisex-2.jpg",
@@ -26,7 +30,7 @@ const getGalleryImages = (prod: any) => {
       "/products/bracelet-unisex-4.jpg",
     ];
   }
-  if (prod.id === "pendant-set") {
+  if (prod.id === "pendant-set" || nameLower === "pendant set") {
     return [
       "/products/pendant-pendant-set-1.jpg",
       "/products/pendant-pendant-set-2.jpg",
@@ -34,8 +38,13 @@ const getGalleryImages = (prod: any) => {
       "/products/pendant-pendant-set-4.jpg"
     ];
   }
-  if (prod.id && prod.id.endsWith("-pendant")) {
-    const base = prod.id.replace("-pendant", "");
+  if ((prod.id && prod.id.endsWith("-pendant")) || nameLower.endsWith(" pendant")) {
+    let base = "";
+    if (prod.id && prod.id.endsWith("-pendant")) {
+      base = prod.id.replace("-pendant", "");
+    } else {
+      base = nameLower.replace(" pendant", "").replace(/\s+/g, "-");
+    }
     return [
       `/products/pendant-${base}-pendant-1.jpg`,
       `/products/pendant-${base}-pendant-2.jpg`,

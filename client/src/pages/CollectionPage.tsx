@@ -689,27 +689,6 @@ export const CollectionPage = (): JSX.Element => {
                   ))}
                 </div>
 
-                {/* Labels below grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 mt-8">
-                  {filtered.map((product) => (
-                    <div
-                      key={`label-${product.id}`}
-                      className="pt-4 border-t border-[#1d1c12]/10 hidden lg:block"
-                    >
-                      <div className="flex justify-between items-baseline mb-1">
-                        <h4 style={{ fontFamily: "'Noto Serif', Georgia, serif", fontSize: "14px", fontWeight: 400, color: "#1d1c12" }}>
-                          {product.name}
-                        </h4>
-                        <span style={{ fontFamily: "'Noto Serif', Georgia, serif", fontSize: "13px", color: "#795900" }}>
-                          {product.price}
-                        </span>
-                      </div>
-                      <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: "11px", color: "#1d1c12", opacity: 0.45, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                        {product.category}
-                      </p>
-                    </div>
-                  ))}
-                </div>
               </>
             )}
 

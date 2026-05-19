@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { NavbarSection } from "./sections/NavbarSection";
 import { FooterSection } from "./sections/FooterSection";
 
@@ -96,37 +96,38 @@ export const ContactPage = (): JSX.Element => {
               </svg>
             </a>
 
-            {/* Atelier Locations Cards */}
-            <div className="flex flex-col gap-6">
-              
-              {/* Milan Design Office */}
-              <div className="p-6 border border-[#c9a84c]/10 bg-[#fef9e9]/[0.02] flex flex-col gap-4">
-                <div className="flex justify-between items-baseline border-b border-[#fef9e9]/10 pb-3">
-                  <h4 className="text-sm font-bold tracking-widest text-[#c9a84c] uppercase font-['Manrope',sans-serif]">Milano Atelier</h4>
-                  <span className="text-[9px] tracking-widest text-[#fef9e9]/40 uppercase font-['Manrope',sans-serif]">Design &amp; Consultation</span>
-                </div>
-                <div className="flex flex-col gap-2 text-xs text-[#fef9e9]/70 font-['Manrope',sans-serif] leading-relaxed">
-                  <p>📍 Via Montenapoleone 8, Milan, Italy</p>
-                  <p>✉️ milano@manidoro.com</p>
-                  <p>📞 +39 02 7600 0000</p>
-                  <p>🕒 By Appointment Only (Mon - Sat)</p>
-                </div>
+            {/* Email Contact */}
+            <a
+              href="mailto:concierge@manidoro.com"
+              className="group flex items-center gap-5 p-6 transition-all duration-500 border border-[#c9a84c]/10 bg-[#fef9e9]/[0.02] hover:bg-[#c9a84c]/[0.05] hover:border-[#c9a84c]/30"
+              style={{ textDecoration: "none" }}
+            >
+              <div className="w-12 h-12 rounded-full border border-[#c9a84c]/20 flex items-center justify-center transition-all group-hover:scale-105">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
               </div>
-
-              {/* Kishangarh Heritage Studio */}
-              <div className="p-6 border border-[#c9a84c]/20 bg-[#c9a84c]/[0.03] flex flex-col gap-4">
-                <div className="flex justify-between items-baseline border-b border-[#c9a84c]/20 pb-3">
-                  <h4 className="text-sm font-bold tracking-widest text-[#c9a84c] uppercase font-['Manrope',sans-serif]">Kishangarh Foundry</h4>
-                  <span className="text-[9px] tracking-widest text-[#c9a84c] uppercase font-['Manrope',sans-serif]">Craft &amp; Forging</span>
-                </div>
-                <div className="flex flex-col gap-2 text-xs text-[#fef9e9]/70 font-['Manrope',sans-serif] leading-relaxed">
-                  <p>📍 Madanganj Industrial Area, Kishangarh, Rajasthan, India</p>
-                  <p>✉️ kishangarh@manidoro.com</p>
-                  <p>📞 +91 1463 240000</p>
-                  <p>🕒 Production Center &amp; Marble Showroom</p>
-                </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold tracking-widest text-[#c9a84c] uppercase font-['Manrope',sans-serif]">General Inquiry</span>
+                <span className="text-sm font-normal text-[#fef9e9] mt-0.5">concierge@manidoro.com</span>
               </div>
+            </a>
 
+            {/* Social Links */}
+            <div className="flex flex-col gap-4 pt-6">
+              <h4 className="text-[10px] font-bold tracking-widest text-[#fef9e9]/40 uppercase font-['Manrope',sans-serif]">Follow Our Journey</h4>
+              <div className="flex gap-4">
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-12 h-12 border border-[#fef9e9]/10 hover:border-[#c9a84c] flex items-center justify-center text-[#fef9e9]/60 hover:text-[#c9a84c] hover:bg-[#c9a84c]/5 transition-all rounded-full">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                </a>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-12 h-12 border border-[#fef9e9]/10 hover:border-[#c9a84c] flex items-center justify-center text-[#fef9e9]/60 hover:text-[#c9a84c] hover:bg-[#c9a84c]/5 transition-all rounded-full">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                </a>
+                <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer" className="w-12 h-12 border border-[#fef9e9]/10 hover:border-[#c9a84c] flex items-center justify-center text-[#fef9e9]/60 hover:text-[#c9a84c] hover:bg-[#c9a84c]/5 transition-all rounded-full">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.406.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.72-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.024 0 1.518.769 1.518 1.688 0 1.029-.654 2.568-.993 3.995-.283 1.195.597 2.174 1.776 2.174 2.133 0 3.772-2.25 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.279 1.14c-.038.154-.128.184-.286.11-1.066-.496-1.731-2.053-1.731-3.303 0-2.686 1.952-5.155 5.632-5.155 2.96 0 5.264 2.112 5.264 4.933 0 2.942-1.854 5.312-4.428 5.312-.865 0-1.68-.45-1.958-.981l-.534 2.036c-.193.738-.716 1.661-1.067 2.225C10.054 23.856 11 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+                </a>
+              </div>
             </div>
 
           </div>
@@ -167,28 +168,7 @@ export const ContactPage = (): JSX.Element => {
                   </p>
                 </div>
 
-                {/* Nature of Enquiry Tabs */}
-                <div className="flex flex-col gap-2.5">
-                  <span className="text-[9px] font-bold tracking-widest text-[#c9a84c] uppercase font-['Manrope',sans-serif]">
-                    Inquiry Directive
-                  </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {["Bespoke Commission", "Milano Appointment", "Kishangarh Tour", "Press Directive"].map((opt) => (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() => setForm(f => ({ ...f, interest: opt.toLowerCase() }))}
-                        className={`py-3 px-2 text-[10px] font-bold tracking-wider uppercase border transition-all text-center font-['Manrope',sans-serif] ${
-                          form.interest === opt.toLowerCase()
-                            ? "bg-[#c9a84c]/10 border-[#c9a84c] text-[#c9a84c]"
-                            : "bg-[#fef9e9]/5 border-transparent text-[#fef9e9]/50 hover:border-[#fef9e9]/20 hover:text-[#fef9e9]/80"
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+
 
                 {/* Form Fields */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -247,59 +227,6 @@ export const ContactPage = (): JSX.Element => {
 
               </form>
             )}
-          </div>
-
-        </div>
-      </section>
-
-      {/* ── INTERACTIVE KISHANGARH MAP SECTION ──────────────── */}
-      <section className="w-full bg-[#10110c] py-24 border-t border-[#c9a84c]/10">
-        <div className="mx-auto max-w-[1280px] px-4 sm:px-8 flex flex-col gap-10">
-          
-          {/* Map Header details */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-[#fef9e9]/10 pb-10">
-            <div className="flex flex-col gap-3">
-              <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#c9a84c] font-['Manrope',sans-serif]">
-                Heritage Location
-              </span>
-              <h2
-                className="text-3xl md:text-4xl font-normal text-[#fef9e9]"
-                style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
-              >
-                The Kishangarh Foundry, <br />
-                <span className="italic text-[#c9a84c]">Rajasthan, India</span>
-              </h2>
-            </div>
-            
-            <p className="text-xs text-[#fef9e9]/50 max-w-[420px] leading-relaxed font-['Manrope',sans-serif]">
-              Nestled in Rajasthan’s historical white-marble core, our forging foundry is surrounded by generations of master stone carvers, goldsmiths, and painters. All raw casting takes place here, infusing local architectural symmetry into every golden curve.
-            </p>
-          </div>
-
-          {/* Styled Luxury Dark-Filter Google Map */}
-          <div className="relative w-full aspect-[21/9] min-h-[300px] border border-[#c9a84c]/20 overflow-hidden bg-[#151710]">
-            <iframe
-              src="https://maps.google.com/maps?q=Kishangarh,Rajasthan,India&t=m&z=12&ie=UTF8&iwloc=&output=embed"
-              width="100%"
-              height="100%"
-              title="Kishangarh, Rajasthan, India Location Map"
-              style={{
-                border: 0,
-                filter: "grayscale(1) invert(0.92) sepia(0.35) hue-rotate(22deg) brightness(0.85) contrast(1.15)"
-              }}
-              allowFullScreen={false}
-              loading="lazy"
-            />
-            
-            {/* Elegant compass ornament / overlay details on map */}
-            <div className="absolute bottom-6 left-6 p-4 bg-[#10110c]/90 border border-[#c9a84c]/30 backdrop-blur-md hidden sm:flex flex-col gap-1.5 font-['Manrope',sans-serif]">
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c] animate-pulse" />
-                <span className="text-[10px] font-bold tracking-widest text-[#fef9e9] uppercase">Mani D'Oro Foundry</span>
-              </div>
-              <span className="text-[9px] text-[#fef9e9]/60 uppercase">Co-ordinates: 26.5724° N, 74.8638° E</span>
-              <span className="text-[9px] text-[#c9a84c] uppercase">Rajasthan Heritage Guild #MT-400</span>
-            </div>
           </div>
 
         </div>
