@@ -542,9 +542,13 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                     <img
                       src={selectedImage || product.image}
                       alt={product.name}
-                      className="w-full h-full object-cover transition-all duration-700"
+                      onContextMenu={(e) => e.preventDefault()}
+                      onDragStart={(e) => e.preventDefault()}
+                      className="w-full h-full object-cover transition-all duration-700 select-none pointer-events-none"
                       style={{ filter: "brightness(0.97) contrast(1.01)" }}
                     />
+                    {/* Transparent Overlay for Copy Protection */}
+                    <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
                     
                     {/* Watermark Logo */}
                     <div className="absolute bottom-6 right-6 w-16 opacity-30 pointer-events-none z-10 mix-blend-overlay sm:mix-blend-normal">
@@ -1066,9 +1070,13 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             <img
               src={selectedImage || product?.image}
               alt="Zoomed view"
-              className="max-w-full max-h-[80vh] object-contain transition-transform duration-200"
+              onContextMenu={(e) => e.preventDefault()}
+              onDragStart={(e) => e.preventDefault()}
+              className="max-w-full max-h-[80vh] object-contain transition-transform duration-200 select-none pointer-events-none"
               style={{ transform: `scale(${zoomLevel})` }}
             />
+            {/* Transparent Overlay for Copy Protection */}
+            <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
             
             {/* Watermark Logo */}
             <div className="absolute bottom-10 right-10 w-24 opacity-20 pointer-events-none z-[1010]">

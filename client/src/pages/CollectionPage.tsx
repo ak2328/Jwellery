@@ -639,8 +639,12 @@ export const CollectionPage = (): JSX.Element => {
                       <img
                         src={product.image}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
+                        onContextMenu={(e) => e.preventDefault()}
+                        onDragStart={(e) => e.preventDefault()}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103 select-none pointer-events-none"
                       />
+                      {/* Transparent Overlay for Copy Protection */}
+                      <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
                       {/* Watermark Logo */}
                       <div className="absolute top-4 right-4 w-12 opacity-[0.25] pointer-events-none z-10 transition-opacity duration-500 group-hover:opacity-0 mix-blend-multiply sm:mix-blend-normal filter contrast-125 brightness-75">
                         <img src="/logo.png" alt="Mani D'Oro" className="w-full h-auto drop-shadow-md" />
