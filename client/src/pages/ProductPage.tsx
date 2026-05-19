@@ -545,6 +545,11 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                       className="w-full h-full object-cover transition-all duration-700"
                       style={{ filter: "brightness(0.97) contrast(1.01)" }}
                     />
+                    
+                    {/* Watermark Logo */}
+                    <div className="absolute bottom-6 right-6 w-16 opacity-30 pointer-events-none z-10 mix-blend-overlay sm:mix-blend-normal">
+                      <img src="/logo.png" alt="Mani D'Oro" className="w-full h-auto drop-shadow-md" />
+                    </div>
 
                     {/* Corner accent lines */}
                     <div className="absolute top-4 left-4 w-4 h-4 border-t border-l border-[#c9a84c]/50" />
@@ -1064,6 +1069,11 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
               className="max-w-full max-h-[80vh] object-contain transition-transform duration-200"
               style={{ transform: `scale(${zoomLevel})` }}
             />
+            
+            {/* Watermark Logo */}
+            <div className="absolute bottom-10 right-10 w-24 opacity-20 pointer-events-none z-[1010]">
+              <img src="/logo.png" alt="Mani D'Oro" className="w-full h-auto drop-shadow-2xl" />
+            </div>
           </div>
 
           {/* Zoom Slider */}

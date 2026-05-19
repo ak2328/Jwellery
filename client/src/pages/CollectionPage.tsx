@@ -641,6 +641,10 @@ export const CollectionPage = (): JSX.Element => {
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
                       />
+                      {/* Watermark Logo */}
+                      <div className="absolute top-4 right-4 w-12 opacity-[0.25] pointer-events-none z-10 transition-opacity duration-500 group-hover:opacity-0 mix-blend-multiply sm:mix-blend-normal filter contrast-125 brightness-75">
+                        <img src="/logo.png" alt="Mani D'Oro" className="w-full h-auto drop-shadow-md" />
+                      </div>
                       <div className="product-card-overlay" />
                       <div className="product-card-details">
                         <p
