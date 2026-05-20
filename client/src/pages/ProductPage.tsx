@@ -24,7 +24,7 @@ const getGalleryImages = (prod: any) => {
 
   if (prod.id === "unisex-gold-bracelet" || nameLower === "unisex gold bracelet") {
     return [
-      "/products/bracelet-unisex-2.jpg",
+      "/products/new-bracelet.png",
       "/products/bracelet-unisex-1.jpg",
       "/products/bracelet-unisex-3.jpg",
       "/products/bracelet-unisex-4.jpg",
@@ -45,12 +45,21 @@ const getGalleryImages = (prod: any) => {
     } else {
       base = nameLower.replace(" pendant", "").replace(/\s+/g, "-");
     }
-    if (base === "bar" || base === "fish") {
+    if (base === "bar") {
       return [
-        `/products/pendant-${base}-1.jpg`,
-        `/products/pendant-${base}-2.jpg`,
-        `/products/pendant-${base}-3.jpg`,
-        `/products/pendant-${base}-4.jpg`,
+        `/products/new-bar-pendant.jpg`,
+        `/products/pendant-bar-2.jpg`,
+        `/products/pendant-bar-3.jpg`,
+        `/products/pendant-bar-4.jpg`,
+      ];
+    }
+    
+    if (base === "fish") {
+      return [
+        `/products/new-fish-pendant.png`,
+        `/products/pendant-fish-2.jpg`,
+        `/products/pendant-fish-3.jpg`,
+        `/products/pendant-fish-4.jpg`,
       ];
     }
     
@@ -107,9 +116,9 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
 
         if (!error && data) {
           let customImage = data.image;
-          if (data.id === 'bar-pendant') customImage = '/products/pendant-bar-1.jpg';
-          if (data.id === 'fish-pendant') customImage = '/products/pendant-fish-1.jpg';
-          if (data.id === 'unisex-gold-bracelet') customImage = '/products/bracelet-unisex-2.jpg';
+          if (data.id === 'bar-pendant') customImage = '/products/new-bar-pendant.jpg';
+          if (data.id === 'fish-pendant') customImage = '/products/new-fish-pendant.png';
+          if (data.id === 'unisex-gold-bracelet') customImage = '/products/new-bracelet.png';
 
           setProduct({
             id: data.id,
