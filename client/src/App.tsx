@@ -11,6 +11,7 @@ import { ContactPage } from "@/pages/ContactPage";
 import { BespokePage } from "@/pages/BespokePage";
 import { ProductPage } from "@/pages/ProductPage";
 import { AdminPage } from "@/pages/AdminPage";
+import { ArchivePage } from "@/pages/ArchivePage";
 import { CartProvider } from "@/lib/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
 
@@ -23,6 +24,7 @@ function AppRoutes() {
       <Route path="/bespoke" component={BespokePage} />
       <Route path="/product/:id" component={ProductPage} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/archive" component={ArchivePage} />
       <Route component={NotFound} />
     </Switch>
   );

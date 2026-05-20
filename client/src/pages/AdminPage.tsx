@@ -570,12 +570,169 @@ function SettingsTab() {
   );
 }
 
+// ─── ARCHIVE MODAL ──────────────────────────────────────────────────────────
+interface ArchiveItem {
+  id: string;
+  title: string;
+  year: string;
+  materials: string;
+  status: string;
+  image: string;
+  description: string;
+  sort_order: number;
+}
+
+const ARCHIVE_STATUSES = ["Acquired", "Private Collection", "On Display"];
+
+function ArchiveModal({ item, onClose, onSaved }: { item?: ArchiveItem | null; onClose: () => void; onSaved: () => void }) {
+  const isEdit = !!item;
+  const [form, setForm] = useState({
+    title: item?.title || "",
+    year: item?.year || new Date().getFullYear().toString(),
+    materials: item?.materials || "",
+    status: item?.status || "Private Collection",
+    image: item?.image || "",
+    description: item?.description || "",
+    sort_order: item?.sort_order ?? 0,
+  });
+  const [saving, setSaving] = useState(false);
+  const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
+  const fS = { background: "rgba(254,249,233,0.05)", border: "1px solid rgba(201,168,76,0.2)", color: "#fef9e9", padding: "10px 12px", fontFamily: "'Manrope', sans-serif", fontSize: 13, outline: "none", width: "100%", boxSizing: "border-box" as const };
+  const lS = { fontSize: 11, fontWeight: 700 as const, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(254,249,233,0.5)", fontFamily: "'Manrope', sans-serif", display: "block", marginBottom: 6 };
+
+  const handleSave = async () => {
+    if (!form.title || !form.year) { alert("Please fill Title and Year."); return; }
+    setSaving(true);
+    try {
+      const payload = { title: form.title, year: form.year, materials: form.materials, status: form.status, image: form.image, description: form.description, sort_order: form.sort_order };
+      if (isEdit && item) {
+        const { error } = await supabase.from("archive_items").update(payload).eq("id", item.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("archive_items").insert(payload);
+        if (error) throw error;
+      }
+      onSaved();
+      onClose();
+    } catch (e: any) { alert("Save failed: " + e.message); }
+    setSaving(false);
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div style={{ background: "#1a1908", border: "1px solid rgba(201,168,76,0.25)", width: "100%", maxWidth: 580, maxHeight: "90vh", overflowY: "auto", padding: 32 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <h2 style={{ fontFamily: "'Noto Serif', serif", fontSize: 20, color: "#fef9e9", fontWeight: 400, margin: 0 }}>{isEdit ? "Edit Archive Item" : "New Archive Item"}</h2>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(254,249,233,0.4)", cursor: "pointer", fontSize: 20 }}>✕</button>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div style={{ gridColumn: "1 / -1" }}><label style={lS}>Title</label><input value={form.title} onChange={e => set("title", e.target.value)} placeholder="e.g. Solaris Torque" style={fS} /></div>
+          <div><label style={lS}>Year</label><input value={form.year} onChange={e => set("year", e.target.value)} placeholder="2024" style={fS} /></div>
+          <div><label style={lS}>Status</label><select value={form.status} onChange={e => set("status", e.target.value)} style={{ ...fS, background: "#1a1908" }}>{ARCHIVE_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
+          <div style={{ gridColumn: "1 / -1" }}><label style={lS}>Materials</label><input value={form.materials} onChange={e => set("materials", e.target.value)} placeholder="e.g. 22k Yellow Gold, Colombian Emerald" style={fS} /></div>
+          <div style={{ gridColumn: "1 / -1" }}><label style={lS}>Description</label><textarea rows={3} value={form.description} onChange={e => set("description", e.target.value)} placeholder="Brief editorial description…" style={{ ...fS, resize: "vertical" }} /></div>
+          <div><label style={lS}>Sort Order (lower = first)</label><input type="number" value={form.sort_order} onChange={e => set("sort_order", parseInt(e.target.value) || 0)} style={fS} /></div>
+          <div style={{ gridColumn: "1 / -1" }}><ImageUploader label="Image" current={form.image} onUploaded={url => set("image", url as string)} /></div>
+        </div>
+        <div style={{ display: "flex", gap: 10, marginTop: 24, justifyContent: "flex-end" }}>
+          <button onClick={onClose} style={{ padding: "10px 22px", background: "none", border: "1px solid rgba(254,249,233,0.2)", color: "rgba(254,249,233,0.6)", cursor: "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase" }}>Cancel</button>
+          <button onClick={handleSave} disabled={saving} style={{ padding: "10px 26px", background: saving ? "rgba(201,168,76,0.4)" : "#c9a84c", border: "none", color: "#1d1c12", cursor: saving ? "not-allowed" : "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{saving ? "Saving…" : isEdit ? "Save Changes" : "Add to Archive"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── ARCHIVE TAB ──────────────────────────────────────────────────────────────
+function ArchiveTab() {
+  const [items, setItems] = useState<ArchiveItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState<{ open: boolean; item?: ArchiveItem | null }>({ open: false });
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (msg: string, type: "success" | "error" = "success") => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
+
+  const load = async () => {
+    setLoading(true);
+    const { data } = await supabase.from("archive_items").select("*").order("sort_order", { ascending: true });
+    setItems((data || []) as ArchiveItem[]);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("archive_items").delete().eq("id", id);
+    if (error) { showToast("Delete failed: " + error.message, "error"); return; }
+    showToast("Archive item deleted."); setDeleteConfirm(null); load();
+  };
+
+  const stColor = (s: string) => {
+    if (s === "Acquired") return { bg: "rgba(201,168,76,0.2)", c: "#c9a84c" };
+    if (s === "On Display") return { bg: "rgba(74,124,89,0.2)", c: "#6bc47d" };
+    return { bg: "rgba(254,249,233,0.08)", c: "rgba(254,249,233,0.6)" };
+  };
+
+  return (
+    <div>
+      {toast && <Toast msg={toast.msg} type={toast.type} />}
+      {modal.open && <ArchiveModal item={modal.item} onClose={() => setModal({ open: false })} onSaved={() => { showToast(modal.item ? "Item updated!" : "Item added!"); load(); }} />}
+      {deleteConfirm && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "#1a1908", border: "1px solid rgba(201,168,76,0.2)", padding: 32, maxWidth: 400, textAlign: "center" }}>
+            <p style={{ fontFamily: "'Manrope', sans-serif", color: "#fef9e9", marginBottom: 20 }}>Delete this archive item?</p>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ padding: "8px 20px", background: "none", border: "1px solid rgba(254,249,233,0.2)", color: "#fef9e9", cursor: "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 12 }}>Cancel</button>
+              <button onClick={() => handleDelete(deleteConfirm!)} style={{ padding: "8px 20px", background: "#7f1d1d", border: "none", color: "#fff", cursor: "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 12, fontWeight: 700 }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, gap: 16, flexWrap: "wrap" }}>
+        <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 12, color: "rgba(254,249,233,0.35)", margin: 0 }}>{items.length} archive items</p>
+        <button onClick={() => setModal({ open: true, item: null })} style={{ padding: "10px 24px", background: "#c9a84c", border: "none", color: "#1d1c12", cursor: "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" }}>+ Add Archive Item</button>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: "center", padding: 60, color: "rgba(254,249,233,0.4)", fontFamily: "'Manrope', sans-serif" }}>Loading…</div>
+      ) : items.length === 0 ? (
+        <div style={{ textAlign: "center", padding: 60, color: "rgba(254,249,233,0.3)", fontFamily: "'Manrope', sans-serif" }}>No archive items yet. Add your first piece above.</div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
+          {items.map(item => {
+            const sc = stColor(item.status);
+            return (
+              <div key={item.id} style={{ background: "rgba(254,249,233,0.03)", border: "1px solid rgba(201,168,76,0.15)", overflow: "hidden", transition: "border-color 0.2s" }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.5)")}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(201,168,76,0.15)")}>
+                {item.image && <div style={{ aspectRatio: "4/3", overflow: "hidden", background: "#111" }}><img src={item.image} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>}
+                <div style={{ padding: "14px 16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                    <p style={{ fontFamily: "'Noto Serif', serif", fontSize: 14, color: "#fef9e9", margin: 0, fontWeight: 400 }}>{item.title}</p>
+                    <span style={{ fontSize: 9, fontWeight: 700, background: sc.bg, color: sc.c, padding: "2px 6px", letterSpacing: "0.08em", whiteSpace: "nowrap" }}>{item.status}</span>
+                  </div>
+                  <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 11, color: "rgba(254,249,233,0.4)", margin: "0 0 10px" }}>{item.year} · {item.materials}</p>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={() => setModal({ open: true, item })} style={{ flex: 1, padding: "7px 0", background: "none", border: "1px solid rgba(201,168,76,0.3)", color: "#c9a84c", cursor: "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Edit</button>
+                    <button onClick={() => setDeleteConfirm(item.id)} style={{ padding: "7px 12px", background: "none", border: "1px solid rgba(239,68,68,0.3)", color: "rgba(239,68,68,0.7)", cursor: "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 11 }}>✕</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── MAIN ADMIN PAGE ──────────────────────────────────────────────────────────
 export const AdminPage = (): JSX.Element => {
   const [authed, setAuthed] = useState(() => localStorage.getItem("admin_authed") === "1");
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
-  const [activeTab, setActiveTab] = useState<"products" | "settings">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "archive" | "settings">("products");
 
   const login = () => {
     if (pw === ADMIN_PASSWORD) {
@@ -634,6 +791,7 @@ export const AdminPage = (): JSX.Element => {
   // ── DASHBOARD ─────────────────────────────────────────────────────────────
   const tabs = [
     { id: "products", label: "Products", icon: "◈" },
+    { id: "archive", label: "Archive", icon: "◎" },
     { id: "settings", label: "Site Settings", icon: "⚙" },
   ] as const;
 
@@ -672,14 +830,15 @@ export const AdminPage = (): JSX.Element => {
       <main style={{ flex: 1, padding: "40px 40px", overflowY: "auto" }}>
         <div style={{ marginBottom: 32, borderBottom: "1px solid rgba(201,168,76,0.1)", paddingBottom: 20 }}>
           <h1 style={{ fontFamily: "'Noto Serif', serif", fontSize: 28, color: "#fef9e9", fontWeight: 400, margin: "0 0 4px" }}>
-            {activeTab === "products" ? "Products" : "Site Settings"}
+            {activeTab === "products" ? "Products" : activeTab === "archive" ? "The Archive" : "Site Settings"}
           </h1>
           <p style={{ fontSize: 12, color: "rgba(254,249,233,0.35)", margin: 0, letterSpacing: "0.05em" }}>
-            {activeTab === "products" ? "Add, edit, or remove products and their images" : "Update contact info and social links"}
+            {activeTab === "products" ? "Add, edit, or remove products and their images" : activeTab === "archive" ? "Manage past and exhibited pieces" : "Update contact info and social links"}
           </p>
         </div>
 
         {activeTab === "products" && <ProductsTab />}
+        {activeTab === "archive" && <ArchiveTab />}
         {activeTab === "settings" && <SettingsTab />}
       </main>
     </div>

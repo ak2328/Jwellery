@@ -40,12 +40,13 @@ export const NavbarSection = (): JSX.Element => {
 
   const isCollection = location === "/collection";
   const isBespoke = location === "/bespoke";
+  const isArchive = location === "/archive";
   const isContact = location === "/contact";
 
   const navLinks = [
     { href: "/collection", label: "Collection", active: isCollection },
     { href: "/bespoke", label: "Bespoke", active: isBespoke },
-    { href: "/#archive", label: "The Archive", active: false },
+    { href: "/archive", label: "The Archive", active: isArchive },
     { href: "/#story", label: "The Story", active: false },
     { href: "#", label: "Journal", active: false },
     { href: "/contact", label: "Contact", active: isContact },
@@ -93,11 +94,11 @@ export const NavbarSection = (): JSX.Element => {
             Bespoke
           </a>
           <a
-            href="/#archive"
+            href="/archive"
             data-testid="link-nav-archive"
-            style={linkStyle()}
+            style={linkStyle(isArchive)}
             onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={e => (e.currentTarget.style.opacity = "0.55")}
+            onMouseLeave={e => (e.currentTarget.style.opacity = isArchive ? "1" : "0.55")}
           >
             The Archive
           </a>
