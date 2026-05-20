@@ -12,6 +12,9 @@ import { BespokePage } from "@/pages/BespokePage";
 import { ProductPage } from "@/pages/ProductPage";
 import { AdminPage } from "@/pages/AdminPage";
 import { ArchivePage } from "@/pages/ArchivePage";
+import { StoryPage } from "@/pages/StoryPage";
+import { JournalPage } from "@/pages/JournalPage";
+import { ShippingPage, ReturnsPage, PrivacyPage, TermsPage } from "@/pages/PolicyPages";
 import { CartProvider } from "@/lib/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
 
@@ -25,6 +28,12 @@ function AppRoutes() {
       <Route path="/product/:id" component={ProductPage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/archive" component={ArchivePage} />
+      <Route path="/story" component={StoryPage} />
+      <Route path="/journal" component={JournalPage} />
+      <Route path="/shipping" component={ShippingPage} />
+      <Route path="/returns" component={ReturnsPage} />
+      <Route path="/privacy" component={PrivacyPage} />
+      <Route path="/terms" component={TermsPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -41,14 +41,16 @@ export const NavbarSection = (): JSX.Element => {
   const isCollection = location === "/collection";
   const isBespoke = location === "/bespoke";
   const isArchive = location === "/archive";
+  const isStory = location === "/story";
+  const isJournal = location === "/journal";
   const isContact = location === "/contact";
 
   const navLinks = [
     { href: "/collection", label: "Collection", active: isCollection },
     { href: "/bespoke", label: "Bespoke", active: isBespoke },
     { href: "/archive", label: "The Archive", active: isArchive },
-    { href: "/#story", label: "The Story", active: false },
-    { href: "#", label: "Journal", active: false },
+    { href: "/story", label: "The Story", active: isStory },
+    { href: "/journal", label: "Journal", active: isJournal },
     { href: "/contact", label: "Contact", active: isContact },
   ];
 
@@ -173,20 +175,20 @@ export const NavbarSection = (): JSX.Element => {
           style={{ display: undefined, alignItems: "center", gap: "32px" }}
         >
           <a
-            href="/#story"
+            href="/story"
             data-testid="link-nav-the-story"
-            style={linkStyle()}
+            style={linkStyle(isStory)}
             onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={e => (e.currentTarget.style.opacity = "0.55")}
+            onMouseLeave={e => (e.currentTarget.style.opacity = isStory ? "1" : "0.55")}
           >
             The Story
           </a>
           <a
-            href="#"
+            href="/journal"
             data-testid="link-nav-journal"
-            style={linkStyle()}
+            style={linkStyle(isJournal)}
             onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={e => (e.currentTarget.style.opacity = "0.55")}
+            onMouseLeave={e => (e.currentTarget.style.opacity = isJournal ? "1" : "0.55")}
           >
             Journal
           </a>
