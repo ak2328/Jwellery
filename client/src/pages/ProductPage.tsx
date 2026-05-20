@@ -9,10 +9,17 @@ interface Product {
   category: string;
   name: string;
   description: string;
+  long_description?: string;
   price: string;
   image: string;
   isNew: boolean;
   gallery?: string[];
+  details_bullets?: string[];
+  materials_bullets?: string[];
+  sourcing_bullets?: string[];
+  shipping_note?: string;
+  size_options?: string[];
+  whatsapp_number?: string;
 }
 
 const getGalleryImages = (prod: any) => {
@@ -132,10 +139,17 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             category: data.categories?.name || data.category || "Pendants",
             name: data.name,
             description: data.description,
+            long_description: data.long_description || "",
             price: `₹${Number(data.price).toLocaleString("en-IN")}`,
             image: customImage,
             isNew: data.is_new,
-            gallery
+            gallery,
+            details_bullets: data.details_bullets || [],
+            materials_bullets: data.materials_bullets || [],
+            sourcing_bullets: data.sourcing_bullets || [],
+            shipping_note: data.shipping_note || "",
+            size_options: data.size_options || [],
+            whatsapp_number: data.whatsapp_number || "",
           });
           setLoading(false);
           return;
@@ -731,7 +745,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                 {product.description}
               </p>
               <p className="text-xs text-[#1d1c12]/50 leading-relaxed font-['Manrope',sans-serif]">
-                Crafted entirely by hand under the direct oversight of Creative Director Alessandra Oro. Imprinted with the signature hammered patina of Mani D'Oro, each piece holds microscopic, unique variations that record its slow creation.
+                {product.long_description || "Crafted entirely by hand under the direct oversight of Creative Director Alessandra Oro. Imprinted with the signature hammered patina of Mani D'Oro, each piece holds microscopic, unique variations that record its slow creation."}
               </p>
             </div>
 
@@ -764,26 +778,41 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
               <div className="text-xs text-[#1d1c12]/70 leading-relaxed font-['Manrope',sans-serif] min-h-[120px]">
                 {activeTab === "heritage" && (
                   <ul className="list-disc pl-4 flex flex-col gap-2">
-                    <li>Individually hammered at temperatures exceeding 1,000°C in our Kishangarh foundry.</li>
-                    <li>Slight structural variations ensure zero duplicates exist worldwide.</li>
-                    <li>Officially registered in the Mani D'Oro historical archives.</li>
-                    <li>Accompanied by original hand-drawn gouache sketching prints.</li>
+                    {(product.details_bullets && product.details_bullets.length > 0
+                      ? product.details_bullets
+                      : [
+                          "Individually hammered at temperatures exceeding 1,000°C in our Kishangarh foundry.",
+                          "Slight structural variations ensure zero duplicates exist worldwide.",
+                          "Officially registered in the Mani D'Oro historical archives.",
+                          "Accompanied by original hand-drawn gouache sketching prints."
+                        ]
+                    ).map((b: string, i: number) => <li key={i}>{b}</li>)}
                   </ul>
                 )}
                 {activeTab === "materials" && (
                   <ul className="list-disc pl-4 flex flex-col gap-2">
-                    <li>Solid high-carat Yellow Gold or custom blended 18k Red-Gold.</li>
-                    <li>Signature low-reflective satin patina.</li>
-                    <li>Gemstones cut with antique step-cut facets for warm internal glows.</li>
-                    <li>Stamped with the official atelier hallmark of Milanese excellence.</li>
+                    {(product.materials_bullets && product.materials_bullets.length > 0
+                      ? product.materials_bullets
+                      : [
+                          "Solid high-carat Yellow Gold or custom blended 18k Red-Gold.",
+                          "Signature low-reflective satin patina.",
+                          "Gemstones cut with antique step-cut facets for warm internal glows.",
+                          "Stamped with the official atelier hallmark of Milanese excellence."
+                        ]
+                    ).map((b: string, i: number) => <li key={i}>{b}</li>)}
                   </ul>
                 )}
                 {activeTab === "sourcing" && (
                   <ul className="list-disc pl-4 flex flex-col gap-2">
-                    <li>Ethically mined gold in partnership with certified artisanal small-scale miners.</li>
-                    <li>Gemstones are fully traceable from mine-to-market with Kimberly certificates.</li>
-                    <li>Recycled metal components to minimize planetary footprints.</li>
-                    <li>Direct fair-trade wages paid to local craftsmen in Milano and Rajasthan.</li>
+                    {(product.sourcing_bullets && product.sourcing_bullets.length > 0
+                      ? product.sourcing_bullets
+                      : [
+                          "Ethically mined gold in partnership with certified artisanal small-scale miners.",
+                          "Gemstones are fully traceable from mine-to-market with Kimberly certificates.",
+                          "Recycled metal components to minimize planetary footprints.",
+                          "Direct fair-trade wages paid to local craftsmen in Milano and Rajasthan."
+                        ]
+                    ).map((b: string, i: number) => <li key={i}>{b}</li>)}
                   </ul>
                 )}
               </div>
@@ -860,10 +889,10 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                     paddingRight: "32px",
                   }}
                 >
-                  <option value="Small">Small (5–6 US Ring / 15cm wrist)</option>
-                  <option value="Standard">Standard (7 US Ring / 17cm wrist)</option>
-                  <option value="Large">Large (8–9 US Ring / 19cm wrist)</option>
-                  <option value="Custom">Custom Sizing — specify in notes</option>
+                  {(product.size_options && product.size_options.length > 0
+                    ? product.size_options
+                    : ["Small (5–6 US Ring / 15cm wrist)", "Standard (7 US Ring / 17cm wrist)", "Large (8–9 US Ring / 19cm wrist)", "Custom Sizing — specify in notes"]
+                  ).map((s: string) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
 
@@ -971,7 +1000,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                   letterSpacing: "0.1em",
                 }}
               >
-                Handcrafted to order · 4–6 weeks · Free worldwide shipping
+                {product.shipping_note || "Handcrafted to order · 4–6 weeks · Free worldwide shipping"}
               </p>
             </div>
 

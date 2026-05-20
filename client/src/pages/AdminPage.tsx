@@ -9,9 +9,15 @@ interface Product {
   category: string;
   price: string | number;
   description: string;
+  long_description?: string;
   image: string;
   is_new: boolean;
   gallery?: string[];
+  details_bullets?: string[];
+  materials_bullets?: string[];
+  sourcing_bullets?: string[];
+  shipping_note?: string;
+  size_options?: string[];
 }
 
 interface SiteSetting {
@@ -114,6 +120,29 @@ function ImageUploader({
   );
 }
 
+// ─── BULLET LIST EDITOR ──────────────────────────────────────────────────────
+function BulletEditor({ label, value, onChange }: { label: string; value: string[]; onChange: (v: string[]) => void }) {
+  const L = { fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(254,249,233,0.5)", fontFamily: "'Manrope', sans-serif", marginBottom: 8, display: "block" };
+  const I = { background: "rgba(254,249,233,0.05)", border: "1px solid rgba(201,168,76,0.15)", color: "#fef9e9", padding: "8px 10px", fontFamily: "'Manrope', sans-serif", fontSize: 12, outline: "none", flex: 1 };
+  const rows = value.length > 0 ? value : ["", "", "", ""];
+  const update = (i: number, v: string) => { const n = [...rows]; n[i] = v; onChange(n.filter((_,j) => j < rows.length)); };
+  const add = () => onChange([...rows, ""]);
+  const remove = (i: number) => onChange(rows.filter((_, j) => j !== i));
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <label style={L}>{label}</label>
+      {rows.map((r, i) => (
+        <div key={i} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <span style={{ color: "rgba(201,168,76,0.4)", fontSize: 11, width: 14, flexShrink: 0 }}>•</span>
+          <input value={r} onChange={e => update(i, e.target.value)} placeholder={`Point ${i + 1}…`} style={I} />
+          {rows.length > 1 && <button onClick={() => remove(i)} style={{ background: "none", border: "none", color: "rgba(239,68,68,0.5)", cursor: "pointer", fontSize: 14, padding: "0 4px" }}>✕</button>}
+        </div>
+      ))}
+      <button onClick={add} style={{ alignSelf: "flex-start", background: "none", border: "1px dashed rgba(201,168,76,0.3)", color: "rgba(201,168,76,0.5)", cursor: "pointer", fontSize: 11, padding: "4px 10px", fontFamily: "'Manrope', sans-serif" }}>+ Add bullet</button>
+    </div>
+  );
+}
+
 // ─── PRODUCT FORM MODAL ──────────────────────────────────────────────────────
 function ProductModal({
   product, onClose, onSaved
@@ -128,11 +157,18 @@ function ProductModal({
     category: product?.category || CATEGORIES[0],
     price: product?.price?.toString().replace(/[₹$,]/g, "") || "",
     description: product?.description || "",
+    long_description: product?.long_description || "",
     image: product?.image || "",
     gallery: product?.gallery || [],
     is_new: product?.is_new ?? true,
+    details_bullets: product?.details_bullets || ["", "", "", ""],
+    materials_bullets: product?.materials_bullets || ["", "", "", ""],
+    sourcing_bullets: product?.sourcing_bullets || ["", "", "", ""],
+    shipping_note: product?.shipping_note || "",
+    size_options: product?.size_options?.join("\n") || "",
   });
   const [saving, setSaving] = useState(false);
+  const [section, setSection] = useState<"basic" | "content" | "tabs" | "cart" | "images">("basic");
 
   const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
 
@@ -148,10 +184,16 @@ function ProductModal({
         category: form.category,
         price: parseFloat(form.price.replace(/[^0-9.]/g, "")),
         description: form.description,
+        long_description: form.long_description,
         image: form.image,
         gallery: form.gallery,
         is_new: form.is_new,
         is_active: true,
+        details_bullets: form.details_bullets.filter(b => b.trim()),
+        materials_bullets: form.materials_bullets.filter(b => b.trim()),
+        sourcing_bullets: form.sourcing_bullets.filter(b => b.trim()),
+        shipping_note: form.shipping_note,
+        size_options: form.size_options.split("\n").map(s => s.trim()).filter(Boolean),
       };
 
       if (isEdit && product) {
@@ -170,91 +212,171 @@ function ProductModal({
     setSaving(false);
   };
 
-  const inp = (label: string, key: string, type = "text", full = false) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: full ? "1 / -1" : "auto" }}>
-      <label style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(254,249,233,0.5)", fontFamily: "'Manrope', sans-serif" }}>{label}</label>
-      {key === "description" ? (
-        <textarea
-          rows={3}
-          value={(form as any)[key]}
-          onChange={e => set(key, e.target.value)}
-          style={{ background: "rgba(254,249,233,0.05)", border: "1px solid rgba(201,168,76,0.2)", color: "#fef9e9", padding: "10px 12px", fontFamily: "'Manrope', sans-serif", fontSize: 13, resize: "vertical", outline: "none" }}
-        />
-      ) : (
-        <input
-          type={type}
-          value={(form as any)[key]}
-          onChange={e => set(key, e.target.value)}
-          style={{ background: "rgba(254,249,233,0.05)", border: "1px solid rgba(201,168,76,0.2)", color: "#fef9e9", padding: "10px 12px", fontFamily: "'Manrope', sans-serif", fontSize: 13, outline: "none" }}
-        />
-      )}
-    </div>
-  );
+  const fieldStyle = { background: "rgba(254,249,233,0.05)", border: "1px solid rgba(201,168,76,0.2)", color: "#fef9e9", padding: "10px 12px", fontFamily: "'Manrope', sans-serif", fontSize: 13, outline: "none", width: "100%", boxSizing: "border-box" as const };
+  const labelStyle = { fontSize: 11, fontWeight: 700 as const, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(254,249,233,0.5)", fontFamily: "'Manrope', sans-serif", display: "block", marginBottom: 6 };
+  const sectionBtnStyle = (active: boolean) => ({ padding: "7px 14px", background: active ? "rgba(201,168,76,0.15)" : "none", border: active ? "1px solid rgba(201,168,76,0.4)" : "1px solid rgba(254,249,233,0.1)", color: active ? "#c9a84c" : "rgba(254,249,233,0.4)", cursor: "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 11, fontWeight: active ? 700 as const : 400 as const, letterSpacing: "0.1em", textTransform: "uppercase" as const, whiteSpace: "nowrap" as const });
+
+  const sections = [
+    { id: "basic", label: "Basic Info" },
+    { id: "content", label: "Descriptions" },
+    { id: "tabs", label: "Tab Bullets" },
+    { id: "cart", label: "Cart & Sizes" },
+    { id: "images", label: "Images" },
+  ] as const;
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ background: "#1a1908", border: "1px solid rgba(201,168,76,0.2)", width: "100%", maxWidth: 680, maxHeight: "90vh", overflowY: "auto", padding: 36 }}>
-        {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
-          <h2 style={{ fontFamily: "'Noto Serif', serif", fontSize: 22, color: "#fef9e9", fontWeight: 400, margin: 0 }}>
-            {isEdit ? "Edit Product" : "New Product"}
-          </h2>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(254,249,233,0.4)", cursor: "pointer", fontSize: 20, lineHeight: 1 }}>✕</button>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div style={{ background: "#1a1908", border: "1px solid rgba(201,168,76,0.25)", width: "100%", maxWidth: 740, maxHeight: "92vh", display: "flex", flexDirection: "column" }}>
+        
+        {/* Modal Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "22px 28px", borderBottom: "1px solid rgba(201,168,76,0.1)" }}>
+          <div>
+            <h2 style={{ fontFamily: "'Noto Serif', serif", fontSize: 20, color: "#fef9e9", fontWeight: 400, margin: "0 0 2px" }}>
+              {isEdit ? `Editing: ${product?.name}` : "New Product"}
+            </h2>
+            <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 11, color: "rgba(254,249,233,0.35)", margin: 0 }}>Fill in all sections to build the complete product page</p>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(254,249,233,0.4)", cursor: "pointer", fontSize: 22, lineHeight: 1, padding: 4 }}>✕</button>
         </div>
 
-        {/* Form Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-          {inp("Product Name", "name", "text", true)}
+        {/* Section Tabs */}
+        <div style={{ display: "flex", gap: 6, padding: "14px 28px", borderBottom: "1px solid rgba(201,168,76,0.08)", overflowX: "auto", flexShrink: 0 }}>
+          {sections.map(s => (
+            <button key={s.id} onClick={() => setSection(s.id)} style={sectionBtnStyle(section === s.id)}>{s.label}</button>
+          ))}
+        </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(254,249,233,0.5)", fontFamily: "'Manrope', sans-serif" }}>Category</label>
-            <select value={form.category} onChange={e => set("category", e.target.value)}
-              style={{ background: "#1a1908", border: "1px solid rgba(201,168,76,0.2)", color: "#fef9e9", padding: "10px 12px", fontFamily: "'Manrope', sans-serif", fontSize: 13, outline: "none" }}>
-              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+        {/* Scrollable Body */}
+        <div style={{ overflowY: "auto", padding: "24px 28px", flex: 1 }}>
+
+          {/* ── BASIC INFO ── */}
+          {section === "basic" && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={labelStyle}>Product Name</label>
+                <input value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Mani Link Chain" style={fieldStyle} />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Category</label>
+                <select value={form.category} onChange={e => set("category", e.target.value)}
+                  style={{ ...fieldStyle, background: "#1a1908" }}>
+                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Price (numbers only, e.g. 12400)</label>
+                <input value={form.price} onChange={e => set("price", e.target.value)} placeholder="e.g. 12400" style={fieldStyle} />
+              </div>
+
+              <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 12, padding: "12px 0" }}>
+                <button onClick={() => set("is_new", !form.is_new)}
+                  style={{ width: 44, height: 24, borderRadius: 12, background: form.is_new ? "#c9a84c" : "rgba(254,249,233,0.1)", border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s" }}>
+                  <span style={{ position: "absolute", top: 3, left: form.is_new ? 22 : 2, width: 18, height: 18, borderRadius: "50%", background: "#fff", transition: "left 0.2s" }} />
+                </button>
+                <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: 13, color: "#fef9e9" }}>Show "NEW" badge on this product</span>
+              </div>
+            </div>
+          )}
+
+          {/* ── DESCRIPTIONS ── */}
+          {section === "content" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.15)", padding: 14, borderLeft: "3px solid rgba(201,168,76,0.5)" }}>
+                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 11, color: "rgba(254,249,233,0.5)", margin: 0 }}>
+                  <strong style={{ color: "#c9a84c" }}>Short Description</strong> — shown in bold italic under the product name (also shown on Collection cards).
+                  <br /><strong style={{ color: "#c9a84c" }}>Long Description</strong> — shown in smaller text below it, describing the craftsmanship.
+                </p>
+              </div>
+              <div>
+                <label style={labelStyle}>Short Description (italic headline)</label>
+                <textarea rows={2} value={form.description} onChange={e => set("description", e.target.value)}
+                  placeholder="e.g. Each link forged individually, carrying the mark of its maker."
+                  style={{ ...fieldStyle, resize: "vertical" }} />
+              </div>
+              <div>
+                <label style={labelStyle}>Long Description (craftsmanship paragraph)</label>
+                <textarea rows={4} value={form.long_description} onChange={e => set("long_description", e.target.value)}
+                  placeholder="e.g. Crafted entirely by hand under the direct oversight of Creative Director…"
+                  style={{ ...fieldStyle, resize: "vertical" }} />
+                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, color: "rgba(254,249,233,0.3)", margin: "6px 0 0" }}>Leave blank to use the default brand paragraph.</p>
+              </div>
+            </div>
+          )}
+
+          {/* ── TAB BULLETS ── */}
+          {section === "tabs" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+              <div style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.15)", padding: 14, borderLeft: "3px solid rgba(201,168,76,0.5)" }}>
+                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 11, color: "rgba(254,249,233,0.5)", margin: 0 }}>
+                  These are the 3 tab sections on the product page — <strong style={{ color: "#c9a84c" }}>Details Legacy</strong>, <strong style={{ color: "#c9a84c" }}>Spec Materials</strong>, and <strong style={{ color: "#c9a84c" }}>Ethical Sourcing</strong>. Enter one bullet point per line. Leave blank to use the default brand text.
+                </p>
+              </div>
+              <BulletEditor label="Details Legacy tab bullets" value={form.details_bullets} onChange={v => set("details_bullets", v)} />
+              <div style={{ height: 1, background: "rgba(201,168,76,0.08)" }} />
+              <BulletEditor label="Spec Materials tab bullets" value={form.materials_bullets} onChange={v => set("materials_bullets", v)} />
+              <div style={{ height: 1, background: "rgba(201,168,76,0.08)" }} />
+              <BulletEditor label="Ethical Sourcing tab bullets" value={form.sourcing_bullets} onChange={v => set("sourcing_bullets", v)} />
+            </div>
+          )}
+
+          {/* ── CART & SIZES ── */}
+          {section === "cart" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.15)", padding: 14, borderLeft: "3px solid rgba(201,168,76,0.5)" }}>
+                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 11, color: "rgba(254,249,233,0.5)", margin: 0 }}>
+                  <strong style={{ color: "#c9a84c" }}>Size Options</strong> — each line becomes a dropdown option in the "Select Size" cart section. Leave blank for defaults.<br />
+                  <strong style={{ color: "#c9a84c" }}>Shipping Note</strong> — the small text under the Add to Cart button. Leave blank for the default.
+                </p>
+              </div>
+              <div>
+                <label style={labelStyle}>Size Options (one per line)</label>
+                <textarea rows={5} value={form.size_options} onChange={e => set("size_options", e.target.value)}
+                  placeholder={"Small (5–6 US Ring / 15cm wrist)\nStandard (7 US Ring / 17cm wrist)\nLarge (8–9 US Ring / 19cm wrist)\nCustom Sizing — specify in notes"}
+                  style={{ ...fieldStyle, resize: "vertical", lineHeight: 1.8 }} />
+                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, color: "rgba(254,249,233,0.3)", margin: "6px 0 0" }}>Each line = one option in the dropdown. Leave blank to use default ring/wrist sizes.</p>
+              </div>
+              <div>
+                <label style={labelStyle}>Shipping Note (below the Add to Cart button)</label>
+                <input value={form.shipping_note} onChange={e => set("shipping_note", e.target.value)}
+                  placeholder="e.g. Handcrafted to order · 4–6 weeks · Free worldwide shipping"
+                  style={fieldStyle} />
+                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, color: "rgba(254,249,233,0.3)", margin: "6px 0 0" }}>Leave blank for the default text.</p>
+              </div>
+            </div>
+          )}
+
+          {/* ── IMAGES ── */}
+          {section === "images" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              <div style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.15)", padding: 14, borderLeft: "3px solid rgba(201,168,76,0.5)" }}>
+                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 11, color: "rgba(254,249,233,0.5)", margin: 0 }}>
+                  <strong style={{ color: "#c9a84c" }}>Thumbnail</strong> — the main card image shown on the Collection page. <strong style={{ color: "#c9a84c" }}>Gallery</strong> — additional photos shown in the product page carousel (first gallery photo is the default big view).
+                </p>
+              </div>
+              <ImageUploader label="Thumbnail Image (collection card)" current={form.image} onUploaded={url => set("image", url as string)} />
+              <div style={{ height: 1, background: "rgba(201,168,76,0.08)" }} />
+              <ImageUploader label="Gallery Photos (up to 5 — first one shown big on page load)" current={form.gallery} multiple onUploaded={urls => set("gallery", urls as string[])} />
+            </div>
+          )}
+
+        </div>
+
+        {/* Footer Actions */}
+        <div style={{ display: "flex", gap: 12, padding: "18px 28px", borderTop: "1px solid rgba(201,168,76,0.1)", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: 6 }}>
+            {sections.map((s, i) => (
+              <div key={s.id} style={{ width: 28, height: 3, background: section === s.id ? "#c9a84c" : "rgba(254,249,233,0.1)", transition: "background 0.2s" }} />
+            ))}
           </div>
-
-          {inp("Price (numbers only, e.g. 850)", "price")}
-          {inp("Description", "description", "text", true)}
-
-          <div style={{ gridColumn: "1 / -1", height: 1, background: "rgba(201,168,76,0.1)" }} />
-
-          <div style={{ gridColumn: "1 / -1" }}>
-            <ImageUploader
-              label="Thumbnail Image (main card photo)"
-              current={form.image}
-              onUploaded={url => set("image", url as string)}
-            />
-          </div>
-
-          <div style={{ gridColumn: "1 / -1" }}>
-            <ImageUploader
-              label="Gallery Images (up to 5 extra photos)"
-              current={form.gallery}
-              multiple
-              onUploaded={urls => set("gallery", urls as string[])}
-            />
-          </div>
-
-          <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 12 }}>
-            <button
-              onClick={() => set("is_new", !form.is_new)}
-              style={{ width: 44, height: 24, borderRadius: 12, background: form.is_new ? "#c9a84c" : "rgba(254,249,233,0.1)", border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s" }}>
-              <span style={{ position: "absolute", top: 3, left: form.is_new ? 22 : 2, width: 18, height: 18, borderRadius: "50%", background: "#fff", transition: "left 0.2s" }} />
+          <div style={{ display: "flex", gap: 10 }}>
+            <button onClick={onClose} style={{ padding: "10px 22px", background: "none", border: "1px solid rgba(254,249,233,0.2)", color: "rgba(254,249,233,0.6)", cursor: "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase" }}>Cancel</button>
+            <button onClick={handleSave} disabled={saving}
+              style={{ padding: "10px 26px", background: saving ? "rgba(201,168,76,0.4)" : "#c9a84c", border: "none", color: "#1d1c12", cursor: saving ? "not-allowed" : "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", transition: "background 0.2s" }}>
+              {saving ? "Saving…" : isEdit ? "Save All Changes" : "Create Product"}
             </button>
-            <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: 13, color: "#fef9e9" }}>Mark as "New"</span>
           </div>
-        </div>
-
-        {/* Actions */}
-        <div style={{ display: "flex", gap: 12, marginTop: 28, justifyContent: "flex-end" }}>
-          <button onClick={onClose} style={{ padding: "10px 24px", background: "none", border: "1px solid rgba(254,249,233,0.2)", color: "rgba(254,249,233,0.6)", cursor: "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 12, letterSpacing: "0.15em", textTransform: "uppercase" }}>
-            Cancel
-          </button>
-          <button onClick={handleSave} disabled={saving}
-            style={{ padding: "10px 28px", background: saving ? "rgba(201,168,76,0.4)" : "#c9a84c", border: "none", color: "#1d1c12", cursor: saving ? "not-allowed" : "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", transition: "background 0.2s" }}>
-            {saving ? "Saving…" : isEdit ? "Save Changes" : "Create Product"}
-          </button>
         </div>
       </div>
     </div>
