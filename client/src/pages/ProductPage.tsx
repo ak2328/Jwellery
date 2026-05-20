@@ -115,10 +115,17 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
           .single();
 
         if (!error && data) {
+          const nameLC = (data.name || "").toLowerCase();
           let customImage = data.image;
-          if (data.id === 'bar-pendant') customImage = '/products/new-bar-pendant.jpg';
-          if (data.id === 'fish-pendant') customImage = '/products/new-fish-pendant.png';
-          if (data.id === 'unisex-gold-bracelet') customImage = '/products/new-bracelet.png';
+          if (data.id === 'bar-pendant' || nameLC.includes('bar pendant')) customImage = '/products/new-bar-pendant.jpg';
+          if (data.id === 'fish-pendant' || nameLC.includes('fish pendant')) customImage = '/products/new-fish-pendant.png';
+          if (data.id === 'unisex-gold-bracelet' || nameLC.includes('unisex') || nameLC.includes('bracelet')) customImage = '/products/new-bracelet.png';
+
+          // Build gallery: prepend new thumbnail if it's one of the 3 updated products
+          let gallery = data.product_images?.map((pi: any) => pi.image_url) || [];
+          if (nameLC.includes('bar pendant')) gallery = ['/products/new-bar-pendant.jpg', '/products/pendant-bar-2.jpg', '/products/pendant-bar-3.jpg', '/products/pendant-bar-4.jpg'];
+          if (nameLC.includes('fish pendant')) gallery = ['/products/new-fish-pendant.png', '/products/pendant-fish-2.jpg', '/products/pendant-fish-3.jpg', '/products/pendant-fish-4.jpg'];
+          if (nameLC.includes('unisex') || nameLC.includes('bracelet')) gallery = ['/products/new-bracelet.png', '/products/bracelet-unisex-1.jpg', '/products/bracelet-unisex-3.jpg', '/products/bracelet-unisex-4.jpg'];
 
           setProduct({
             id: data.id,
@@ -128,7 +135,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             price: `₹${Number(data.price).toLocaleString("en-IN")}`,
             image: customImage,
             isNew: data.is_new,
-            gallery: data.product_images?.map((pi: any) => pi.image_url) || []
+            gallery
           });
           setLoading(false);
           return;
@@ -171,7 +178,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             name: "Unisex Gold Bracelet",
             description: "A timeless unisex statement, meticulously balanced with heavy solid gold links.",
             price: "$1,420",
-            image: "/products/bracelet-unisex-1.jpg",
+            image: "/products/new-bracelet.png",
             isNew: true,
             gallery: [
           "/products/bracelet-unisex-1.jpg",
@@ -186,13 +193,13 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             name: "Bar Pendant",
             description: "A sleek, architectural vertical gold bar with subtle hand-struck facets.",
             price: "$850",
-            image: "/products/pendant-bar-pendant-cover.jpg",
+            image: "/products/new-bar-pendant.jpg",
             isNew: true,
             gallery: [
-          "/products/pendant-bar-pendant-1.jpg",
-          "/products/pendant-bar-pendant-2.jpg",
-          "/products/pendant-bar-pendant-3.jpg",
-          "/products/pendant-bar-pendant-4.jpg"
+          "/products/new-bar-pendant.jpg",
+          "/products/pendant-bar-2.jpg",
+          "/products/pendant-bar-3.jpg",
+          "/products/pendant-bar-4.jpg"
         ]
       },
           {
@@ -246,13 +253,13 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             name: "Fish Pendant",
             description: "A symbolic heritage fish motif, intricately carved with exquisite attention to detail.",
             price: "$920",
-            image: "/products/pendant-fish-pendant-cover.jpg",
+            image: "/products/new-fish-pendant.png",
             isNew: true,
             gallery: [
-          "/products/pendant-fish-pendant-1.jpg",
-          "/products/pendant-fish-pendant-2.jpg",
-          "/products/pendant-fish-pendant-3.jpg",
-          "/products/pendant-fish-pendant-4.jpg"
+          "/products/new-fish-pendant.png",
+          "/products/pendant-fish-2.jpg",
+          "/products/pendant-fish-3.jpg",
+          "/products/pendant-fish-4.jpg"
         ]
       },
           {

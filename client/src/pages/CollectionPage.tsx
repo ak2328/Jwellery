@@ -348,10 +348,11 @@ export const CollectionPage = (): JSX.Element => {
 
       if (!error && data && data.length > 0) {
         setProducts(data.map((p: any) => {
+          const nameLC = (p.name || "").toLowerCase();
           let customImage = p.image;
-          if (p.id === 'bar-pendant') customImage = '/products/new-bar-pendant.jpg';
-          if (p.id === 'fish-pendant') customImage = '/products/new-fish-pendant.png';
-          if (p.id === 'unisex-gold-bracelet') customImage = '/products/new-bracelet.png';
+          if (p.id === 'bar-pendant' || nameLC.includes('bar pendant')) customImage = '/products/new-bar-pendant.jpg';
+          if (p.id === 'fish-pendant' || nameLC.includes('fish pendant')) customImage = '/products/new-fish-pendant.png';
+          if (p.id === 'unisex-gold-bracelet' || nameLC.includes('unisex') || nameLC.includes('bracelet')) customImage = '/products/new-bracelet.png';
           
           return {
             id: p.id,
