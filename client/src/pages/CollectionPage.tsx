@@ -38,7 +38,7 @@ const DEFAULT_PRODUCTS = [
     name: "Unisex Gold Bracelet",
     description: "A timeless unisex statement, meticulously balanced with heavy solid gold links.",
     price: "$1,420",
-    image: "/products/bracelet-unisex-1.jpg",
+    image: "/products/bracelet-unisex-2.jpg",
     isNew: true,
     gallery: [
           "/products/bracelet-unisex-1.jpg",
@@ -53,7 +53,7 @@ const DEFAULT_PRODUCTS = [
     name: "Bar Pendant",
     description: "A sleek, architectural vertical gold bar with subtle hand-struck facets.",
     price: "$850",
-    image: "/products/pendant-bar-pendant-cover.jpg",
+    image: "/products/pendant-bar-1.jpg",
     isNew: true,
     gallery: [
           "/products/pendant-bar-pendant-1.jpg",
@@ -113,7 +113,7 @@ const DEFAULT_PRODUCTS = [
     name: "Fish Pendant",
     description: "A symbolic heritage fish motif, intricately carved with exquisite attention to detail.",
     price: "$920",
-    image: "/products/pendant-fish-pendant-cover.jpg",
+    image: "/products/pendant-fish-1.jpg",
     isNew: true,
     gallery: [
           "/products/pendant-fish-pendant-1.jpg",
@@ -347,15 +347,22 @@ export const CollectionPage = (): JSX.Element => {
         .order("created_at", { ascending: false });
 
       if (!error && data && data.length > 0) {
-        setProducts(data.map((p: any) => ({
-          id: p.id,
-          category: p.categories?.name || p.category || p.material || "Pendants",
-          name: p.name,
-          description: p.description,
-          price: `₹${Number(p.price).toLocaleString("en-IN")}`,
-          image: p.image,
-          isNew: p.is_new,
-        })));
+        setProducts(data.map((p: any) => {
+          let customImage = p.image;
+          if (p.id === 'bar-pendant') customImage = '/products/pendant-bar-1.jpg';
+          if (p.id === 'fish-pendant') customImage = '/products/pendant-fish-1.jpg';
+          if (p.id === 'unisex-gold-bracelet') customImage = '/products/bracelet-unisex-2.jpg';
+          
+          return {
+            id: p.id,
+            category: p.categories?.name || p.category || p.material || "Pendants",
+            name: p.name,
+            description: p.description,
+            price: `₹${Number(p.price).toLocaleString("en-IN")}`,
+            image: customImage,
+            isNew: p.is_new,
+          };
+        }));
       }
     } catch (err) {
       console.error("Failed fetching from Supabase, using defaults.", err);

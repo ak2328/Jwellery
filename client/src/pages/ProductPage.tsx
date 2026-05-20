@@ -24,8 +24,8 @@ const getGalleryImages = (prod: any) => {
 
   if (prod.id === "unisex-gold-bracelet" || nameLower === "unisex gold bracelet") {
     return [
-      "/products/bracelet-unisex-1.jpg",
       "/products/bracelet-unisex-2.jpg",
+      "/products/bracelet-unisex-1.jpg",
       "/products/bracelet-unisex-3.jpg",
       "/products/bracelet-unisex-4.jpg",
     ];
@@ -45,6 +45,15 @@ const getGalleryImages = (prod: any) => {
     } else {
       base = nameLower.replace(" pendant", "").replace(/\s+/g, "-");
     }
+    if (base === "bar" || base === "fish") {
+      return [
+        `/products/pendant-${base}-1.jpg`,
+        `/products/pendant-${base}-2.jpg`,
+        `/products/pendant-${base}-3.jpg`,
+        `/products/pendant-${base}-4.jpg`,
+      ];
+    }
+    
     return [
       `/products/pendant-${base}-pendant-1.jpg`,
       `/products/pendant-${base}-pendant-2.jpg`,
@@ -97,15 +106,20 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
           .single();
 
         if (!error && data) {
+          let customImage = data.image;
+          if (data.id === 'bar-pendant') customImage = '/products/pendant-bar-1.jpg';
+          if (data.id === 'fish-pendant') customImage = '/products/pendant-fish-1.jpg';
+          if (data.id === 'unisex-gold-bracelet') customImage = '/products/bracelet-unisex-2.jpg';
+
           setProduct({
             id: data.id,
-            category: data.material || "Pendants",
+            category: data.categories?.name || data.category || "Pendants",
             name: data.name,
             description: data.description,
             price: `₹${Number(data.price).toLocaleString("en-IN")}`,
-            image: data.image,
+            image: customImage,
             isNew: data.is_new,
-            gallery: data.product_images?.map((img: any) => img.image_url),
+            gallery: data.product_images?.map((pi: any) => pi.image_url) || []
           });
           setLoading(false);
           return;
