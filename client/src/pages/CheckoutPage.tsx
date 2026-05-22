@@ -6,6 +6,10 @@ import { useCart } from "@/lib/CartContext";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/lib/supabase";
 
+const INDIAN_STATES = [
+  "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli", "Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Ladakh", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+];
+
 export const CheckoutPage = (): JSX.Element => {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
@@ -72,6 +76,7 @@ export const CheckoutPage = (): JSX.Element => {
 
   const handleOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.state) { setError("Please select a state."); return; }
     setError(""); setLoading(true);
     try {
       const { data: addr, error: addrErr } = await supabase.from("addresses").insert({
@@ -104,19 +109,68 @@ export const CheckoutPage = (): JSX.Element => {
 
   return (
     <Shell>
-      <div style={{ maxWidth: 540, margin: "0 auto", padding: "120px 20px 80px", animation: "fadeUp 0.7s ease" }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "120px 20px 80px", animation: "fadeUp 0.7s ease" }}>
         
-        <div style={glassCard}>
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <h1 style={{ fontSize: 24, fontWeight: 300, letterSpacing: "0.08em", marginBottom: 12, fontFamily: "'Noto Serif', Georgia, serif" }}>Checkout</h1>
-            <div style={{ width: 48, height: 1, background: "#c9a84c", margin: "0 auto" }} />
+        <div style={{ textAlign: "center", marginBottom: 40 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 300, letterSpacing: "0.08em", marginBottom: 12, fontFamily: "'Noto Serif', Georgia, serif" }}>Secure Checkout</h1>
+          <div style={{ width: 48, height: 1, background: "#c9a84c", margin: "0 auto" }} />
+        </div>
+
+        {/* Using a grid to put Form on left and Summary on right for desktop */}
+        <div style={{ display: "grid", gap: "32px", alignItems: "start" }} className="grid-cols-1 md:grid-cols-[1.5fr_1fr]">
+          
+          {/* LEFT: Form */}
+          <div style={{ ...glassCard, padding: "40px 32px" }}>
+            <form onSubmit={handleOrder} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <h3 style={sectionTitle}>Shipping Address</h3>
+              
+              <Field label="Full Name" value={form.full_name} onChange={set("full_name")} />
+              <Field label="Phone Number" value={form.phone} onChange={set("phone")} type="tel" />
+              <Field label="Street Address" value={form.address_line} onChange={set("address_line")} />
+              
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <Field label="City" value={form.city} onChange={set("city")} />
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(254,249,233,0.6)", marginBottom: 8 }}>State</label>
+                  <select value={form.state} onChange={set("state")} required style={{ ...inputStyle, cursor: "pointer", appearance: "none" }}>
+                    <option value="" disabled style={{ background: "#1a1a1a", color: "rgba(255,255,255,0.4)" }}>Select State</option>
+                    {INDIAN_STATES.map((state) => (
+                      <option key={state} value={state} style={{ background: "#1a1a1a" }}>{state}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <Field label="Pincode" value={form.pincode} onChange={set("pincode")} />
+
+              <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "8px 0" }} />
+
+              <h3 style={sectionTitle}>Payment Method</h3>
+              <div>
+                <select value={form.payment_method} onChange={set("payment_method")} style={{ ...inputStyle, cursor: "pointer", appearance: "none" }}>
+                  <option value="COD" style={{ background: "#1a1a1a" }}>Cash on Delivery</option>
+                  <option value="UPI" style={{ background: "#1a1a1a" }}>UPI</option>
+                  <option value="Bank Transfer" style={{ background: "#1a1a1a" }}>Bank Transfer</option>
+                </select>
+              </div>
+
+              {error && (
+                <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", padding: "12px 16px", borderRadius: 8, fontSize: 13, color: "#fca5a5" }}>
+                  {error}
+                </div>
+              )}
+
+              <button type="submit" disabled={loading} style={{ ...btnGold, marginTop: 16, opacity: loading ? 0.6 : 1, width: "100%", padding: "18px" }}>
+                {loading ? "Placing Order..." : "Confirm & Place Order"}
+              </button>
+            </form>
           </div>
 
-          {/* Order Summary */}
-          <div style={{ marginBottom: 40, padding: 24, background: "rgba(0,0,0,0.2)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.03)" }}>
+          {/* RIGHT: Order Summary */}
+          <div style={{ ...glassCard, padding: "32px 24px", height: "max-content", position: "sticky", top: "100px" }}>
             <h3 style={sectionTitle}>Order Summary</h3>
             {items.map((item) => (
-              <div key={item.id + (item.size || "")} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 12, color: "rgba(254,249,233,0.8)" }}>
+              <div key={item.id + (item.size || "")} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 16, color: "rgba(254,249,233,0.8)" }}>
                 <span>{item.name} <span style={{ color: "rgba(254,249,233,0.4)" }}>× {item.quantity}</span></span>
                 <span>{item.price}</span>
               </div>
@@ -127,40 +181,6 @@ export const CheckoutPage = (): JSX.Element => {
             </div>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleOrder} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <h3 style={sectionTitle}>Shipping Address</h3>
-            <Field label="Full Name" value={form.full_name} onChange={set("full_name")} />
-            <Field label="Phone Number" value={form.phone} onChange={set("phone")} type="tel" />
-            <Field label="Street Address" value={form.address_line} onChange={set("address_line")} />
-            
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <Field label="City" value={form.city} onChange={set("city")} />
-              <Field label="State" value={form.state} onChange={set("state")} />
-            </div>
-            <Field label="Pincode" value={form.pincode} onChange={set("pincode")} />
-
-            <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "8px 0" }} />
-
-            <h3 style={sectionTitle}>Payment Method</h3>
-            <div>
-              <select value={form.payment_method} onChange={set("payment_method")} style={{ ...inputStyle, cursor: "pointer", appearance: "none" }}>
-                <option value="COD" style={{ background: "#1a1a1a" }}>Cash on Delivery</option>
-                <option value="UPI" style={{ background: "#1a1a1a" }}>UPI</option>
-                <option value="Bank Transfer" style={{ background: "#1a1a1a" }}>Bank Transfer</option>
-              </select>
-            </div>
-
-            {error && (
-              <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", padding: "12px 16px", borderRadius: 8, fontSize: 13, color: "#fca5a5" }}>
-                {error}
-              </div>
-            )}
-
-            <button type="submit" disabled={loading} style={{ ...btnGold, marginTop: 16, opacity: loading ? 0.6 : 1, width: "100%", padding: "18px" }}>
-              {loading ? "Placing Order..." : "Confirm & Place Order"}
-            </button>
-          </form>
         </div>
       </div>
       <style>{`
@@ -202,7 +222,6 @@ const glassCard: React.CSSProperties = {
   WebkitBackdropFilter: "blur(24px)",
   border: "1px solid rgba(255, 255, 255, 0.05)",
   borderRadius: "20px",
-  padding: "48px 32px",
   boxShadow: "0 24px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
 };
 

@@ -75,8 +75,8 @@ export const MainContentSection = (): JSX.Element => {
                 {/* Aesthetic image below text */}
                 <div className="mt-8 overflow-hidden relative w-full h-[200px] md:h-[280px]">
                   <img
-                    src="/figmaAssets/close-up-of-artisanal-gold-jewelry-on-a-person.png"
-                    alt="Aesthetic Gold Detail"
+                    src="/website/gold_in_every_hand.jpg"
+                    alt="Gold In Every Hand"
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{ filter: "brightness(0.9) contrast(1.1)", objectPosition: "center 30%" }}
                   />
@@ -87,7 +87,7 @@ export const MainContentSection = (): JSX.Element => {
             {/* Image column */}
             <div className="col-span-5 relative overflow-hidden flex items-center justify-center" style={{ minHeight: "380px" }}>
               <img
-                src="/figmaAssets2/hero-right.png"
+                src="/website/IMG_0273.jpg"
                 alt="Artisanal gold jewelry craftsmanship"
                 className="absolute inset-0 w-full h-full object-cover object-center"
                 style={{ filter: "grayscale(15%) contrast(1.05)" }}
@@ -117,11 +117,11 @@ export const MainContentSection = (): JSX.Element => {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {BASE_CATEGORIES.map((cat) => {
               const catImages: Record<string, string> = {
-                "Earrings": "/figmaAssets/molten-hoops---textured-gold-earrings.png",
-                "Pendants": "/products/pendant-flower-pendant-cover.png",
-                "Bracelets": "/figmaAssets2/product-gilded-drift-cuff.png",
-                "Rings": "/figmaAssets2/product-aurelius-band.png",
-                "Anklets": "/figmaAssets/the-aurelius-chain---detailed-gold-link-necklace.png",
+                "Earrings": "/website/IMG_8755.PNG",
+                "Pendants": "/website/IMG_8761.PNG",
+                "Bracelets": "/website/IMG_8762.PNG",
+                "Rings": "/website/IMG_8763.PNG",
+                "Anklets": "/website/IMG_8764.PNG",
               };
               return (
                 <div
