@@ -25,8 +25,10 @@ export const CheckoutPage = (): JSX.Element => {
     return (
       <Shell>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", gap: 20 }}>
-          <p style={{ fontSize: 14, color: "rgba(254,249,233,0.6)", letterSpacing: "0.03em" }}>Please sign in to continue checkout</p>
-          <button onClick={() => setLocation("/login")} style={btnGold}>Sign In</button>
+          <div style={glassCard}>
+            <p style={{ fontSize: 14, color: "rgba(254,249,233,0.6)", letterSpacing: "0.03em", marginBottom: 20 }}>Please sign in to continue checkout</p>
+            <button onClick={() => setLocation("/login")} style={btnGold}>Sign In</button>
+          </div>
         </div>
       </Shell>
     );
@@ -37,8 +39,10 @@ export const CheckoutPage = (): JSX.Element => {
     return (
       <Shell>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", gap: 20 }}>
-          <p style={{ fontSize: 14, color: "rgba(254,249,233,0.6)" }}>Your cart is empty</p>
-          <button onClick={() => setLocation("/collection")} style={btnGold}>Browse Collection</button>
+          <div style={{ ...glassCard, textAlign: "center" }}>
+            <p style={{ fontSize: 14, color: "rgba(254,249,233,0.6)", marginBottom: 20 }}>Your cart is empty</p>
+            <button onClick={() => setLocation("/collection")} style={btnGold}>Browse Collection</button>
+          </div>
         </div>
       </Shell>
     );
@@ -48,17 +52,19 @@ export const CheckoutPage = (): JSX.Element => {
   if (orderPlaced) {
     return (
       <Shell>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", gap: 16, animation: "fadeUp 0.8s ease" }}>
-          <div style={{ width: 64, height: 64, borderRadius: "50%", border: "2px solid #c9a84c", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: 28, color: "#c9a84c" }}>✓</span>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", animation: "fadeUp 0.8s ease" }}>
+          <div style={{ ...glassCard, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 64, height: 64, borderRadius: "50%", border: "2px solid #c9a84c", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 28, color: "#c9a84c" }}>✓</span>
+            </div>
+            <h2 style={{ fontSize: 22, fontWeight: 300, letterSpacing: "0.06em", marginTop: 8 }}>Order Confirmed</h2>
+            <p style={{ color: "rgba(254,249,233,0.5)", fontSize: 13 }}>#{orderPlaced}</p>
+            <div style={{ width: 48, height: 1, background: "rgba(201,168,76,0.3)", margin: "8px 0" }} />
+            <p style={{ fontSize: 12, color: "rgba(254,249,233,0.4)", maxWidth: 300, textAlign: "center", lineHeight: 1.6 }}>
+              Thank you for your order. We'll notify you once it ships.
+            </p>
+            <button onClick={() => setLocation("/orders")} style={{ ...btnGold, marginTop: 16 }}>View My Orders</button>
           </div>
-          <h2 style={{ fontSize: 22, fontWeight: 300, letterSpacing: "0.06em", marginTop: 8 }}>Order Confirmed</h2>
-          <p style={{ color: "rgba(254,249,233,0.5)", fontSize: 13 }}>#{orderPlaced}</p>
-          <div style={{ width: 48, height: 1, background: "rgba(201,168,76,0.3)", margin: "8px 0" }} />
-          <p style={{ fontSize: 12, color: "rgba(254,249,233,0.4)", maxWidth: 300, textAlign: "center", lineHeight: 1.6 }}>
-            Thank you for your order. We'll notify you once it ships.
-          </p>
-          <button onClick={() => setLocation("/orders")} style={{ ...btnGold, marginTop: 8 }}>View My Orders</button>
         </div>
       </Shell>
     );
@@ -98,63 +104,82 @@ export const CheckoutPage = (): JSX.Element => {
 
   return (
     <Shell>
-      <div style={{ maxWidth: 520, margin: "0 auto", padding: "48px 20px", animation: "fadeUp 0.7s ease" }}>
-        <h1 style={{ fontSize: 20, fontWeight: 300, letterSpacing: "0.08em", marginBottom: 8 }}>Checkout</h1>
-        <div style={{ width: 48, height: 1, background: "#c9a84c", marginBottom: 40 }} />
-
-        {/* Order Summary */}
-        <div style={{ marginBottom: 40, padding: 24, background: "rgba(254,249,233,0.02)", border: "1px solid rgba(201,168,76,0.15)" }}>
-          <h3 style={sectionTitle}>Order Summary</h3>
-          {items.map((item) => (
-            <div key={item.id + (item.size || "")} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 10, color: "rgba(254,249,233,0.8)" }}>
-              <span>{item.name} <span style={{ color: "rgba(254,249,233,0.4)" }}>× {item.quantity}</span></span>
-              <span>{item.price}</span>
-            </div>
-          ))}
-          <div style={{ borderTop: "1px solid rgba(201,168,76,0.15)", marginTop: 16, paddingTop: 16, display: "flex", justifyContent: "space-between", fontSize: 15, fontWeight: 600 }}>
-            <span>Total</span>
-            <span style={{ color: "#c9a84c" }}>₹{totalPrice.toLocaleString("en-IN")}</span>
+      <div style={{ maxWidth: 540, margin: "0 auto", padding: "120px 20px 80px", animation: "fadeUp 0.7s ease" }}>
+        
+        <div style={glassCard}>
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 300, letterSpacing: "0.08em", marginBottom: 12, fontFamily: "'Noto Serif', Georgia, serif" }}>Checkout</h1>
+            <div style={{ width: 48, height: 1, background: "#c9a84c", margin: "0 auto" }} />
           </div>
+
+          {/* Order Summary */}
+          <div style={{ marginBottom: 40, padding: 24, background: "rgba(0,0,0,0.2)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.03)" }}>
+            <h3 style={sectionTitle}>Order Summary</h3>
+            {items.map((item) => (
+              <div key={item.id + (item.size || "")} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 12, color: "rgba(254,249,233,0.8)" }}>
+                <span>{item.name} <span style={{ color: "rgba(254,249,233,0.4)" }}>× {item.quantity}</span></span>
+                <span>{item.price}</span>
+              </div>
+            ))}
+            <div style={{ borderTop: "1px solid rgba(201,168,76,0.15)", marginTop: 16, paddingTop: 16, display: "flex", justifyContent: "space-between", fontSize: 16, fontWeight: 600 }}>
+              <span>Total</span>
+              <span style={{ color: "#c9a84c" }}>₹{totalPrice.toLocaleString("en-IN")}</span>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleOrder} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <h3 style={sectionTitle}>Shipping Address</h3>
+            <Field label="Full Name" value={form.full_name} onChange={set("full_name")} />
+            <Field label="Phone Number" value={form.phone} onChange={set("phone")} type="tel" />
+            <Field label="Street Address" value={form.address_line} onChange={set("address_line")} />
+            
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <Field label="City" value={form.city} onChange={set("city")} />
+              <Field label="State" value={form.state} onChange={set("state")} />
+            </div>
+            <Field label="Pincode" value={form.pincode} onChange={set("pincode")} />
+
+            <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "8px 0" }} />
+
+            <h3 style={sectionTitle}>Payment Method</h3>
+            <div>
+              <select value={form.payment_method} onChange={set("payment_method")} style={{ ...inputStyle, cursor: "pointer", appearance: "none" }}>
+                <option value="COD" style={{ background: "#1a1a1a" }}>Cash on Delivery</option>
+                <option value="UPI" style={{ background: "#1a1a1a" }}>UPI</option>
+                <option value="Bank Transfer" style={{ background: "#1a1a1a" }}>Bank Transfer</option>
+              </select>
+            </div>
+
+            {error && (
+              <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", padding: "12px 16px", borderRadius: 8, fontSize: 13, color: "#fca5a5" }}>
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading} style={{ ...btnGold, marginTop: 16, opacity: loading ? 0.6 : 1, width: "100%", padding: "18px" }}>
+              {loading ? "Placing Order..." : "Confirm & Place Order"}
+            </button>
+          </form>
         </div>
-
-        {/* Form */}
-        <form onSubmit={handleOrder} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <h3 style={sectionTitle}>Shipping Address</h3>
-          <Field label="Full Name" value={form.full_name} onChange={set("full_name")} />
-          <Field label="Phone" value={form.phone} onChange={set("phone")} type="tel" />
-          <Field label="Address" value={form.address_line} onChange={set("address_line")} />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <Field label="City" value={form.city} onChange={set("city")} />
-            <Field label="State" value={form.state} onChange={set("state")} />
-          </div>
-          <Field label="Pincode" value={form.pincode} onChange={set("pincode")} />
-
-          <h3 style={{ ...sectionTitle, marginTop: 12 }}>Payment Method</h3>
-          <select value={form.payment_method} onChange={set("payment_method")} style={{ ...inputStyle, cursor: "pointer" }}>
-            <option value="COD">Cash on Delivery</option>
-            <option value="UPI">UPI</option>
-            <option value="Bank Transfer">Bank Transfer</option>
-          </select>
-
-          {error && (
-            <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", padding: "10px 14px", fontSize: 12, color: "#fca5a5" }}>
-              {error}
-            </div>
-          )}
-
-          <button type="submit" disabled={loading} style={{ ...btnGold, marginTop: 12, opacity: loading ? 0.6 : 1 }}>
-            {loading ? "Placing Order..." : "Place Order"}
-          </button>
-        </form>
       </div>
-      <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+      <style>{`
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        input:focus, select:focus { border-color: rgba(201,168,76,0.6) !important; outline: none; }
+        input::placeholder { color: rgba(254,249,233,0.2); }
+      `}</style>
     </Shell>
   );
 };
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ minHeight: "100vh", background: "#13120a", color: "#fef9e9", fontFamily: "'Manrope', sans-serif" }}>
+    <div style={{ 
+      minHeight: "100vh", 
+      background: "radial-gradient(circle at 50% 0%, #2a2512 0%, #13120a 50%)", 
+      color: "#fef9e9", 
+      fontFamily: "'Manrope', sans-serif" 
+    }}>
       <NavbarSection />
       {children}
       <FooterSection />
@@ -165,25 +190,39 @@ function Shell({ children }: { children: React.ReactNode }) {
 function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string }) {
   return (
     <div>
-      <label style={{ display: "block", fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(254,249,233,0.4)", marginBottom: 6 }}>{label}</label>
+      <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(254,249,233,0.6)", marginBottom: 8 }}>{label}</label>
       <input type={type} value={value} onChange={onChange} required style={inputStyle} />
     </div>
   );
 }
 
+const glassCard: React.CSSProperties = {
+  background: "rgba(255, 255, 255, 0.02)",
+  backdropFilter: "blur(24px)",
+  WebkitBackdropFilter: "blur(24px)",
+  border: "1px solid rgba(255, 255, 255, 0.05)",
+  borderRadius: "20px",
+  padding: "48px 32px",
+  boxShadow: "0 24px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
+};
+
 const sectionTitle: React.CSSProperties = {
-  fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase",
-  color: "rgba(254,249,233,0.4)", marginBottom: 16,
+  fontSize: 11, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase",
+  color: "rgba(254,249,233,0.5)", marginBottom: 16,
 };
 
 const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "14px 16px", background: "rgba(254,249,233,0.03)",
-  border: "1px solid rgba(201,168,76,0.2)", color: "#fef9e9",
+  width: "100%", padding: "16px", 
+  background: "rgba(0, 0, 0, 0.2)",
+  border: "1px solid rgba(201, 168, 76, 0.2)", 
+  borderRadius: "8px",
+  color: "#fef9e9",
   fontSize: 14, fontFamily: "'Manrope', sans-serif", outline: "none",
+  transition: "all 0.3s ease",
 };
 
 const btnGold: React.CSSProperties = {
   padding: "16px 36px", background: "#c9a84c", color: "#13120a",
-  border: "none", fontSize: 11, fontWeight: 700, letterSpacing: "0.2em",
+  border: "none", borderRadius: "8px", fontSize: 12, fontWeight: 800, letterSpacing: "0.15em",
   textTransform: "uppercase", cursor: "pointer", transition: "all 0.3s",
 };
