@@ -367,6 +367,76 @@ function ProductModal({
   );
 }
 
+// ─── ORDERS TAB ─────────────────────────────────────────────────────────────
+function OrdersTab() {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    const { data } = await supabase
+      .from("orders")
+      .select("*, order_items(product_name, quantity, unit_price)")
+      .order("created_at", { ascending: false });
+    setOrders(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const updateStatus = async (id: string, status: string) => {
+    await supabase.from("orders").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+    load();
+  };
+
+  if (loading) return <p style={{ color: "rgba(254,249,233,0.4)" }}>Loading orders...</p>;
+  if (orders.length === 0) return <p style={{ color: "rgba(254,249,233,0.4)" }}>No orders yet.</p>;
+
+  const statusColors: Record<string, string> = { pending: "#fbbf24", confirmed: "#c9a84c", shipped: "#60a5fa", delivered: "#4ade80", cancelled: "#f87171" };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {orders.map((order) => (
+        <div key={order.id} style={{ padding: 20, background: "rgba(254,249,233,0.02)", border: "1px solid rgba(201,168,76,0.12)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+            <div>
+              <span style={{ fontSize: 14, fontWeight: 600, color: "#fef9e9" }}>#{order.order_number}</span>
+              <span style={{ fontSize: 11, color: "rgba(254,249,233,0.4)", marginLeft: 12 }}>
+                {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+              </span>
+            </div>
+            <select
+              value={order.status}
+              onChange={(e) => updateStatus(order.id, e.target.value)}
+              style={{ background: "rgba(254,249,233,0.05)", border: `1px solid ${statusColors[order.status] || "#c9a84c"}44`, color: statusColors[order.status] || "#fef9e9", padding: "6px 12px", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", outline: "none" }}
+            >
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div style={{ fontSize: 12, color: "rgba(254,249,233,0.6)" }}>
+            {order.order_items?.map((item: any, i: number) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                <span>{item.product_name} × {item.quantity}</span>
+                <span>₹{(item.unit_price * item.quantity).toLocaleString("en-IN")}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ borderTop: "1px solid rgba(201,168,76,0.1)", marginTop: 12, paddingTop: 12, display: "flex", justifyContent: "space-between", fontSize: 14, fontWeight: 600, color: "#c9a84c" }}>
+            <span>Total</span>
+            <span>₹{Number(order.total).toLocaleString("en-IN")}</span>
+          </div>
+          <div style={{ marginTop: 8, fontSize: 11, color: "rgba(254,249,233,0.35)" }}>
+            Payment: {order.payment_method} • Status: {order.payment_status}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─── PRODUCTS TAB ────────────────────────────────────────────────────────────
 function ProductsTab() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -886,38 +956,47 @@ function ArchiveTab() {
 // ─── MAIN ADMIN PAGE ──────────────────────────────────────────────────────────
 export const AdminPage = (): JSX.Element => {
   const [authed, setAuthed] = useState(() => localStorage.getItem("admin_authed") === "1");
+  const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
-  const [pwError, setPwError] = useState(false);
-  const [activeTab, setActiveTab] = useState<"products" | "categories" | "archive" | "settings">("products");
+  const [showPw, setShowPw] = useState(false);
+  const [pwError, setPwError] = useState("");
+  const [activeTab, setActiveTab] = useState<"products" | "orders" | "categories" | "archive" | "settings">("products");
   const [loginLoading, setLoginLoading] = useState(false);
 
   const login = async () => {
-    // Try hardcoded password first (backward compatible)
-    if (pw === ADMIN_PASSWORD) {
-      localStorage.setItem("admin_authed", "1");
-      setAuthed(true);
-      return;
-    }
-    // Try Supabase Auth: treat input as email, use a second field or fixed password
+    setPwError("");
     setLoginLoading(true);
     try {
+      // Try Supabase Auth with email + password
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: pw.includes("@") ? pw : "",
-        password: ADMIN_PASSWORD,
+        email: email,
+        password: pw,
       });
-      if (!authError && authData.user) {
-        const { data: admin } = await supabase.from("admin_users").select("id").eq("email", authData.user.email).single();
-        if (admin) {
+      if (authError) {
+        // Fallback: hardcoded password (temporary)
+        if (pw === ADMIN_PASSWORD) {
           localStorage.setItem("admin_authed", "1");
           setAuthed(true);
           setLoginLoading(false);
           return;
         }
+        setPwError(authError.message);
+        setLoginLoading(false);
+        return;
       }
-    } catch {}
+      // Check if user is in admin_users table
+      const { data: admin } = await supabase.from("admin_users").select("id").eq("email", authData.user?.email).single();
+      if (admin) {
+        localStorage.setItem("admin_authed", "1");
+        setAuthed(true);
+      } else {
+        await supabase.auth.signOut();
+        setPwError("Not authorized as admin.");
+      }
+    } catch {
+      setPwError("Login failed.");
+    }
     setLoginLoading(false);
-    setPwError(true);
-    setTimeout(() => setPwError(false), 2000);
   };
 
   const logout = async () => {
@@ -940,24 +1019,47 @@ export const AdminPage = (): JSX.Element => {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 16, animation: pwError ? "shake 0.3s ease" : "none" }}>
             <div>
-              <label style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(254,249,233,0.4)", display: "block", marginBottom: 8 }}>Password</label>
+              <label style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(254,249,233,0.4)", display: "block", marginBottom: 8 }}>Email</label>
               <input
-                type="password"
-                value={pw}
-                onChange={e => setPw(e.target.value)}
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && login()}
                 style={{ width: "100%", background: "rgba(254,249,233,0.04)", border: `1px solid ${pwError ? "#ef4444" : "rgba(201,168,76,0.25)"}`, color: "#fef9e9", padding: "13px 16px", fontSize: 14, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
-                placeholder="Enter admin password"
+                placeholder="admin@manidoro.com"
               />
-              {pwError && <p style={{ color: "#ef4444", fontSize: 12, marginTop: 6 }}>Incorrect password.</p>}
+            </div>
+            <div>
+              <label style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(254,249,233,0.4)", display: "block", marginBottom: 8 }}>Password</label>
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showPw ? "text" : "password"}
+                  value={pw}
+                  onChange={e => setPw(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && login()}
+                  style={{ width: "100%", background: "rgba(254,249,233,0.04)", border: `1px solid ${pwError ? "#ef4444" : "rgba(201,168,76,0.25)"}`, color: "#fef9e9", padding: "13px 16px", paddingRight: "44px", fontSize: 14, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
+                  placeholder="Enter password"
+                />
+                <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "rgba(254,249,233,0.4)", padding: 4, display: "flex" }}>
+                  {showPw
+                    ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  }
+                </button>
+              </div>
+              {pwError && <p style={{ color: "#ef4444", fontSize: 12, marginTop: 6 }}>{pwError}</p>}
+              <p style={{ fontSize: 10, color: "rgba(254,249,233,0.25)", marginTop: 8, lineHeight: 1.6 }}>
+                Password must be at least 6 characters with a mix of letters and numbers.
+              </p>
             </div>
             <button
               onClick={login}
-              style={{ padding: "13px", background: "#c9a84c", border: "none", color: "#1d1c12", cursor: "pointer", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", transition: "opacity 0.2s" }}
+              disabled={loginLoading}
+              style={{ padding: "13px", background: "#c9a84c", border: "none", color: "#1d1c12", cursor: loginLoading ? "wait" : "pointer", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", transition: "opacity 0.2s", opacity: loginLoading ? 0.6 : 1 }}
               onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
               onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
             >
-              Enter Dashboard
+              {loginLoading ? "..." : "Enter Dashboard"}
             </button>
           </div>
         </div>
@@ -968,17 +1070,33 @@ export const AdminPage = (): JSX.Element => {
   // ── DASHBOARD ─────────────────────────────────────────────────────────────
   const tabs = [
     { id: "products",   label: "Products",    icon: "◈" },
-    { id: "categories", label: "Categories",   icon: "⊞" },
-    { id: "archive",    label: "Archive",      icon: "◎" },
+    { id: "orders",     label: "Orders",      icon: "⊡" },
+    { id: "categories", label: "Categories",  icon: "⊞" },
+    { id: "archive",    label: "Archive",     icon: "◎" },
     { id: "settings",   label: "Site Settings", icon: "⚙" },
   ] as const;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#13120a", display: "flex", fontFamily: "'Manrope', sans-serif" }}>
-      <style>{`@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
+    <div style={{ minHeight: "100vh", background: "#13120a", fontFamily: "'Manrope', sans-serif" }}>
+      <style>{`@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @media (max-width: 768px) { .admin-sidebar { display: none !important; } .admin-main { padding: 20px 16px !important; } .admin-mobile-tabs { display: flex !important; } }
+        @media (min-width: 769px) { .admin-mobile-tabs { display: none !important; } }
+      `}</style>
 
+      {/* Mobile tabs */}
+      <div className="admin-mobile-tabs" style={{ display: "none", overflowX: "auto", background: "#0e0d07", borderBottom: "1px solid rgba(201,168,76,0.12)", padding: "12px 8px", gap: 4 }}>
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setActiveTab(t.id)}
+            style={{ padding: "8px 14px", background: activeTab === t.id ? "rgba(201,168,76,0.1)" : "none", border: activeTab === t.id ? "1px solid rgba(201,168,76,0.2)" : "1px solid transparent", color: activeTab === t.id ? "#c9a84c" : "rgba(254,249,233,0.45)", cursor: "pointer", fontSize: 11, fontWeight: activeTab === t.id ? 700 : 400, letterSpacing: "0.05em", whiteSpace: "nowrap", flexShrink: 0 }}>
+            {t.label}
+          </button>
+        ))}
+        <button onClick={logout} style={{ marginLeft: "auto", padding: "8px 14px", background: "none", border: "1px solid rgba(239,68,68,0.2)", color: "rgba(239,68,68,0.5)", cursor: "pointer", fontSize: 11, whiteSpace: "nowrap", flexShrink: 0 }}>Sign Out</button>
+      </div>
+
+      <div style={{ display: "flex" }}>
       {/* Sidebar */}
-      <aside style={{ width: 240, background: "#0e0d07", borderRight: "1px solid rgba(201,168,76,0.12)", display: "flex", flexDirection: "column", padding: "32px 0", flexShrink: 0, position: "sticky", top: 0, height: "100vh" }}>
+      <aside className="admin-sidebar" style={{ width: 240, background: "#0e0d07", borderRight: "1px solid rgba(201,168,76,0.12)", display: "flex", flexDirection: "column", padding: "32px 0", flexShrink: 0, position: "sticky", top: 0, height: "100vh" }}>
         <div style={{ padding: "0 24px 32px", borderBottom: "1px solid rgba(201,168,76,0.1)" }}>
           <img src="/logo.png" alt="Mani D'Oro" style={{ height: 40 }} />
           <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "rgba(201,168,76,0.5)", margin: "8px 0 0" }}>Manager Dashboard</p>
@@ -1005,21 +1123,23 @@ export const AdminPage = (): JSX.Element => {
       </aside>
 
       {/* Main Content */}
-      <main style={{ flex: 1, padding: "40px 40px", overflowY: "auto" }}>
+      <main className="admin-main" style={{ flex: 1, padding: "40px 40px", overflowY: "auto" }}>
         <div style={{ marginBottom: 32, borderBottom: "1px solid rgba(201,168,76,0.1)", paddingBottom: 20 }}>
           <h1 style={{ fontFamily: "'Noto Serif', serif", fontSize: 28, color: "#fef9e9", fontWeight: 400, margin: "0 0 4px" }}>
-            {activeTab === "products" ? "Products" : activeTab === "categories" ? "Categories" : activeTab === "archive" ? "The Archive" : "Site Settings"}
+            {activeTab === "products" ? "Products" : activeTab === "orders" ? "Orders" : activeTab === "categories" ? "Categories" : activeTab === "archive" ? "The Archive" : "Site Settings"}
           </h1>
           <p style={{ fontSize: 12, color: "rgba(254,249,233,0.35)", margin: 0, letterSpacing: "0.05em" }}>
-            {activeTab === "products" ? "Add, edit, or remove products and their images" : activeTab === "categories" ? "Manage the category list shown on the storefront filter bar" : activeTab === "archive" ? "Manage past and exhibited pieces" : "Update contact info and social links"}
+            {activeTab === "products" ? "Add, edit, or remove products and their images" : activeTab === "orders" ? "View and manage customer orders" : activeTab === "categories" ? "Manage the category list shown on the storefront filter bar" : activeTab === "archive" ? "Manage past and exhibited pieces" : "Update contact info and social links"}
           </p>
         </div>
 
         {activeTab === "products"   && <ProductsTab />}
+        {activeTab === "orders"     && <OrdersTab />}
         {activeTab === "categories" && <CategoriesTab />}
         {activeTab === "archive"    && <ArchiveTab />}
         {activeTab === "settings"   && <SettingsTab />}
       </main>
+      </div>
     </div>
   );
 };
