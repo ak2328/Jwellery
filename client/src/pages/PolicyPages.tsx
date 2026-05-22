@@ -54,15 +54,15 @@ function PolicyLayout({ title, subtitle, lastUpdated, sections }: PolicyPageProp
 // ═══════════════════════════════════════════════════════════════════════════
 export const ShippingPage = (): JSX.Element => (
   <PolicyLayout
-    title="Shipping"
+    title="Shipping & Delivery"
     subtitle="Client Care"
-    lastUpdated="January 2024"
+    lastUpdated="May 2024"
     sections={[
-      { heading: "Handcrafted to Order", body: "Every Mani D'Oro piece is handcrafted individually after your order is placed. Please allow 4–6 weeks for production. Bespoke commissions may require 8–12 weeks depending on complexity.\n\nYou will receive a personal update from our atelier when your piece enters the finishing stage." },
-      { heading: "Worldwide Delivery", body: "We offer complimentary insured shipping worldwide via our trusted courier partners. Every package is dispatched with full insurance, real-time tracking, and requires a signature upon delivery.\n\nDomestic (India): 3–5 business days after dispatch\nEurope: 5–7 business days after dispatch\nRest of World: 7–10 business days after dispatch" },
-      { heading: "Packaging", body: "Each piece arrives in a hand-stitched leather folio, accompanied by a certificate of authenticity, original design sketches, and care instructions. Our packaging is designed to be kept — it is part of the experience." },
-      { heading: "Customs & Duties", body: "International orders may be subject to import duties and taxes, which are the responsibility of the buyer. We declare accurate values on all customs documentation. For assistance, please contact our client care team before placing your order." },
-      { heading: "Questions?", body: "For any shipping enquiries, please reach out via our Contact page or email commissions@manidoro.it. We are here to ensure your piece arrives safely." },
+      { heading: "Order Processing", body: "Every Mani D'Oro piece is thoughtfully prepared. In-stock items are processed within 1-3 business days. Made-to-order and bespoke pieces may require 4-6 weeks for production.\n\nOnce your order is dispatched, you will receive an email with your tracking information." },
+      { heading: "Domestic Shipping", body: "We offer secure, fully-insured delivery across India.\n• Standard Shipping: 3–5 business days (Complimentary)\n• Express Shipping: 1–2 business days (Calculated at checkout)\n\nAll deliveries require a signature upon receipt to ensure your jewellery reaches you safely." },
+      { heading: "International Shipping", body: "We ship worldwide using premium courier partners.\n• Europe & UK: 5–7 business days\n• North America: 5–8 business days\n• Rest of World: 7–10 business days\n\nPlease note: International orders may be subject to customs duties and import taxes upon arrival. These charges are the responsibility of the customer." },
+      { heading: "Packaging", body: "Your order will arrive in our signature unbranded outer box for security during transit. Inside, your jewellery will be beautifully presented in Mani D'Oro's elegant packaging, complete with a certificate of authenticity." },
+      { heading: "Questions?", body: "If you have any questions regarding your shipment, or need to request a specific delivery date, please contact our client care team via the Contact page or email care@manidoro.com." },
     ]}
   />
 );
@@ -74,13 +74,12 @@ export const ReturnsPage = (): JSX.Element => (
   <PolicyLayout
     title="Returns & Exchanges"
     subtitle="Client Care"
-    lastUpdated="January 2024"
+    lastUpdated="May 2024"
     sections={[
-      { heading: "Our Promise", body: "We stand behind the craftsmanship of every piece that leaves our atelier. If your Mani D'Oro piece does not meet the exacting standards you expect, we will work with you to make it right." },
-      { heading: "Returns Policy", body: "Non-bespoke pieces may be returned within 14 days of delivery, provided they are in unworn condition and in their original packaging.\n\nBespoke and personalised commissions are final sale and cannot be returned, as each piece is crafted specifically for you." },
-      { heading: "How to Initiate a Return", body: "1. Contact us at commissions@manidoro.it with your order number.\n2. Our team will provide a prepaid return label and instructions.\n3. Once we receive and inspect the piece, a full refund will be processed within 5 business days.\n\nPlease do not ship pieces back without first contacting us — we need to ensure proper insurance coverage for the return transit." },
-      { heading: "Repairs & Resizing", body: "We offer complimentary resizing and maintenance for all Mani D'Oro pieces, for the lifetime of the piece. Contact us to arrange a service appointment. Pieces will be returned to you within 2–3 weeks." },
-      { heading: "Damaged or Defective Items", body: "In the unlikely event that your piece arrives damaged, please contact us immediately with photographs. We will arrange a replacement or full refund at no additional cost to you." },
+      { heading: "Our Guarantee", body: "We stand behind the quality of our demi-fine jewellery. If you are not completely satisfied with your purchase, we are here to help make it right." },
+      { heading: "Return Policy", body: "You may return unworn, undamaged items in their original packaging within 14 days of delivery for a full refund or exchange.\n\nPlease note: Custom-made, engraved, or bespoke pieces are final sale and cannot be returned or exchanged unless there is a manufacturing defect." },
+      { heading: "How to Return", body: "1. Email care@manidoro.com with your order number to request a return.\n2. We will provide a secure return shipping label.\n3. Pack the jewellery securely in its original packaging.\n4. Hand it over to our courier partner.\n\nOnce we receive and inspect the item, your refund will be processed to your original payment method within 5-7 business days." },
+      { heading: "Repairs & Warranty", body: "All Mani D'Oro pieces come with a 1-year warranty covering manufacturing defects. If your piece requires repair outside of warranty (e.g., accidental damage or normal wear and tear), we offer repair services at a reasonable cost. Please contact us to arrange an assessment." },
     ]}
   />
 );
@@ -92,14 +91,14 @@ export const PrivacyPage = (): JSX.Element => (
   <PolicyLayout
     title="Privacy Policy"
     subtitle="Legal"
-    lastUpdated="January 2024"
+    lastUpdated="May 2024"
     sections={[
-      { heading: "Introduction", body: "Mani D'Oro (\"we\", \"us\", \"our\") is committed to protecting the privacy of our clients and visitors. This policy explains how we collect, use, and safeguard your personal information when you visit our website or engage with our services." },
-      { heading: "Information We Collect", body: "We may collect the following information:\n\n• Name and contact details (email, phone, address) when you place an order or submit an enquiry.\n• Payment information processed securely through our third-party payment providers.\n• Browsing data (cookies, IP address, pages visited) to improve your experience.\n• Commission preferences and design notes shared during the bespoke process." },
-      { heading: "How We Use Your Information", body: "Your information is used exclusively to:\n\n• Fulfil and deliver your orders.\n• Communicate about your commissions and enquiries.\n• Send occasional updates about new collections (only with your consent).\n• Improve our website and services.\n\nWe never sell, rent, or share your personal information with third parties for marketing purposes." },
-      { heading: "Data Security", body: "We implement industry-standard security measures to protect your data. Payment information is encrypted and processed through PCI-compliant providers. We retain your data only as long as necessary to fulfil the purposes outlined in this policy." },
-      { heading: "Your Rights", body: "You have the right to:\n\n• Access, correct, or delete your personal data.\n• Withdraw consent for marketing communications at any time.\n• Request a copy of the data we hold about you.\n\nTo exercise any of these rights, please contact us at commissions@manidoro.it." },
-      { heading: "Cookies", body: "Our website uses essential cookies to ensure functionality. We may also use analytics cookies to understand how visitors use our site. You can manage cookie preferences through your browser settings." },
+      { heading: "Simple Summary", body: "We respect your privacy. The information we collect is only used to process your orders, provide customer support, and, if you agree, share updates about our brand. We will never sell your personal data." },
+      { heading: "Information We Collect", body: "When you purchase from us or create an account, we collect:\n• Your name, email, shipping and billing address, and phone number.\n• Secure payment information (processed via our encrypted payment partners).\n• Website browsing data (such as IP address and cookie data) to help improve our site." },
+      { heading: "How Your Data is Used", body: "We use your details to:\n• Successfully deliver your jewellery and send tracking updates.\n• Respond to your questions or client care requests.\n• Send you marketing emails only if you have explicitly opted in.\n• Prevent fraud and ensure website security." },
+      { heading: "Data Protection", body: "Your information is securely stored. We use industry-standard encryption (SSL) for all sensitive data transfers. We only share essential data with trusted third parties (like shipping companies and payment gateways) strictly for the purpose of fulfilling your order." },
+      { heading: "Your Rights", body: "You have the right to request access to the personal data we hold about you. You can also ask us to correct or delete your data at any time. Simply email care@manidoro.com." },
+      { heading: "Cookies", body: "Our website uses cookies to remember your cart, keep you logged in, and understand how you interact with our site so we can improve it. You can disable cookies in your browser settings, though some site features may not function properly." },
     ]}
   />
 );
@@ -111,15 +110,16 @@ export const TermsPage = (): JSX.Element => (
   <PolicyLayout
     title="Terms of Service"
     subtitle="Legal"
-    lastUpdated="January 2024"
+    lastUpdated="May 2024"
     sections={[
-      { heading: "Agreement", body: "By accessing and using the Mani D'Oro website, you agree to be bound by these terms of service. If you do not agree with any part of these terms, please do not use our website or services." },
-      { heading: "Products & Pricing", body: "All prices are listed in Indian Rupees (₹) and are inclusive of applicable taxes unless otherwise stated. Prices are subject to change without prior notice. We reserve the right to correct any pricing errors.\n\nProduct images are representative; due to the handcrafted nature of our pieces, slight variations in colour, texture, and dimensions are inherent and are not considered defects." },
-      { heading: "Orders & Payment", body: "An order is confirmed only when full payment is received and you receive a confirmation email from our team. We reserve the right to decline any order at our discretion.\n\nFor bespoke commissions, a 50% deposit is required to begin work, with the balance due before dispatch." },
-      { heading: "Intellectual Property", body: "All content on this website — including designs, photographs, text, logos, and graphics — is the exclusive property of Mani D'Oro and is protected by copyright and intellectual property laws. Reproduction, distribution, or use of any content without prior written consent is strictly prohibited." },
-      { heading: "Limitation of Liability", body: "Mani D'Oro shall not be liable for any indirect, incidental, or consequential damages arising from the use of our website or products, except as required by applicable law.\n\nOur total liability shall not exceed the purchase price of the product in question." },
-      { heading: "Governing Law", body: "These terms shall be governed by and construed in accordance with the laws of India. Any disputes arising from these terms shall be subject to the exclusive jurisdiction of the courts of Rajasthan." },
-      { heading: "Contact", body: "For questions regarding these terms, please contact us at commissions@manidoro.it or through our Contact page." },
+      { heading: "Overview", body: "Welcome to Mani D'Oro. By accessing our website or purchasing something from us, you engage in our \"Service\" and agree to be bound by the following simple and legally binding terms and conditions." },
+      { heading: "Copyright & Intellectual Property", body: "All content on this website is the exclusive property of Mani D'Oro. This includes, but is not limited to: jewellery designs, product photography, logos, branding, text, website layout, and graphics.\n\nAll content is protected by international copyright laws. You may not reproduce, duplicate, copy, sell, or exploit any portion of the Service, designs, or website content without express written permission from us." },
+      { heading: "Trademarks", body: "The 'Mani D'Oro' name, our logos, and any related brand marks or slogans are registered trademarks. They may not be used in connection with any product or service without our prior written consent, nor may they be used in any manner that is likely to cause confusion among customers." },
+      { heading: "Products & Pricing", body: "We make every effort to display the colors and images of our products as accurately as possible. Because our items are crafted and finished by hand, slight variations are normal.\n\nPrices for our products are subject to change without notice. We reserve the right to modify or discontinue any product at any time." },
+      { heading: "Accuracy of Information", body: "We are not responsible if information made available on this site is not fully accurate, complete, or current. The material on this site is provided for general information only." },
+      { heading: "Limitation of Liability", body: "In no case shall Mani D'Oro, our directors, or employees be liable for any injury, loss, claim, or any direct, indirect, incidental, or consequential damages arising from your use of any of our services or products procured using the service, except as required by law." },
+      { heading: "Governing Law", body: "These Terms of Service shall be governed by and construed in accordance with the laws of India. Any disputes will be resolved in the appropriate courts." },
+      { heading: "Contact", body: "If you have any questions regarding these Terms of Service, Copyright, or Trademarks, please contact our legal team at care@manidoro.com." },
     ]}
   />
 );

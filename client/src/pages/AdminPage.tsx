@@ -17,7 +17,7 @@ interface Product {
   materials_bullets?: string[];
   sourcing_bullets?: string[];
   shipping_note?: string;
-  size_options?: string[];
+
 }
 
 interface SiteSetting {
@@ -27,7 +27,7 @@ interface SiteSetting {
 
 // ─── CONSTANTS ──────────────────────────────────────────────────────────────
 const ADMIN_PASSWORD = "manidoro2025";
-const CATEGORIES = ["Rings", "Necklaces", "Pendants", "Bracelets", "Cuffs & Bangles", "Earrings", "Sets"];
+const BASE_CATEGORIES = ["Earrings", "Pendants", "Bracelets", "Rings", "Anklets"];
 
 // ─── TOAST ──────────────────────────────────────────────────────────────────
 function Toast({ msg, type }: { msg: string; type: "success" | "error" }) {
@@ -152,9 +152,13 @@ function ProductModal({
   onSaved: () => void;
 }) {
   const isEdit = !!product;
+  // Load custom categories from localStorage (same source as public site)
+  const storedExtra = (() => { try { const s = localStorage.getItem("mdoro_extra_categories"); return s ? JSON.parse(s) as {value:string;label:string}[] : []; } catch { return []; } })();
+  const allCats = [...BASE_CATEGORIES.map(c => c), ...storedExtra.map((e: {value:string}) => e.value)];
+
   const [form, setForm] = useState({
     name: product?.name || "",
-    category: product?.category || CATEGORIES[0],
+    category: product?.category || BASE_CATEGORIES[0],
     price: product?.price?.toString().replace(/[₹$,]/g, "") || "",
     description: product?.description || "",
     long_description: product?.long_description || "",
@@ -165,10 +169,9 @@ function ProductModal({
     materials_bullets: product?.materials_bullets || ["", "", "", ""],
     sourcing_bullets: product?.sourcing_bullets || ["", "", "", ""],
     shipping_note: product?.shipping_note || "",
-    size_options: product?.size_options?.join("\n") || "",
   });
   const [saving, setSaving] = useState(false);
-  const [section, setSection] = useState<"basic" | "content" | "tabs" | "cart" | "images">("basic");
+  const [section, setSection] = useState<"basic" | "content" | "tabs" | "images">("basic");
 
   const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
 
@@ -193,7 +196,6 @@ function ProductModal({
         materials_bullets: form.materials_bullets.filter(b => b.trim()),
         sourcing_bullets: form.sourcing_bullets.filter(b => b.trim()),
         shipping_note: form.shipping_note,
-        size_options: form.size_options.split("\n").map(s => s.trim()).filter(Boolean),
       };
 
       if (isEdit && product) {
@@ -220,7 +222,6 @@ function ProductModal({
     { id: "basic", label: "Basic Info" },
     { id: "content", label: "Descriptions" },
     { id: "tabs", label: "Tab Bullets" },
-    { id: "cart", label: "Cart & Sizes" },
     { id: "images", label: "Images" },
   ] as const;
 
@@ -261,13 +262,21 @@ function ProductModal({
                 <label style={labelStyle}>Category</label>
                 <select value={form.category} onChange={e => set("category", e.target.value)}
                   style={{ ...fieldStyle, background: "#1a1908" }}>
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {allCats.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
 
               <div>
                 <label style={labelStyle}>Price (numbers only, e.g. 12400)</label>
                 <input value={form.price} onChange={e => set("price", e.target.value)} placeholder="e.g. 12400" style={fieldStyle} />
+              </div>
+
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={labelStyle}>Shipping Note (below Add to Cart)</label>
+                <input value={form.shipping_note} onChange={e => set("shipping_note", e.target.value)}
+                  placeholder="e.g. Handcrafted to order · 4–6 weeks · Free worldwide shipping"
+                  style={fieldStyle} />
+                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, color: "rgba(254,249,233,0.3)", margin: "6px 0 0" }}>Leave blank for default text.</p>
               </div>
 
               <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 12, padding: "12px 0" }}>
@@ -321,31 +330,6 @@ function ProductModal({
             </div>
           )}
 
-          {/* ── CART & SIZES ── */}
-          {section === "cart" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <div style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.15)", padding: 14, borderLeft: "3px solid rgba(201,168,76,0.5)" }}>
-                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 11, color: "rgba(254,249,233,0.5)", margin: 0 }}>
-                  <strong style={{ color: "#c9a84c" }}>Size Options</strong> — each line becomes a dropdown option in the "Select Size" cart section. Leave blank for defaults.<br />
-                  <strong style={{ color: "#c9a84c" }}>Shipping Note</strong> — the small text under the Add to Cart button. Leave blank for the default.
-                </p>
-              </div>
-              <div>
-                <label style={labelStyle}>Size Options (one per line)</label>
-                <textarea rows={5} value={form.size_options} onChange={e => set("size_options", e.target.value)}
-                  placeholder={"Small (5–6 US Ring / 15cm wrist)\nStandard (7 US Ring / 17cm wrist)\nLarge (8–9 US Ring / 19cm wrist)\nCustom Sizing — specify in notes"}
-                  style={{ ...fieldStyle, resize: "vertical", lineHeight: 1.8 }} />
-                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, color: "rgba(254,249,233,0.3)", margin: "6px 0 0" }}>Each line = one option in the dropdown. Leave blank to use default ring/wrist sizes.</p>
-              </div>
-              <div>
-                <label style={labelStyle}>Shipping Note (below the Add to Cart button)</label>
-                <input value={form.shipping_note} onChange={e => set("shipping_note", e.target.value)}
-                  placeholder="e.g. Handcrafted to order · 4–6 weeks · Free worldwide shipping"
-                  style={fieldStyle} />
-                <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, color: "rgba(254,249,233,0.3)", margin: "6px 0 0" }}>Leave blank for the default text.</p>
-              </div>
-            </div>
-          )}
 
           {/* ── IMAGES ── */}
           {section === "images" && (
@@ -490,6 +474,178 @@ function ProductsTab() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── CATEGORIES TAB ──────────────────────────────────────────────────────────
+function CategoriesTab() {
+  const [categories, setCategories] = useState<{ id?: string; name: string; sort_order: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newName, setNewName] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (msg: string, type: "success" | "error" = "success") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  // Persist to both Supabase and localStorage so public site stays in sync
+  const syncLocalStorage = (cats: { name: string }[]) => {
+    const extra = cats
+      .filter(c => !BASE_CATEGORIES.includes(c.name))
+      .map(c => ({ value: c.name, label: c.name }));
+    localStorage.setItem("mdoro_extra_categories", JSON.stringify(extra));
+  };
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from("categories").select("*").order("sort_order", { ascending: true });
+      if (!error && data && data.length > 0) {
+        setCategories(data);
+        syncLocalStorage(data);
+      } else {
+        // Supabase may not have the table yet — fall back to base categories
+        const base = BASE_CATEGORIES.map((name, i) => ({ name, sort_order: i }));
+        setCategories(base);
+      }
+    } catch {
+      const base = BASE_CATEGORIES.map((name, i) => ({ name, sort_order: i }));
+      setCategories(base);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleAdd = async () => {
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+    setAdding(true);
+    try {
+      const sort_order = categories.length;
+      const { error } = await supabase.from("categories").insert({ name: trimmed, sort_order });
+      if (error) throw error;
+      showToast(`"${trimmed}" added!`);
+      setNewName("");
+      await load();
+    } catch (e: any) {
+      // Table may not exist yet — save locally only
+      const updated = [...categories, { name: trimmed, sort_order: categories.length }];
+      setCategories(updated);
+      syncLocalStorage(updated);
+      setNewName("");
+      showToast(`"${trimmed}" added (local only — categories table not found in Supabase).`, "error");
+    }
+    setAdding(false);
+  };
+
+  const handleDelete = async (name: string) => {
+    if (BASE_CATEGORIES.includes(name)) {
+      showToast("Default categories cannot be deleted.", "error");
+      return;
+    }
+    try {
+      await supabase.from("categories").delete().eq("name", name);
+    } catch {}
+    const updated = categories.filter(c => c.name !== name);
+    setCategories(updated);
+    syncLocalStorage(updated);
+    showToast(`"${name}" removed.`);
+  };
+
+  const move = async (idx: number, dir: -1 | 1) => {
+    const next = [...categories];
+    const target = idx + dir;
+    if (target < 0 || target >= next.length) return;
+    [next[idx], next[target]] = [next[target], next[idx]];
+    const reordered = next.map((c, i) => ({ ...c, sort_order: i }));
+    setCategories(reordered);
+    syncLocalStorage(reordered);
+    // persist new order to Supabase
+    for (const c of reordered) {
+      if (c.id) await supabase.from("categories").update({ sort_order: c.sort_order }).eq("id", c.id);
+    }
+  };
+
+  const labelS = { fontSize: 11, fontWeight: 700 as const, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(254,249,233,0.5)", fontFamily: "'Manrope', sans-serif" };
+
+  return (
+    <div style={{ maxWidth: 540 }}>
+      {toast && <Toast msg={toast.msg} type={toast.type} />}
+
+      {/* Info banner */}
+      <div style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.15)", padding: 14, borderLeft: "3px solid rgba(201,168,76,0.5)", marginBottom: 28 }}>
+        <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 11, color: "rgba(254,249,233,0.5)", margin: 0 }}>
+          Categories appear in the <strong style={{ color: "#c9a84c" }}>Collection page filter bar</strong> and the product form's category dropdown. The 5 base categories cannot be deleted. Drag ↑↓ to reorder.
+        </p>
+      </div>
+
+      {loading ? (
+        <div style={{ color: "rgba(254,249,233,0.35)", fontFamily: "'Manrope', sans-serif", padding: "40px 0" }}>Loading…</div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 0, marginBottom: 28, border: "1px solid rgba(201,168,76,0.15)" }}>
+          {categories.map((cat, idx) => {
+            const isBase = BASE_CATEGORIES.includes(cat.name);
+            return (
+              <div key={cat.name} style={{
+                display: "flex", alignItems: "center", gap: 12,
+                padding: "13px 16px",
+                borderBottom: idx < categories.length - 1 ? "1px solid rgba(201,168,76,0.08)" : "none",
+                background: isBase ? "rgba(201,168,76,0.04)" : "transparent",
+              }}>
+                {/* Reorder arrows */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <button onClick={() => move(idx, -1)} disabled={idx === 0}
+                    style={{ background: "none", border: "none", color: idx === 0 ? "rgba(254,249,233,0.12)" : "rgba(254,249,233,0.4)", cursor: idx === 0 ? "default" : "pointer", fontSize: 10, lineHeight: 1, padding: 0 }}>▲</button>
+                  <button onClick={() => move(idx, 1)} disabled={idx === categories.length - 1}
+                    style={{ background: "none", border: "none", color: idx === categories.length - 1 ? "rgba(254,249,233,0.12)" : "rgba(254,249,233,0.4)", cursor: idx === categories.length - 1 ? "default" : "pointer", fontSize: 10, lineHeight: 1, padding: 0 }}>▼</button>
+                </div>
+
+                {/* Name */}
+                <span style={{ flex: 1, fontFamily: "'Manrope', sans-serif", fontSize: 13, color: "#fef9e9", letterSpacing: "0.03em" }}>
+                  {cat.name}
+                </span>
+
+                {/* Badge */}
+                {isBase && (
+                  <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(201,168,76,0.6)", background: "rgba(201,168,76,0.1)", padding: "2px 7px" }}>Default</span>
+                )}
+
+                {/* Delete */}
+                {!isBase && (
+                  <button onClick={() => handleDelete(cat.name)}
+                    style={{ background: "none", border: "1px solid rgba(239,68,68,0.25)", color: "rgba(239,68,68,0.6)", cursor: "pointer", fontSize: 11, padding: "4px 10px", fontFamily: "'Manrope', sans-serif" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.6)"; e.currentTarget.style.color = "rgba(239,68,68,0.9)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.25)"; e.currentTarget.style.color = "rgba(239,68,68,0.6)"; }}
+                  >Remove</button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Add new category */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <label style={labelS}>Add New Category</label>
+        <div style={{ display: "flex", gap: 10 }}>
+          <input
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleAdd()}
+            placeholder="e.g. Necklaces"
+            style={{ flex: 1, background: "rgba(254,249,233,0.05)", border: "1px solid rgba(201,168,76,0.2)", color: "#fef9e9", padding: "11px 14px", fontFamily: "'Manrope', sans-serif", fontSize: 13, outline: "none" }}
+          />
+          <button onClick={handleAdd} disabled={adding || !newName.trim()}
+            style={{ padding: "11px 24px", background: adding || !newName.trim() ? "rgba(201,168,76,0.3)" : "#c9a84c", border: "none", color: "#1d1c12", cursor: adding || !newName.trim() ? "not-allowed" : "pointer", fontFamily: "'Manrope', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+            {adding ? "Adding…" : "Add Category"}
+          </button>
+        </div>
+        <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, color: "rgba(254,249,233,0.3)", margin: 0 }}>New categories are saved to Supabase and appear immediately on the storefront filter bar.</p>
+      </div>
     </div>
   );
 }
@@ -732,7 +888,7 @@ export const AdminPage = (): JSX.Element => {
   const [authed, setAuthed] = useState(() => localStorage.getItem("admin_authed") === "1");
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
-  const [activeTab, setActiveTab] = useState<"products" | "archive" | "settings">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "categories" | "archive" | "settings">("products");
 
   const login = () => {
     if (pw === ADMIN_PASSWORD) {
@@ -790,9 +946,10 @@ export const AdminPage = (): JSX.Element => {
 
   // ── DASHBOARD ─────────────────────────────────────────────────────────────
   const tabs = [
-    { id: "products", label: "Products", icon: "◈" },
-    { id: "archive", label: "Archive", icon: "◎" },
-    { id: "settings", label: "Site Settings", icon: "⚙" },
+    { id: "products",   label: "Products",    icon: "◈" },
+    { id: "categories", label: "Categories",   icon: "⊞" },
+    { id: "archive",    label: "Archive",      icon: "◎" },
+    { id: "settings",   label: "Site Settings", icon: "⚙" },
   ] as const;
 
   return (
@@ -830,16 +987,17 @@ export const AdminPage = (): JSX.Element => {
       <main style={{ flex: 1, padding: "40px 40px", overflowY: "auto" }}>
         <div style={{ marginBottom: 32, borderBottom: "1px solid rgba(201,168,76,0.1)", paddingBottom: 20 }}>
           <h1 style={{ fontFamily: "'Noto Serif', serif", fontSize: 28, color: "#fef9e9", fontWeight: 400, margin: "0 0 4px" }}>
-            {activeTab === "products" ? "Products" : activeTab === "archive" ? "The Archive" : "Site Settings"}
+            {activeTab === "products" ? "Products" : activeTab === "categories" ? "Categories" : activeTab === "archive" ? "The Archive" : "Site Settings"}
           </h1>
           <p style={{ fontSize: 12, color: "rgba(254,249,233,0.35)", margin: 0, letterSpacing: "0.05em" }}>
-            {activeTab === "products" ? "Add, edit, or remove products and their images" : activeTab === "archive" ? "Manage past and exhibited pieces" : "Update contact info and social links"}
+            {activeTab === "products" ? "Add, edit, or remove products and their images" : activeTab === "categories" ? "Manage the category list shown on the storefront filter bar" : activeTab === "archive" ? "Manage past and exhibited pieces" : "Update contact info and social links"}
           </p>
         </div>
 
-        {activeTab === "products" && <ProductsTab />}
-        {activeTab === "archive" && <ArchiveTab />}
-        {activeTab === "settings" && <SettingsTab />}
+        {activeTab === "products"   && <ProductsTab />}
+        {activeTab === "categories" && <CategoriesTab />}
+        {activeTab === "archive"    && <ArchiveTab />}
+        {activeTab === "settings"   && <SettingsTab />}
       </main>
     </div>
   );

@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useCart } from "@/lib/CartContext";
+import { useWishlist } from "@/lib/WishlistContext";
+import { useSearch } from "@/lib/SearchContext";
 
 export const NavbarSection = (): JSX.Element => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [location] = useLocation();
   const { totalItems, openCart } = useCart();
+  const { count: wishCount, openWishlist } = useWishlist();
+  const { openSearch } = useSearch();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -47,10 +51,7 @@ export const NavbarSection = (): JSX.Element => {
 
   const navLinks = [
     { href: "/collection", label: "Collection", active: isCollection },
-    { href: "/bespoke", label: "Bespoke", active: isBespoke },
-    { href: "/archive", label: "The Archive", active: isArchive },
-    { href: "/story", label: "The Story", active: isStory },
-    { href: "/journal", label: "Journal", active: isJournal },
+    { href: "/story", label: "Brand Story", active: isStory },
     { href: "/contact", label: "Contact", active: isContact },
   ];
 
@@ -72,58 +73,39 @@ export const NavbarSection = (): JSX.Element => {
           transition: "all 0.3s",
         }}
       >
-        {/* ── LEFT NAV (hidden on mobile) ─────────────────── */}
-        <nav
-          className="hidden md:flex"
-          style={{ display: undefined, alignItems: "center", gap: "32px" }}
-        >
-          <a
-            href="/collection"
-            data-testid="link-nav-collection"
-            style={linkStyle(isCollection)}
-            onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={e => (e.currentTarget.style.opacity = isCollection ? "1" : "0.55")}
+          {/* ── LEFT NAV (hidden on mobile) ─────────────────── */}
+          <nav
+            className="hidden md:flex"
+            style={{ display: undefined, alignItems: "center", gap: "32px" }}
           >
-            Collection
-          </a>
-          <a
-            href="/bespoke"
-            data-testid="link-nav-bespoke"
-            style={linkStyle(isBespoke)}
-            onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={e => (e.currentTarget.style.opacity = isBespoke ? "1" : "0.55")}
-          >
-            Bespoke
-          </a>
-          <a
-            href="/archive"
-            data-testid="link-nav-archive"
-            style={linkStyle(isArchive)}
-            onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={e => (e.currentTarget.style.opacity = isArchive ? "1" : "0.55")}
-          >
-            The Archive
-          </a>
-        </nav>
+            <a
+              href="/"
+              data-testid="link-nav-home"
+              style={linkStyle(location === "/")}
+              onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+              onMouseLeave={e => (e.currentTarget.style.opacity = location === "/" ? "1" : "0.55")}
+            >
+              Home
+            </a>
+            <a
+              href="/collection"
+              data-testid="link-nav-collection"
+              style={linkStyle(isCollection)}
+              onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+              onMouseLeave={e => (e.currentTarget.style.opacity = isCollection ? "1" : "0.55")}
+            >
+              Collection
+            </a>
+          </nav>
 
-        {/* ── CENTERED LOGO ───────────────────────────────── */}
-        <a
-          href="/"
-          data-testid="link-logo"
-          style={{
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "12px",
-            height: "100%",
-            textDecoration: "none",
-            transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-            zIndex: 1,
-          }}
+          {/* ── CENTERED LOGO ───────────────────────────────── */}
+          <a
+            href="/"
+            data-testid="link-logo"
+            className="absolute left-6 md:left-[50%] md:-translate-x-1/2 flex flex-row items-center justify-center gap-[12px] h-full no-underline transition-transform duration-300 z-10"
+            style={{
+              transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
           onMouseEnter={e => {
             e.currentTarget.style.transform = "translateX(-50%) scale(1.04)";
             const img = e.currentTarget.querySelector("img");
@@ -181,16 +163,7 @@ export const NavbarSection = (): JSX.Element => {
             onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
             onMouseLeave={e => (e.currentTarget.style.opacity = isStory ? "1" : "0.55")}
           >
-            The Story
-          </a>
-          <a
-            href="/journal"
-            data-testid="link-nav-journal"
-            style={linkStyle(isJournal)}
-            onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={e => (e.currentTarget.style.opacity = isJournal ? "1" : "0.55")}
-          >
-            Journal
+            Brand Story
           </a>
           <a
             href="/contact"
@@ -201,6 +174,68 @@ export const NavbarSection = (): JSX.Element => {
           >
             Contact
           </a>
+
+          {/* Search icon — desktop */}
+          <button
+            onClick={openSearch}
+            aria-label="Open search"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "6px",
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "rgba(29,28,18,0.55)",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#795900")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(29,28,18,0.55)")}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+
+          {/* Wishlist icon — desktop */}
+          <button
+            onClick={openWishlist}
+            aria-label={`Open wishlist${wishCount > 0 ? `, ${wishCount} items` : ""}`}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "6px",
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: wishCount > 0 ? "#795900" : "rgba(29,28,18,0.55)",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#795900")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = wishCount > 0 ? "#795900" : "rgba(29,28,18,0.55)")}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill={wishCount > 0 ? "#c9a84c" : "none"} stroke="currentColor" strokeWidth="1.5">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {wishCount > 0 && (
+              <span style={{
+                position: "absolute", top: "-2px", right: "-2px",
+                width: "16px", height: "16px",
+                background: "#c9a84c", borderRadius: "50%",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "'Manrope', sans-serif", fontSize: "9px", fontWeight: 700,
+                color: "#fef9e9", lineHeight: 1,
+                animation: "wishBadgePop 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+              }}>
+                {wishCount > 9 ? "9+" : wishCount}
+              </span>
+            )}
+          </button>
 
           {/* Cart icon — desktop */}
           <button
@@ -255,6 +290,53 @@ export const NavbarSection = (): JSX.Element => {
 
         {/* ── HAMBURGER + CART (mobile only) ─────────────────────── */}
         <div className="flex md:hidden" style={{ display: undefined, alignItems: "center", gap: "8px", marginLeft: "auto" }}>
+          {/* Search icon — mobile */}
+          <button
+            onClick={openSearch}
+            aria-label="Open search"
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              padding: "6px", position: "relative",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "rgba(29,28,18,0.55)",
+              transition: "color 0.2s",
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+
+          {/* Wishlist icon — mobile */}
+          <button
+            onClick={openWishlist}
+            aria-label={`Open wishlist${wishCount > 0 ? `, ${wishCount} items` : ""}`}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              padding: "6px", position: "relative",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: wishCount > 0 ? "#795900" : "rgba(29,28,18,0.55)",
+              transition: "color 0.2s",
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill={wishCount > 0 ? "#c9a84c" : "none"} stroke="currentColor" strokeWidth="1.5">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {wishCount > 0 && (
+              <span style={{
+                position: "absolute", top: "-2px", right: "-2px",
+                width: "16px", height: "16px",
+                background: "#c9a84c", borderRadius: "50%",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "'Manrope', sans-serif", fontSize: "9px", fontWeight: 700,
+                color: "#fef9e9", lineHeight: 1,
+              }}>
+                {wishCount > 9 ? "9+" : wishCount}
+              </span>
+            )}
+          </button>
+
           {/* Cart icon — mobile */}
           <button
             onClick={openCart}
@@ -425,6 +507,11 @@ export const NavbarSection = (): JSX.Element => {
         @keyframes fadeInLink {
           from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes wishBadgePop {
+          0%   { transform: scale(0); }
+          70%  { transform: scale(1.3); }
+          100% { transform: scale(1); }
         }
         @keyframes cartBadgePop {
           0%   { transform: scale(0); }

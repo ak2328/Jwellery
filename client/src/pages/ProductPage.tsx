@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { NavbarSection } from "./sections/NavbarSection";
 import { FooterSection } from "./sections/FooterSection";
 import { useCart } from "@/lib/CartContext";
+import { useWishlist } from "@/lib/WishlistContext";
 
 interface Product {
   id: string;
@@ -16,9 +17,9 @@ interface Product {
   gallery?: string[];
   details_bullets?: string[];
   materials_bullets?: string[];
-  sourcing_bullets?: string[];
+
   shipping_note?: string;
-  size_options?: string[];
+
   whatsapp_number?: string;
 }
 
@@ -90,16 +91,16 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"heritage" | "materials" | "sourcing">("heritage");
-  const [inquiryForm, setInquiryForm] = useState({ name: "", email: "", size: "Standard", note: "" });
+  const [activeTab, setActiveTab] = useState<"heritage" | "materials">("heritage");
+  const [inquiryForm, setInquiryForm] = useState({ name: "", email: "", note: "" });
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
-  const [cartSize, setCartSize] = useState("Standard");
   const [addedToCart, setAddedToCart] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const { addItem } = useCart();
+  const { toggle: wishToggle, isWishlisted } = useWishlist();
 
   useEffect(() => {
     if (product) {
@@ -146,9 +147,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             gallery,
             details_bullets: data.details_bullets || [],
             materials_bullets: data.materials_bullets || [],
-            sourcing_bullets: data.sourcing_bullets || [],
             shipping_note: data.shipping_note || "",
-            size_options: data.size_options || [],
             whatsapp_number: data.whatsapp_number || "",
           });
           setLoading(false);
@@ -514,7 +513,6 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
       price: product.price,
       image: selectedImage || product.image,
       category: product.category,
-      size: cartSize,
     });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
@@ -725,7 +723,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             {/* Title block */}
             <div className="flex flex-col gap-3">
               <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#795900] font-['Manrope',sans-serif]">
-                Handforged // {product.category}
+                Handcrafted // Gold Plated
               </span>
               <h1 
                 className="text-[clamp(36px,4.5vw,56px)] font-normal text-[#1d1c12] tracking-[-0.01em] leading-tight"
@@ -735,7 +733,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
               </h1>
               <div className="flex justify-between items-baseline border-b border-[#1d1c12]/10 pb-4">
                 <span className="text-2xl text-[#795900] font-light font-['Noto_Serif',serif]">{product.price}</span>
-                <span className="text-[10px] font-bold tracking-widest text-[#1d1c12]/50 uppercase font-['Manrope',sans-serif]">Inclusive of custom fitting</span>
+
               </div>
             </div>
 
@@ -753,9 +751,8 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
             <div className="flex flex-col gap-4 border-t border-[#1d1c12]/10 pt-6">
               <div className="flex gap-6 border-b border-[#1d1c12]/5 pb-2">
                 {[
-                  { value: "heritage", label: "Details Legacy" },
-                  { value: "materials", label: "Spec Materials" },
-                  { value: "sourcing", label: "Ethical Sourcing" }
+                  { value: "heritage", label: "Fine Details" },
+                  { value: "materials", label: "Spec Materials" }
                 ].map((tab) => (
                   <button
                     key={tab.value}
@@ -802,19 +799,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                     ).map((b: string, i: number) => <li key={i}>{b}</li>)}
                   </ul>
                 )}
-                {activeTab === "sourcing" && (
-                  <ul className="list-disc pl-4 flex flex-col gap-2">
-                    {(product.sourcing_bullets && product.sourcing_bullets.length > 0
-                      ? product.sourcing_bullets
-                      : [
-                          "Ethically mined gold in partnership with certified artisanal small-scale miners.",
-                          "Gemstones are fully traceable from mine-to-market with Kimberly certificates.",
-                          "Recycled metal components to minimize planetary footprints.",
-                          "Direct fair-trade wages paid to local craftsmen in Milano and Rajasthan."
-                        ]
-                    ).map((b: string, i: number) => <li key={i}>{b}</li>)}
-                  </ul>
-                )}
+
               </div>
             </div>
 
@@ -853,48 +838,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                 </span>
               </div>
 
-              {/* Size selector */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label
-                  htmlFor="cart-size"
-                  style={{
-                    fontFamily: "'Manrope', sans-serif",
-                    fontSize: "9px",
-                    fontWeight: 700,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    color: "rgba(29,28,18,0.5)",
-                  }}
-                >
-                  Select Size
-                </label>
-                <select
-                  id="cart-size"
-                  value={cartSize}
-                  onChange={(e) => setCartSize(e.target.value)}
-                  style={{
-                    width: "100%",
-                    background: "#fef9e9",
-                    border: "1px solid rgba(29,28,18,0.12)",
-                    padding: "10px 12px",
-                    fontFamily: "'Manrope', sans-serif",
-                    fontSize: "12px",
-                    color: "#1d1c12",
-                    outline: "none",
-                    cursor: "pointer",
-                    appearance: "none",
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%231d1c12' stroke-width='1.2' fill='none'/%3E%3C/svg%3E")`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 12px center",
-                    paddingRight: "32px",
-                  }}
-                >
-                  {(product.size_options && product.size_options.length > 0
-                    ? product.size_options
-                    : ["Small (5–6 US Ring / 15cm wrist)", "Standard (7 US Ring / 17cm wrist)", "Large (8–9 US Ring / 19cm wrist)", "Custom Sizing — specify in notes"]
-                  ).map((s: string) => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
+
 
               {/* Button row: Reserve + WhatsApp */}
               <div style={{ display: "flex", gap: "10px" }}>
@@ -948,7 +892,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                 {/* WhatsApp button */}
                 <a
                   href={`https://wa.me/?text=${encodeURIComponent(
-                    `Hi! I'm interested in the *${product.name}* (${product.category}) — ${product.price}\nSize: ${cartSize}\n\nCould you please share more details?\n\n🔗 ${window.location.href}`
+                    `Hi! I'm interested in the *${product.name}* (${product.category}) — ${product.price}\n\nCould you please share more details?\n\n🔗 ${window.location.href}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -990,6 +934,53 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                   WhatsApp
                 </a>
               </div>
+
+              {/* Wishlist save button */}
+              <button
+                onClick={() => product && wishToggle({
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  image: product.image,
+                  category: product.category,
+                })}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  width: "100%",
+                  padding: "12px",
+                  background: "none",
+                  border: `1px solid ${product && isWishlisted(product.id) ? "rgba(201,168,76,0.6)" : "rgba(29,28,18,0.15)"}`,
+                  color: product && isWishlisted(product.id) ? "#795900" : "rgba(29,28,18,0.55)",
+                  fontFamily: "'Manrope', sans-serif",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  transition: "all 0.25s",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = "rgba(201,168,76,0.6)";
+                  e.currentTarget.style.color = "#795900";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = product && isWishlisted(product.id) ? "rgba(201,168,76,0.6)" : "rgba(29,28,18,0.15)";
+                  e.currentTarget.style.color = product && isWishlisted(product.id) ? "#795900" : "rgba(29,28,18,0.55)";
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24"
+                  fill={product && isWishlisted(product.id) ? "#c9a84c" : "none"}
+                  stroke={product && isWishlisted(product.id) ? "#c9a84c" : "currentColor"}
+                  strokeWidth="1.5"
+                  style={{ transition: "fill 0.25s, stroke 0.25s", flexShrink: 0 }}
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {product && isWishlisted(product.id) ? "Saved to Wishlist" : "Save to Wishlist"}
+              </button>
 
               <p
                 style={{
@@ -1063,42 +1054,24 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label htmlFor="inq-size" className="text-[9px] font-bold tracking-widest text-[#1d1c12]/60 uppercase font-['Manrope',sans-serif]">Desired Sizing</label>
-                      <select
-                        id="inq-size"
-                        value={inquiryForm.size}
-                        onChange={e => setInquiryForm(f => ({ ...f, size: e.target.value }))}
-                        className="w-full bg-[#fef9e9]/70 border border-[#1d1c12]/10 py-2.5 px-3 font-['Manrope',sans-serif] text-xs outline-none"
-                      >
-                        <option value="Small">Small (5 - 6 US Ring / 15cm wrist)</option>
-                        <option value="Standard">Standard (7 US Ring / 17cm wrist)</option>
-                        <option value="Large">Large (8 - 9 US Ring / 19cm wrist)</option>
-                        <option value="Custom sizing">Custom Sizing (Inquire below)</option>
-                      </select>
-                    </div>
-                    <div className="flex flex-col justify-end">
-                      <button 
-                        type="submit"
-                        className="w-full bg-[#795900] hover:bg-[#634900] text-[#fef9e9] font-['Manrope',sans-serif] text-[10px] font-bold tracking-widest uppercase py-3 transition-colors border-0 cursor-pointer"
-                      >
-                        Send Inquiry
-                      </button>
-                    </div>
-                  </div>
-
                   <div className="flex flex-col gap-1.5">
-                    <label htmlFor="inq-note" className="text-[9px] font-bold tracking-widest text-[#1d1c12]/60 uppercase font-['Manrope',sans-serif]">Inquiry Customization / Notes</label>
+                    <label htmlFor="inq-note" className="text-[9px] font-bold tracking-widest text-[#1d1c12]/60 uppercase font-['Manrope',sans-serif]">Notes / Customisation</label>
                     <textarea
                       id="inq-note"
-                      placeholder="e.g. Please use raw Colombian Emerald instead of White Diamond..."
-                      rows={2}
+                      placeholder="e.g. Questions about materials, alterations, or anything else..."
+                      rows={3}
                       value={inquiryForm.note}
                       onChange={e => setInquiryForm(f => ({ ...f, note: e.target.value }))}
                       className="w-full bg-[#fef9e9]/70 border border-[#1d1c12]/10 py-2.5 px-3 font-['Manrope',sans-serif] text-xs outline-none resize-none focus:border-[#795900]"
                     />
                   </div>
+
+                  <button 
+                    type="submit"
+                    className="w-full bg-[#795900] hover:bg-[#634900] text-[#fef9e9] font-['Manrope',sans-serif] text-[10px] font-bold tracking-widest uppercase py-3 transition-colors border-0 cursor-pointer"
+                  >
+                    Send Inquiry
+                  </button>
                 </form>
               )}
 

@@ -6,7 +6,7 @@ export interface CartItem {
   price: string;
   image: string;
   category: string;
-  size: string;
+  size?: string;
   quantity: number;
 }
 
@@ -16,8 +16,8 @@ interface CartContextValue {
   openCart: () => void;
   closeCart: () => void;
   addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (id: string, size: string) => void;
-  updateQuantity: (id: string, size: string, quantity: number) => void;
+  removeItem: (id: string, size?: string) => void;
+  updateQuantity: (id: string, size: string | undefined, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -35,11 +35,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addItem = useCallback((newItem: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
       const existing = prev.find(
-        (i) => i.id === newItem.id && i.size === newItem.size
+        (i) => i.id === newItem.id && (i.size ?? "") === (newItem.size ?? "")
       );
       if (existing) {
         return prev.map((i) =>
-          i.id === newItem.id && i.size === newItem.size
+          i.id === newItem.id && (i.size ?? "") === (newItem.size ?? "")
             ? { ...i, quantity: i.quantity + 1 }
             : i
         );
@@ -49,18 +49,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setIsOpen(true);
   }, []);
 
-  const removeItem = useCallback((id: string, size: string) => {
-    setItems((prev) => prev.filter((i) => !(i.id === id && i.size === size)));
+  const removeItem = useCallback((id: string, size?: string) => {
+    setItems((prev) => prev.filter((i) => !(i.id === id && (i.size ?? "") === (size ?? ""))));
   }, []);
 
   const updateQuantity = useCallback(
-    (id: string, size: string, quantity: number) => {
+    (id: string, size: string | undefined, quantity: number) => {
       if (quantity <= 0) {
-        setItems((prev) => prev.filter((i) => !(i.id === id && i.size === size)));
+        setItems((prev) => prev.filter((i) => !(i.id === id && (i.size ?? "") === (size ?? ""))));
       } else {
         setItems((prev) =>
           prev.map((i) =>
-            i.id === id && i.size === size ? { ...i, quantity } : i
+            i.id === id && (i.size ?? "") === (size ?? "") ? { ...i, quantity } : i
           )
         );
       }

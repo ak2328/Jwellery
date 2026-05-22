@@ -2,339 +2,64 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { NavbarSection } from "./sections/NavbarSection";
 import { FooterSection } from "./sections/FooterSection";
-
-// Static defaults for failover
-const DEFAULT_PRODUCTS = [
-  {
-    id: "aurelius-band",
-    category: "Rings",
-    name: "Aurelius Band",
-    description: "Hand-hammered 22k gold with a whispered patina of antiquity.",
-    price: "$980",
-    image: "/figmaAssets2/product-aurelius-band.png",
-    isNew: true,
-      },
-  {
-    id: "mani-link-chain",
-    category: "Necklaces",
-    name: "Mani Link Chain",
-    description: "Each link forged individually, carrying the mark of its maker.",
-    price: "$1,240",
-    image: "/figmaAssets2/product-mani-link-chain.png",
-    isNew: true,
-      },
-  {
-    id: "gilded-drift-cuff",
-    category: "Cuffs & Bangles",
-    name: "Gilded Drift Cuff",
-    description: "Molten gold shaped by hand � no two are exactly alike.",
-    price: "$740",
-    image: "/figmaAssets2/product-gilded-drift-cuff.png",
-    isNew: true,
-      },
-  {
-    id: "unisex-gold-bracelet",
-    category: "Bracelets",
-    name: "Unisex Gold Bracelet",
-    description: "A timeless unisex statement, meticulously balanced with heavy solid gold links.",
-    price: "$1,420",
-    image: "/products/new-bracelet.png",
-    isNew: true,
-    gallery: [
-          "/products/bracelet-unisex-1.jpg",
-          "/products/bracelet-unisex-2.jpg",
-          "/products/bracelet-unisex-3.jpg",
-          "/products/bracelet-unisex-4.jpg"
-        ]
-      },
-  {
-    id: "bar-pendant",
-    category: "Pendants",
-    name: "Bar Pendant",
-    description: "A sleek, architectural vertical gold bar with subtle hand-struck facets.",
-    price: "$850",
-    image: "/products/new-bar-pendant.jpg",
-    isNew: true,
-    gallery: [
-          "/products/pendant-bar-pendant-1.jpg",
-          "/products/pendant-bar-pendant-2.jpg",
-          "/products/pendant-bar-pendant-3.jpg",
-          "/products/pendant-bar-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "bird-pendant",
-    category: "Pendants",
-    name: "Bird Pendant",
-    description: "A delicate avian silhouette poised in solid gold, capturing the grace of flight.",
-    price: "$890",
-    image: "/products/pendant-bird-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-bird-pendant-1.jpg",
-          "/products/pendant-bird-pendant-2.jpg",
-          "/products/pendant-bird-pendant-3.jpg",
-          "/products/pendant-bird-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "boat-pendant",
-    category: "Pendants",
-    name: "Boat Pendant",
-    description: "A maritime heritage motif sculpted with flowing curves and satin reflections.",
-    price: "$940",
-    image: "/products/pendant-boat-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-boat-pendant-1.jpg",
-          "/products/pendant-boat-pendant-2.jpg",
-          "/products/pendant-boat-pendant-3.jpg",
-          "/products/pendant-boat-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "butterfly-pendant",
-    category: "Pendants",
-    name: "Butterfly Pendant",
-    description: "Intricately openworked butterfly wings reflecting pure light with every movement.",
-    price: "$920",
-    image: "/products/pendant-butterfly-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-butterfly-pendant-1.jpg",
-          "/products/pendant-butterfly-pendant-2.jpg",
-          "/products/pendant-butterfly-pendant-3.jpg",
-          "/products/pendant-butterfly-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "fish-pendant",
-    category: "Pendants",
-    name: "Fish Pendant",
-    description: "A symbolic heritage fish motif, intricately carved with exquisite attention to detail.",
-    price: "$920",
-    image: "/products/new-fish-pendant.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-fish-pendant-1.jpg",
-          "/products/pendant-fish-pendant-2.jpg",
-          "/products/pendant-fish-pendant-3.jpg",
-          "/products/pendant-fish-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "flower-pendant",
-    category: "Pendants",
-    name: "Flower Pendant",
-    description: "A blooming floral medallion detailed with hand-engraved petals in high-carat gold.",
-    price: "$860",
-    image: "/products/pendant-flower-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-flower-pendant-1.jpg",
-          "/products/pendant-flower-pendant-2.jpg",
-          "/products/pendant-flower-pendant-3.jpg",
-          "/products/pendant-flower-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "leaf-pendant",
-    category: "Pendants",
-    name: "Leaf Pendant",
-    description: "Natural botanical elegance preserved in solid gold with lifelike vein texturing.",
-    price: "$840",
-    image: "/products/pendant-leaf-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-leaf-pendant-1.jpg",
-          "/products/pendant-leaf-pendant-2.jpg",
-          "/products/pendant-leaf-pendant-3.jpg",
-          "/products/pendant-leaf-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "moon-pendant",
-    category: "Pendants",
-    name: "Moon Pendant",
-    description: "A celestial crescent cast with a gentle, dreamlike hammered patina.",
-    price: "$960",
-    image: "/products/pendant-moon-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-moon-pendant-1.jpg",
-          "/products/pendant-moon-pendant-2.jpg",
-          "/products/pendant-moon-pendant-3.jpg",
-          "/products/pendant-moon-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "pendant-set",
-    category: "Pendants",
-    name: "Pendant Set",
-    description: "A magnificent matching ensemble of handcrafted pendants for layered elegance.",
-    price: "$1,450",
-    image: "/products/pendant-pendant-set-cover.jpg",
-    isNew: true,
-    gallery: [
-          "/products/pendant-pendant-set-1.jpg",
-          "/products/pendant-pendant-set-2.jpg",
-          "/products/pendant-pendant-set-3.jpg",
-          "/products/pendant-pendant-set-4.jpg"
-        ]
-      },
-  {
-    id: "plus-pendant",
-    category: "Pendants",
-    name: "Plus Pendant",
-    description: "A modern geometric cross accent radiating bold symmetry and timeless style.",
-    price: "$780",
-    image: "/products/pendant-plus-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-plus-pendant-1.jpg",
-          "/products/pendant-plus-pendant-2.jpg",
-          "/products/pendant-plus-pendant-3.jpg",
-          "/products/pendant-plus-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "snake-pendant",
-    category: "Pendants",
-    name: "Snake Pendant",
-    description: "A serpentine masterpiece coiling with mesmerizing texture and serpentine allure.",
-    price: "$1,120",
-    image: "/products/pendant-snake-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-snake-pendant-1.jpg",
-          "/products/pendant-snake-pendant-2.jpg",
-          "/products/pendant-snake-pendant-3.jpg",
-          "/products/pendant-snake-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "spiral-pendant",
-    category: "Pendants",
-    name: "Spiral Pendant",
-    description: "An infinite golden spiral symbolizing continuous motion and artisanal harmony.",
-    price: "$880",
-    image: "/products/pendant-spiral-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-spiral-pendant-1.jpg",
-          "/products/pendant-spiral-pendant-2.jpg",
-          "/products/pendant-spiral-pendant-3.jpg",
-          "/products/pendant-spiral-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "star-pendant",
-    category: "Pendants",
-    name: "Star Pendant",
-    description: "A brilliant celestial starburst capturing warm internal glows from every angle.",
-    price: "$910",
-    image: "/products/pendant-star-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-star-pendant-1.jpg",
-          "/products/pendant-star-pendant-2.jpg",
-          "/products/pendant-star-pendant-3.jpg",
-          "/products/pendant-star-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "tiger-pendant",
-    category: "Pendants",
-    name: "Tiger Pendant",
-    description: "A fierce and majestic tiger crest, masterfully struck with bold Milanese heritage.",
-    price: "$1,280",
-    image: "/products/pendant-tiger-pendant-cover.png",
-    isNew: true,
-    gallery: [
-          "/products/pendant-tiger-pendant-1.jpg",
-          "/products/pendant-tiger-pendant-2.jpg",
-          "/products/pendant-tiger-pendant-3.jpg",
-          "/products/pendant-tiger-pendant-4.jpg"
-        ]
-      },
-  {
-    id: "aurelius-chain",
-    category: "Necklaces",
-    name: "The Aurelius Chain",
-    description: "A heritage link necklace cast in 18k gold-plated silver alloy.",
-    price: "$1,240",
-    image: "/figmaAssets/the-aurelius-chain---detailed-gold-link-necklace.png",
-    isNew: false,
-      },
-  {
-    id: "molten-hoops",
-    category: "Rings",
-    name: "Molten Hoops",
-    description: "Textured gold earrings sculpted to capture light in motion.",
-    price: "$890",
-    image: "/figmaAssets/molten-hoops---textured-gold-earrings.png",
-    isNew: false,
-      },
-  {
-    id: "oro-signet",
-    category: "Rings",
-    name: "Oro Signet Ring",
-    description: "A bold signet with hand-engraved heritage motifs in solid gold.",
-    price: "$1,080",
-    image: "/figmaAssets/close-up-of-artisanal-gold-jewelry-on-a-person.png",
-    isNew: false,
-      },
-];
-
-const CATEGORIES = [
-  { value: "All", label: "All Creations" },
-  { value: "Rings", label: "Rings" },
-  { value: "Necklaces", label: "Necklaces" },
-  { value: "Cuffs & Bangles", label: "Cuffs & Bangles" },
-  { value: "Bracelets", label: "Bracelets" },
-  { value: "Pendants", label: "Pendants" },
-];
-
-const SORT_OPTIONS = [
-  { value: "featured", label: "Featured" },
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
-  { value: "new", label: "Newest Arrivals" },
-];
-
-// Preset images for convenient demo product uploads
-const PRESET_IMAGES = [
-  { label: "Classic Signet", url: "/figmaAssets/close-up-of-artisanal-gold-jewelry-on-a-person.png" },
-  { label: "Heritage Chain", url: "/figmaAssets/the-aurelius-chain---detailed-gold-link-necklace.png" },
-  { label: "Textured Hoops", url: "/figmaAssets/molten-hoops---textured-gold-earrings.png" },
-  { label: "Liquid Cuff", url: "/figmaAssets2/product-gilded-drift-cuff.png" },
-  { label: "Forged Band", url: "/figmaAssets2/product-aurelius-band.png" },
-  { label: "Unisex Bracelet", url: "/products/bracelet-unisex-1.jpg" },
-  { label: "Bar Pendant", url: "/products/pendant-bar-1.jpg" },
-  { label: "Fish Pendant", url: "/products/pendant-fish-1.jpg" },
-];
-
-function parsePrice(p: string) {
-  return parseInt(p.replace(/[^0-9]/g, ""), 10) || 0;
-}
-
+import { useWishlist } from "@/lib/WishlistContext";
+import { DEFAULT_PRODUCTS, BASE_CATEGORIES, PRESET_IMAGES, SORT_OPTIONS, parsePrice } from '@/lib/data/products';
 export const CollectionPage = (): JSX.Element => {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
+  const { toggle: wishToggle, isWishlisted } = useWishlist();
   const [products, setProducts] = useState(DEFAULT_PRODUCTS);
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState(() => {
+    const saved = sessionStorage.getItem("mdoro_active_category");
+    return saved || "All";
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("mdoro_active_category", activeCategory);
+  }, [activeCategory]);
   const [sort, setSort] = useState("featured");
   const [sortOpen, setSortOpen] = useState(false);
 
-  // Modal / Drawer state for adding custom product
+  // ── Category state (persisted to localStorage) ──
+  const [extraCategories, setExtraCategories] = useState<{ value: string; label: string }[]>(() => {
+    try {
+      const saved = localStorage.getItem("mdoro_extra_categories");
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+
+  // All categories = base + user-added, prefixed by "All"
+  const allCategories = [
+    { value: "All", label: "All" },
+    ...BASE_CATEGORIES,
+    ...extraCategories,
+  ];
+
+  // ── Add-product drawer state ──
   const [modalOpen, setModalOpen] = useState(false);
   const [formName, setFormName] = useState("");
-  const [formCategory, setFormCategory] = useState("Rings");
-  const [formPrice, setFormPrice] = useState("$1,100");
+  const [formCategory, setFormCategory] = useState(BASE_CATEGORIES[0].value);
+  const [formPrice, setFormPrice] = useState("");
   const [formDescription, setFormDescription] = useState("");
   const [formImage, setFormImage] = useState(PRESET_IMAGES[0].url);
   const [customImageActive, setCustomImageActive] = useState(false);
   const [customImageUrl, setCustomImageUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // ── New-category inline input state ──
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [newCategoryInput, setNewCategoryInput] = useState("");
+
+  const handleAddCategory = () => {
+    const trimmed = newCategoryInput.trim();
+    if (!trimmed) return;
+    const entry = { value: trimmed, label: trimmed };
+    const updated = [...extraCategories, entry];
+    setExtraCategories(updated);
+    localStorage.setItem("mdoro_extra_categories", JSON.stringify(updated));
+    setFormCategory(trimmed);
+    setNewCategoryInput("");
+    setAddingCategory(false);
+  };
 
   // Sync state with Supabase on load
   const loadProducts = async () => {
@@ -445,7 +170,7 @@ export const CollectionPage = (): JSX.Element => {
                 onClick={() => setLocation("/")}
                 style={{ fontFamily: "'Manrope', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#1d1c12", opacity: 0.35, textDecoration: "none", cursor: "pointer" }}
               >
-                Mani D&apos;Oro Atelier
+                Mani D&apos;Oro
               </span>
               <span style={{ color: "#1d1c12", opacity: 0.2, fontSize: "11px" }}>/</span>
               <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#1d1c12", opacity: 0.35 }}>
@@ -467,9 +192,9 @@ export const CollectionPage = (): JSX.Element => {
                     color: "#1d1c12",
                   }}
                 >
-                  Selected
+                  Curated
                   <br />
-                  Artifacts
+                  Collection
                 </h1>
               </div>
 
@@ -483,7 +208,7 @@ export const CollectionPage = (): JSX.Element => {
                     opacity: 0.65,
                   }}
                 >
-                  A curated assembly of permanent pieces, hand-forged in our Milanese studio and Rajasthan foundry. Each artifact is an intersection of ancient goldsmithing techniques and sharp, architectural silhouettes.
+                  A curated collection of contemporary demi-fine jewellery designed for everyday styling, effortless layering, and modern self-expression.
                 </p>
                 
                 <div className="flex justify-between items-center">
@@ -500,13 +225,7 @@ export const CollectionPage = (): JSX.Element => {
                     {filtered.length} objects available
                   </p>
                   
-                  {/* Luxury button to add creation */}
-                  <button
-                    onClick={() => setModalOpen(true)}
-                    className="font-['Manrope',sans-serif] text-[10px] font-bold tracking-widest uppercase border border-[#795900]/30 hover:border-[#795900] text-[#795900] py-2.5 px-5 transition-all bg-transparent cursor-pointer"
-                  >
-                    + Register Custom creation
-                  </button>
+
                 </div>
               </div>
             </div>
@@ -523,7 +242,7 @@ export const CollectionPage = (): JSX.Element => {
 
               {/* Category filters */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-0">
-                {CATEGORIES.map((cat) => (
+                {allCategories.map((cat) => (
                   <button
                     key={cat.value}
                     data-testid={`filter-${cat.value.toLowerCase().replace(/\s+/g, '-')}`}
@@ -655,9 +374,43 @@ export const CollectionPage = (): JSX.Element => {
                       {/* Transparent Overlay for Copy Protection */}
                       <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
                       {/* Watermark Logo */}
-                      <div className="absolute top-4 right-4 w-12 opacity-[0.25] pointer-events-none z-10 transition-opacity duration-500 group-hover:opacity-0 mix-blend-multiply sm:mix-blend-normal filter contrast-125 brightness-75">
+                      <div className="absolute top-4 right-4 w-12 opacity-[0.25] pointer-events-none z-10 transition-opacity duration-500 group-hover:opacity-0 filter contrast-125 brightness-75">
                         <img src="/logo.png" alt="Mani D'Oro" className="w-full h-auto drop-shadow-md" />
                       </div>
+
+                      {/* Wishlist heart button */}
+                      <button
+                        aria-label={isWishlisted(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          wishToggle({ id: product.id, name: product.name, price: product.price, image: product.image, category: product.category });
+                        }}
+                        style={{
+                          position: "absolute", top: 12, right: 12, zIndex: 20,
+                          width: 36, height: 36,
+                          background: "rgba(254,249,233,0.88)",
+                          border: "1px solid rgba(201,168,76,0.25)",
+                          borderRadius: "50%",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          cursor: "pointer",
+                          backdropFilter: "blur(4px)",
+                          transition: "background 0.2s, transform 0.2s, border-color 0.2s",
+                          boxShadow: "0 2px 8px rgba(29,28,18,0.12)",
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "rgba(254,249,233,1)"; e.currentTarget.style.borderColor = "rgba(201,168,76,0.6)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "rgba(254,249,233,0.88)"; e.currentTarget.style.borderColor = "rgba(201,168,76,0.25)"; }}
+                        onMouseDown={e => { e.currentTarget.style.transform = "scale(0.88)"; }}
+                        onMouseUp={e => { e.currentTarget.style.transform = "scale(1)"; }}
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24"
+                          fill={isWishlisted(product.id) ? "#c9a84c" : "none"}
+                          stroke={isWishlisted(product.id) ? "#c9a84c" : "rgba(29,28,18,0.55)"}
+                          strokeWidth="1.5"
+                          style={{ transition: "fill 0.25s, stroke 0.25s" }}
+                        >
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
                       <div className="product-card-overlay" />
                       <div className="product-card-details">
                         <p
@@ -851,19 +604,56 @@ export const CollectionPage = (): JSX.Element => {
                 <div className="grid grid-cols-2 gap-4">
                   {/* Category select */}
                   <div className="flex flex-col gap-1.5">
-                    <label htmlFor="prod-cat" className="text-[9px] font-bold tracking-widest text-[#795900] uppercase font-['Manrope',sans-serif]">Category Group</label>
-                    <select
-                      id="prod-cat"
-                      value={formCategory}
-                      onChange={e => setFormCategory(e.target.value)}
-                      className="w-full bg-[#f8f3e4] border border-[#1d1c12]/15 py-3 px-3 font-['Manrope',sans-serif] text-xs text-[#1d1c12] outline-none"
-                    >
-                      <option value="Rings">Rings</option>
-                      <option value="Necklaces">Necklaces</option>
-                      <option value="Cuffs & Bangles">Cuffs &amp; Bangles</option>
-                      <option value="Bracelets">Bracelets</option>
-                      <option value="Pendants">Pendants</option>
-                    </select>
+                    <label htmlFor="prod-cat" className="text-[9px] font-bold tracking-widest text-[#795900] uppercase font-['Manrope',sans-serif]">Category</label>
+
+                    {addingCategory ? (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          autoFocus
+                          placeholder="New category name"
+                          value={newCategoryInput}
+                          onChange={e => setNewCategoryInput(e.target.value)}
+                          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleAddCategory(); } if (e.key === "Escape") setAddingCategory(false); }}
+                          className="flex-1 bg-[#f8f3e4] border border-[#795900]/50 py-2.5 px-3 font-['Manrope',sans-serif] text-xs text-[#1d1c12] outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddCategory}
+                          className="px-3 bg-[#795900] text-[#fef9e9] font-['Manrope',sans-serif] text-[10px] font-bold tracking-wider uppercase border-none cursor-pointer"
+                        >
+                          Add
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAddingCategory(false)}
+                          className="px-3 bg-transparent border border-[#1d1c12]/20 text-[#1d1c12]/60 font-['Manrope',sans-serif] text-[10px] font-bold tracking-wider uppercase cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <select
+                          id="prod-cat"
+                          value={formCategory}
+                          onChange={e => setFormCategory(e.target.value)}
+                          className="flex-1 bg-[#f8f3e4] border border-[#1d1c12]/15 py-3 px-3 font-['Manrope',sans-serif] text-xs text-[#1d1c12] outline-none"
+                        >
+                          {[...BASE_CATEGORIES, ...extraCategories].map(c => (
+                            <option key={c.value} value={c.value}>{c.label}</option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          title="Add new category"
+                          onClick={() => setAddingCategory(true)}
+                          className="px-3 bg-[#f8f3e4] border border-[#1d1c12]/15 text-[#795900] font-bold text-lg leading-none cursor-pointer hover:border-[#795900] transition-colors"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
                   </div>
                   {/* Price */}
                   <div className="flex flex-col gap-1.5">

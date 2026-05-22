@@ -1,246 +1,783 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "wouter";
 import { NavbarSection } from "./sections/NavbarSection";
 import { FooterSection } from "./sections/FooterSection";
 
-function useInView(threshold = 0.15) {
+/* ─── Intersection observer ──────────────────────────────────── */
+function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold }
+    );
     obs.observe(el);
     return () => obs.disconnect();
   }, [threshold]);
   return { ref, visible };
 }
 
-function FadeSection({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const { ref, visible } = useInView(0.12);
+/* ─── Reveal wrapper ─────────────────────────────────────────── */
+function Reveal({
+  children,
+  delay = 0,
+  className = "",
+  direction = "up",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  direction?: "up" | "left" | "right" | "none";
+}) {
+  const { ref, visible } = useInView(0.08);
+  const offsets: Record<string, string> = {
+    up: "translateY(32px)",
+    left: "translateX(-32px)",
+    right: "translateX(32px)",
+    none: "none",
+  };
   return (
-    <div ref={ref} className={className} style={{
-      opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(36px)",
-      transition: `opacity 0.9s ease ${delay}s, transform 0.9s ease ${delay}s`,
-    }}>{children}</div>
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "none" : offsets[direction],
+        transition: `opacity 0.95s cubic-bezier(0.4,0,0.2,1) ${delay}s,
+                     transform 0.95s cubic-bezier(0.4,0,0.2,1) ${delay}s`,
+      }}
+    >
+      {children}
+    </div>
   );
 }
 
-const TIMELINE = [
-  { year: "2018", title: "The Seed", text: "In a small workshop in Kishangarh, Rajasthan, a single gold ingot was hand-hammered into what would become the first Mani D'Oro signet ring — an object of obsession that sparked a decade-long pursuit of perfection." },
-  { year: "2019", title: "The Fire", text: "Partnering with master goldsmiths from Milan's historic Quartiere degli Orafi, we fused Italian design sensibility with Indian metallurgical traditions. The result: a process that heats gold beyond 1,000°C to achieve our signature molten patina." },
-  { year: "2020", title: "The Mark", text: "Mani D'Oro was officially registered as an atelier. Every piece now carries the MdO hallmark — a tiny hammered cipher that certifies its handmade origin and ensures complete traceability." },
-  { year: "2022", title: "The Archive", text: "With over forty unique pieces completed, we established The Archive — a living catalogue of every creation, ensuring that the story of each work is preserved alongside its physical form." },
-  { year: "2024", title: "The Horizon", text: "Today, Mani D'Oro serves a global clientele of collectors and connoisseurs. Every commission begins with a conversation, every piece ends with a legacy." },
-];
+/* ─── Gold rule ornament ─────────────────────────────────────── */
+function Rule({ width = 48 }: { width?: number }) {
+  return <div style={{ width, height: 1, background: "#c9a84c" }} />;
+}
 
-const PROCESS_STEPS = [
-  { num: "01", title: "Consultation", desc: "Every piece begins with a deep conversation — understanding not just dimensions, but the story the wearer wants to carry." },
-  { num: "02", title: "Sketching", desc: "Original gouache illustrations are hand-painted by our design atelier, translating emotion into form before metal is ever touched." },
-  { num: "03", title: "Forging", desc: "Solid gold is heated beyond 1,000°C in our Kishangarh foundry, then shaped using hand tools unchanged for three centuries." },
-  { num: "04", title: "Finishing", desc: "Each piece is polished, hallmarked, and archived. The final patina is achieved through a proprietary acid-wash that reveals the metal's inner warmth." },
-  { num: "05", title: "Presentation", desc: "Delivered in a hand-stitched leather folio with provenance documentation, original sketches, and a certificate of authenticity." },
-];
+const BELIEFS = ["Not by age", "Not by occasion", "Not by rules"];
 
+/* ═══════════════════════════════════════════════════════════════
+   PAGE
+═══════════════════════════════════════════════════════════════ */
 export const StoryPage = (): JSX.Element => {
-  const heroVis = useInView(0.1);
+  const [, setLocation] = useLocation();
+
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const [heroIn, setHeroIn] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setHeroIn(true), 100);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fef9e9" }}>
+    <div style={{ minHeight: "100vh", background: "#fef9e9", overflowX: "hidden" }}>
       <NavbarSection />
 
-      {/* ═══ HERO ═══ */}
-      <section ref={heroVis.ref} style={{
-        minHeight: "100vh", display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center", textAlign: "center",
-        padding: "120px 24px 80px", position: "relative", overflow: "hidden",
-      }}>
-        {/* Subtle warm gradient */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "linear-gradient(180deg, #fef9e9 0%, #f5f0e4 50%, #fef9e9 100%)",
-          zIndex: 0,
-        }} />
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 720 }}>
-          <span style={{
-            fontFamily: "'Manrope', sans-serif", fontSize: 10, fontWeight: 700,
-            letterSpacing: "0.5em", textTransform: "uppercase", color: "rgba(201,168,76,0.6)",
-            display: "block", marginBottom: 28,
-            opacity: heroVis.visible ? 1 : 0, transition: "opacity 0.8s ease 0.2s",
-          }}>Est. 2018 · Kishangarh — Milano</span>
+      {/* ══════════════════════════════════════════════════════════
+          1. HERO — full-bleed, bottom-anchored copy
+         ══════════════════════════════════════════════════════════ */}
+      <section
+        style={{
+          position: "relative",
+          height: "100vh",
+          minHeight: 600,
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "flex-end",
+        }}
+      >
+        {/* Parallax bg */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            transform: `translateY(${scrollY * 0.28}px)`,
+            willChange: "transform",
+          }}
+        >
+          <img
+            src="/products/bracelet-unisex-1.jpg"
+            alt=""
+            aria-hidden="true"
+            style={{
+              width: "100%",
+              height: "115%",
+              objectFit: "cover",
+              objectPosition: "center 30%",
+              filter: "brightness(0.45)",
+              display: "block",
+            }}
+          />
+        </div>
 
-          <h1 style={{
-            fontFamily: "'Noto Serif', Georgia, serif",
-            fontSize: "clamp(42px, 9vw, 96px)", fontWeight: 400,
-            letterSpacing: "-0.02em", lineHeight: 0.95,
-            color: "#1d1c12", margin: "0 0 28px",
-            opacity: heroVis.visible ? 1 : 0, transform: heroVis.visible ? "translateY(0)" : "translateY(30px)",
-            transition: "all 1s ease 0.3s",
-          }}>Our Story</h1>
+        {/* Bottom veil */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(to top, rgba(29,28,18,0.96) 0%, rgba(29,28,18,0.3) 50%, transparent 100%)",
+          }}
+        />
 
-          <div style={{
-            width: heroVis.visible ? 100 : 0, height: 1,
-            background: "linear-gradient(90deg, transparent, #c9a84c, transparent)",
-            margin: "0 auto 32px", transition: "width 1s ease 0.7s",
-          }} />
+        {/* Breadcrumb */}
+        <div
+          style={{
+            position: "absolute",
+            top: 96,
+            left: "clamp(24px, 5vw, 64px)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            opacity: heroIn ? 1 : 0,
+            transition: "opacity 0.8s ease 0.2s",
+          }}
+        >
+          <span
+            onClick={() => setLocation("/")}
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "rgba(254,249,233,0.38)",
+              cursor: "pointer",
+            }}
+          >
+            Mani D&apos;Oro
+          </span>
+          <span style={{ color: "rgba(254,249,233,0.18)", fontSize: 10 }}>/</span>
+          <span
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "rgba(254,249,233,0.38)",
+            }}
+          >
+            Our Story
+          </span>
+        </div>
 
-          <p style={{
-            fontFamily: "'Noto Serif', Georgia, serif", fontStyle: "italic",
-            fontSize: "clamp(16px, 2.5vw, 22px)", color: "rgba(29,28,18,0.5)",
-            lineHeight: 1.6, margin: 0,
-            opacity: heroVis.visible ? 1 : 0, transition: "opacity 0.8s ease 1s",
-          }}>
-            Born of fire, shaped by hand, guided by heritage —<br />
-            the story of gold told one piece at a time.
+        {/* Copy */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 2,
+            width: "100%",
+            maxWidth: 1280,
+            margin: "0 auto",
+            padding: "0 clamp(24px, 5vw, 64px) clamp(56px, 8vh, 96px)",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.38em",
+              textTransform: "uppercase",
+              color: "#c9a84c",
+              margin: "0 0 24px",
+              opacity: heroIn ? 1 : 0,
+              transform: heroIn ? "none" : "translateY(10px)",
+              transition: "all 0.8s ease 0.4s",
+            }}
+          >
+            Our Story
           </p>
+
+          <h1
+            style={{
+              fontFamily: "'Noto Serif', Georgia, serif",
+              fontSize: "clamp(52px, 9vw, 118px)",
+              fontWeight: 400,
+              fontStyle: "italic",
+              lineHeight: 0.94,
+              letterSpacing: "-0.02em",
+              color: "#fef9e9",
+              margin: "0 0 44px",
+              opacity: heroIn ? 1 : 0,
+              transform: heroIn ? "none" : "translateY(28px)",
+              transition: "all 1s ease 0.55s",
+            }}
+          >
+            Effortless.
+            <br />
+            Expressive.
+            <br />
+            Every&nbsp;Day.
+          </h1>
+
+          <div
+            style={{
+              width: heroIn ? 64 : 0,
+              height: 1,
+              background: "#c9a84c",
+              transition: "width 1s ease 1.1s",
+              marginBottom: 28,
+            }}
+          />
+
+          <p
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontSize: "clamp(13px, 1.4vw, 15px)",
+              lineHeight: 1.9,
+              color: "rgba(254,249,233,0.55)",
+              maxWidth: 460,
+              margin: 0,
+              opacity: heroIn ? 1 : 0,
+              transition: "opacity 1s ease 1.15s",
+            }}
+          >
+            Demi-fine jewellery designed to feel like a natural extension of who you are.
+          </p>
+        </div>
+
+        {/* Scroll cue */}
+        <div
+          style={{
+            position: "absolute",
+            right: "clamp(24px, 4vw, 48px)",
+            bottom: "clamp(36px, 5vh, 64px)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 10,
+            opacity: heroIn ? 0.4 : 0,
+            transition: "opacity 1s ease 1.5s",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.24em",
+              textTransform: "uppercase",
+              color: "#fef9e9",
+              writingMode: "vertical-rl",
+            }}
+          >
+            Scroll
+          </span>
+          <div
+            style={{ width: 1, height: 40, background: "linear-gradient(#c9a84c, transparent)" }}
+          />
         </div>
       </section>
 
-      {/* ═══ PHILOSOPHY ═══ */}
-      <section style={{ padding: "80px 24px", maxWidth: 900, margin: "0 auto" }}>
-        <FadeSection>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 40 }}>
-            <div style={{ textAlign: "center" }}>
-              <h2 style={{
-                fontFamily: "'Noto Serif', Georgia, serif", fontSize: "clamp(28px, 4vw, 40px)",
-                fontWeight: 400, color: "#1d1c12", margin: "0 0 24px",
-              }}>The Philosophy</h2>
-              <p style={{
-                fontFamily: "'Manrope', sans-serif", fontSize: 14, lineHeight: 2,
-                color: "rgba(29,28,18,0.55)", maxWidth: 640, margin: "0 auto",
-              }}>
-                At Mani D'Oro, we believe luxury is not about perfection — it is about presence.
-                Every microscopic variation in our hammered gold is a fingerprint of the artisan, a record
-                of the moment of creation. We do not seek to erase these traces; we celebrate them.
-                Our pieces are not manufactured — they are authored.
-              </p>
-            </div>
-          </div>
-        </FadeSection>
+      {/* ══════════════════════════════════════════════════════════
+          2. THE IDEA — spacious text, cream background
+         ══════════════════════════════════════════════════════════ */}
+      <section
+        style={{
+          padding: "clamp(96px, 14vh, 160px) clamp(24px, 5vw, 64px)",
+          maxWidth: 1280,
+          margin: "0 auto",
+        }}
+      >
+        <Reveal>
+          <p
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.32em",
+              textTransform: "uppercase",
+              color: "#795900",
+              margin: "0 0 36px",
+            }}
+          >
+            The Idea
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.1}>
+          {/* Oversize editorial statement — the whole founding idea */}
+          <p
+            style={{
+              fontFamily: "'Noto Serif', Georgia, serif",
+              fontSize: "clamp(26px, 4.2vw, 56px)",
+              fontWeight: 400,
+              lineHeight: 1.22,
+              letterSpacing: "-0.01em",
+              color: "#1d1c12",
+              maxWidth: 880,
+              margin: 0,
+            }}
+          >
+            Mani D&apos;oro was born from the idea of creating Demi-fine jewellery that should feel
+            like a{" "}
+            <em style={{ fontStyle: "italic", color: "#795900" }}>
+              natural extension of personal style
+            </em>{" "}
+            — effortless, expressive, and wearable every day.
+          </p>
+        </Reveal>
       </section>
 
-      {/* ═══ TIMELINE ═══ */}
-      <section style={{ padding: "40px 24px 100px", background: "#1a1c12", color: "#fef9e9" }}>
-        <div style={{ maxWidth: 800, margin: "0 auto" }}>
-          <FadeSection>
-            <h2 style={{
-              fontFamily: "'Noto Serif', Georgia, serif", fontSize: "clamp(24px, 3.5vw, 36px)",
-              fontWeight: 400, textAlign: "center", margin: "60px 0 60px", color: "#fef9e9",
-            }}>A Timeline of Fire</h2>
-          </FadeSection>
+      {/* ══════════════════════════════════════════════════════════
+          3. ONE STRONG IMAGE — edge-to-edge, no clutter
+         ══════════════════════════════════════════════════════════ */}
+      <div style={{ overflow: "hidden" }}>
+        <Reveal direction="none">
+          <img
+            src="/products/bracelet-unisex-4.jpg"
+            alt="Mani D'Oro wearable jewellery"
+            style={{
+              width: "100%",
+              height: "clamp(360px, 58vh, 680px)",
+              objectFit: "cover",
+              objectPosition: "center 45%",
+              display: "block",
+              filter: "brightness(0.88)",
+              transition: "transform 3s cubic-bezier(0.4,0,0.2,1)",
+            }}
+            className="story-zoom"
+          />
+        </Reveal>
+      </div>
 
-          <div style={{ position: "relative", paddingLeft: 40 }}>
-            {/* Gold vertical line */}
-            <div style={{
-              position: "absolute", left: 14, top: 0, bottom: 0, width: 1,
-              background: "linear-gradient(180deg, transparent, rgba(201,168,76,0.4), transparent)",
-            }} />
+      {/* ══════════════════════════════════════════════════════════
+          4. BELIEFS — dark, pure typography, no images
+         ══════════════════════════════════════════════════════════ */}
+      <section style={{ background: "#1d1c12" }}>
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: "0 auto",
+            padding: "clamp(80px, 12vh, 140px) clamp(24px, 5vw, 64px)",
+          }}
+        >
+          {/* Top label */}
+          <Reveal>
+            <p
+              style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.32em",
+                textTransform: "uppercase",
+                color: "#c9a84c",
+                margin: "0 0 48px",
+              }}
+            >
+              What We Believe
+            </p>
+          </Reveal>
 
-            {TIMELINE.map((t, i) => (
-              <FadeSection key={t.year} delay={i * 0.1}>
-                <div style={{
-                  position: "relative", marginBottom: 56, paddingLeft: 24,
-                }}>
-                  {/* Dot */}
-                  <div style={{
-                    position: "absolute", left: -33, top: 6, width: 9, height: 9,
-                    borderRadius: "50%", background: "#c9a84c",
-                    boxShadow: "0 0 12px rgba(201,168,76,0.4)",
-                  }} />
-                  <span style={{
-                    fontFamily: "'Manrope', sans-serif", fontSize: 10, fontWeight: 700,
-                    letterSpacing: "0.3em", color: "rgba(201,168,76,0.6)",
-                    display: "block", marginBottom: 8,
-                  }}>{t.year}</span>
-                  <h3 style={{
-                    fontFamily: "'Noto Serif', Georgia, serif", fontSize: 22,
-                    fontWeight: 400, color: "#fef9e9", margin: "0 0 12px",
-                  }}>{t.title}</h3>
-                  <p style={{
-                    fontFamily: "'Manrope', sans-serif", fontSize: 13, lineHeight: 1.8,
-                    color: "rgba(254,249,233,0.45)", margin: 0,
-                  }}>{t.text}</p>
+          {/* Split: headline left, body right */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "clamp(40px, 7vw, 112px)",
+              alignItems: "start",
+              marginBottom: "clamp(64px, 10vh, 112px)",
+            }}
+            className="story-split"
+          >
+            <Reveal direction="left">
+              <h2
+                style={{
+                  fontFamily: "'Noto Serif', Georgia, serif",
+                  fontSize: "clamp(30px, 4.2vw, 54px)",
+                  fontWeight: 400,
+                  fontStyle: "italic",
+                  lineHeight: 1.15,
+                  color: "#fef9e9",
+                  margin: 0,
+                }}
+              >
+                Style should{" "}
+                <span style={{ color: "#c9a84c", fontStyle: "normal" }}>never</span>{" "}
+                feel limited.
+              </h2>
+            </Reveal>
+
+            <Reveal direction="right" delay={0.1}>
+              <p
+                style={{
+                  fontFamily: "'Manrope', sans-serif",
+                  fontSize: 15,
+                  lineHeight: 2,
+                  color: "rgba(254,249,233,0.55)",
+                  margin: 0,
+                  paddingTop: 6,
+                }}
+              >
+                That's why our collections combine innovative design with skilled manufacturing
+                — creating Demi-fine jewellery that feels distinctive, with modern aesthetics,
+                versatile styling, and unisex pieces that anyone can make their own.
+              </p>
+            </Reveal>
+          </div>
+
+          {/* Three rules — full width, horizontal dividers */}
+          <div>
+            {BELIEFS.map((b, i) => (
+              <Reveal key={b} delay={i * 0.08}>
+                <div
+                  style={{
+                    borderTop: "1px solid rgba(201,168,76,0.15)",
+                    borderBottom: i === BELIEFS.length - 1 ? "1px solid rgba(201,168,76,0.15)" : undefined,
+                    padding: "clamp(20px, 3vh, 32px) 0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'Noto Serif', Georgia, serif",
+                      fontSize: "clamp(22px, 3.2vw, 42px)",
+                      fontWeight: 400,
+                      fontStyle: "italic",
+                      color: "#fef9e9",
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    {b}
+                  </span>
+                  <div
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: "#c9a84c",
+                      opacity: 0.6,
+                      flexShrink: 0,
+                    }}
+                  />
                 </div>
-              </FadeSection>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ OUR PROCESS ═══ */}
-      <section style={{ padding: "100px 24px", maxWidth: 960, margin: "0 auto" }}>
-        <FadeSection>
-          <h2 style={{
-            fontFamily: "'Noto Serif', Georgia, serif", fontSize: "clamp(24px, 3.5vw, 36px)",
-            fontWeight: 400, textAlign: "center", color: "#1d1c12", margin: "0 0 16px",
-          }}>Our Process</h2>
-          <p style={{
-            fontFamily: "'Manrope', sans-serif", fontSize: 12, textAlign: "center",
-            letterSpacing: "0.15em", textTransform: "uppercase",
-            color: "rgba(29,28,18,0.35)", margin: "0 0 60px",
-          }}>From conversation to creation</p>
-        </FadeSection>
+      {/* ══════════════════════════════════════════════════════════
+          5. VISION — cream, asymmetric text columns
+         ══════════════════════════════════════════════════════════ */}
+      <section
+        style={{
+          padding: "clamp(96px, 14vh, 160px) clamp(24px, 5vw, 64px)",
+          maxWidth: 1280,
+          margin: "0 auto",
+        }}
+      >
+        {/* Label */}
+        <Reveal>
+          <p
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.32em",
+              textTransform: "uppercase",
+              color: "#795900",
+              margin: "0 0 48px",
+            }}
+          >
+            Our Vision
+          </p>
+        </Reveal>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 32 }}>
-          {PROCESS_STEPS.map((s, i) => (
-            <FadeSection key={s.num} delay={i * 0.08}>
-              <div style={{
-                padding: 28, border: "1px solid rgba(29,28,18,0.08)",
-                background: "rgba(245,240,228,0.5)",
-                transition: "border-color 0.3s, box-shadow 0.3s",
+        {/* Asymmetric 5 / 7 columns — heading left, body right */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "5fr 7fr",
+            gap: "clamp(40px, 7vw, 112px)",
+            alignItems: "start",
+          }}
+          className="story-split"
+        >
+          <Reveal direction="left">
+            <h2
+              style={{
+                fontFamily: "'Noto Serif', Georgia, serif",
+                fontSize: "clamp(26px, 3.6vw, 46px)",
+                fontWeight: 400,
+                lineHeight: 1.2,
+                color: "#1d1c12",
+                margin: 0,
+                letterSpacing: "-0.01em",
               }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(201,168,76,0.08)"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(29,28,18,0.08)"; e.currentTarget.style.boxShadow = "none"; }}
+            >
+              Designed for modern lifestyles and evolving identities.
+            </h2>
+          </Reveal>
+
+          <Reveal direction="right" delay={0.1}>
+            <div style={{ paddingTop: 6 }}>
+              <p
+                style={{
+                  fontFamily: "'Manrope', sans-serif",
+                  fontSize: 15,
+                  lineHeight: 2,
+                  color: "rgba(29,28,18,0.62)",
+                  margin: "0 0 24px",
+                }}
               >
-                <span style={{
-                  fontFamily: "'Noto Serif', Georgia, serif", fontSize: 32,
-                  fontWeight: 400, color: "rgba(201,168,76,0.25)", display: "block",
-                  marginBottom: 16, lineHeight: 1,
-                }}>{s.num}</span>
-                <h3 style={{
-                  fontFamily: "'Noto Serif', Georgia, serif", fontSize: 18,
-                  fontWeight: 400, color: "#1d1c12", margin: "0 0 10px",
-                }}>{s.title}</h3>
-                <p style={{
-                  fontFamily: "'Manrope', sans-serif", fontSize: 12, lineHeight: 1.8,
-                  color: "rgba(29,28,18,0.5)", margin: 0,
-                }}>{s.desc}</p>
-              </div>
-            </FadeSection>
-          ))}
+                Our collections bring together contemporary silhouettes, versatile styling, and
+                pieces that move seamlessly across occasions.
+              </p>
+              <p
+                style={{
+                  fontFamily: "'Manrope', sans-serif",
+                  fontSize: 15,
+                  lineHeight: 2,
+                  color: "rgba(29,28,18,0.62)",
+                  margin: 0,
+                }}
+              >
+                Every piece reflects the balance between artistic design and expert making —
+                combining fresh aesthetics with timeless sophistication.
+              </p>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* ═══ PULL QUOTE ═══ */}
-      <FadeSection>
-        <section style={{
-          padding: "80px 24px", textAlign: "center",
-          background: "linear-gradient(180deg, #fef9e9, #f5f0e4, #fef9e9)",
-        }}>
-          <div style={{
-            width: 60, height: 1, background: "#c9a84c",
-            margin: "0 auto 40px",
-          }} />
-          <blockquote style={{
-            fontFamily: "'Noto Serif', Georgia, serif", fontStyle: "italic",
-            fontSize: "clamp(18px, 3vw, 28px)", color: "rgba(29,28,18,0.55)",
-            lineHeight: 1.5, maxWidth: 700, margin: "0 auto 24px", fontWeight: 400,
-          }}>
-            "We do not make jewellery for display cases.<br />
-            We make it for lifetimes."
-          </blockquote>
-          <p style={{
-            fontFamily: "'Manrope', sans-serif", fontSize: 10, fontWeight: 700,
-            letterSpacing: "0.3em", textTransform: "uppercase",
-            color: "rgba(201,168,76,0.5)",
-          }}>— Alessandra Oro, Founder</p>
-          <div style={{
-            width: 60, height: 1, background: "#c9a84c",
-            margin: "40px auto 0",
-          }} />
-        </section>
-      </FadeSection>
+      {/* ══════════════════════════════════════════════════════════
+          6. PULL QUOTE — full-bleed image, centred quote
+         ══════════════════════════════════════════════════════════ */}
+      <div style={{ overflow: "hidden" }}>
+        <Reveal direction="none">
+          <section
+            style={{
+              position: "relative",
+              height: "clamp(380px, 58vh, 640px)",
+            }}
+          >
+            <img
+              src="/products/bracelet-unisex-2.jpg"
+              alt=""
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center 42%",
+                filter: "brightness(0.38)",
+                display: "block",
+              }}
+            />
+            {/* Scrim */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "linear-gradient(135deg, rgba(29,28,18,0.3) 0%, transparent 70%)",
+              }}
+            />
+
+            {/* Quote */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "0 clamp(24px, 12vw, 220px)",
+                textAlign: "center",
+              }}
+            >
+              <Rule width={40} />
+              <blockquote
+                style={{
+                  fontFamily: "'Noto Serif', Georgia, serif",
+                  fontStyle: "italic",
+                  fontSize: "clamp(20px, 3.2vw, 38px)",
+                  fontWeight: 400,
+                  lineHeight: 1.45,
+                  color: "#fef9e9",
+                  maxWidth: 800,
+                  margin: "32px 0",
+                }}
+              >
+                "Every piece reflects the balance between artistic design and expert making —
+                combining fresh aesthetics with timeless sophistication."
+              </blockquote>
+              <Rule width={40} />
+            </div>
+          </section>
+        </Reveal>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════
+          7. CTA — dark forest, text only (no image to clutter)
+         ══════════════════════════════════════════════════════════ */}
+      <section style={{ background: "#232919" }}>
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: "0 auto",
+            padding: "clamp(80px, 12vh, 140px) clamp(24px, 5vw, 64px)",
+          }}
+        >
+          {/* Two-column: heading + actions */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "clamp(40px, 7vw, 112px)",
+              alignItems: "end",
+            }}
+            className="story-split"
+          >
+            <Reveal direction="left">
+              <div>
+                <p
+                  style={{
+                    fontFamily: "'Manrope', sans-serif",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: "0.32em",
+                    textTransform: "uppercase",
+                    color: "#c9a84c",
+                    margin: "0 0 24px",
+                  }}
+                >
+                  Discover the Collection
+                </p>
+                <h2
+                  style={{
+                    fontFamily: "'Noto Serif', Georgia, serif",
+                    fontSize: "clamp(26px, 3.8vw, 50px)",
+                    fontWeight: 400,
+                    fontStyle: "italic",
+                    lineHeight: 1.15,
+                    color: "#fef9e9",
+                    margin: 0,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  Wearable every day.
+                  <br />
+                  Made to move with you.
+                </h2>
+              </div>
+            </Reveal>
+
+            <Reveal direction="right" delay={0.1}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 16,
+                  alignItems: "flex-start",
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: "'Manrope', sans-serif",
+                    fontSize: 14,
+                    lineHeight: 1.9,
+                    color: "rgba(254,249,233,0.5)",
+                    margin: "0 0 16px",
+                  }}
+                >
+                  Browse our current collection of demi-fine jewellery — designed for modern
+                  lifestyles, made to be worn every day.
+                </p>
+                <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => setLocation("/collection")}
+                    className="story-btn-gold"
+                    style={{
+                      fontFamily: "'Manrope', sans-serif",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase",
+                      background: "#c9a84c",
+                      color: "#1d1c12",
+                      border: "none",
+                      padding: "15px 30px",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 12,
+                      transition: "background 0.3s ease",
+                    }}
+                  >
+                    Explore Collection
+                    <svg width="18" height="7" viewBox="0 0 18 7" fill="none">
+                      <path d="M0 3.5H16M12 1L16 3.5L12 6" stroke="#1d1c12" strokeWidth="1.2" strokeLinecap="round" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setLocation("/contact")}
+                    className="story-btn-ghost"
+                    style={{
+                      fontFamily: "'Manrope', sans-serif",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase",
+                      background: "transparent",
+                      color: "rgba(254,249,233,0.55)",
+                      border: "1px solid rgba(254,249,233,0.16)",
+                      padding: "15px 30px",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    Get in Touch
+                  </button>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
 
       <FooterSection />
+
+      <style>{`
+        /* ── responsive ── */
+        @media (max-width: 768px) {
+          .story-split {
+            grid-template-columns: 1fr !important;
+            gap: 32px !important;
+          }
+        }
+
+        /* ── hover zoom on full-bleed images ── */
+        .story-zoom:hover { transform: scale(1.03); }
+
+        /* ── buttons ── */
+        .story-btn-gold:hover  { background: #b8963e !important; }
+        .story-btn-ghost:hover {
+          background: rgba(254,249,233,0.06) !important;
+          border-color: rgba(254,249,233,0.32) !important;
+          color: #fef9e9 !important;
+        }
+      `}</style>
     </div>
   );
 };

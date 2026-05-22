@@ -8,15 +8,16 @@ import NotFound from "@/pages/not-found";
 import { ManiDOroHome } from "@/pages/ManiDOroHome";
 import { CollectionPage } from "@/pages/CollectionPage";
 import { ContactPage } from "@/pages/ContactPage";
-import { BespokePage } from "@/pages/BespokePage";
+import { StoryPage } from "@/pages/StoryPage";
 import { ProductPage } from "@/pages/ProductPage";
 import { AdminPage } from "@/pages/AdminPage";
-import { ArchivePage } from "@/pages/ArchivePage";
-import { StoryPage } from "@/pages/StoryPage";
-import { JournalPage } from "@/pages/JournalPage";
 import { ShippingPage, ReturnsPage, PrivacyPage, TermsPage } from "@/pages/PolicyPages";
 import { CartProvider } from "@/lib/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
+import { WishlistProvider } from "@/lib/WishlistContext";
+import { WishlistDrawer } from "@/components/WishlistDrawer";
+import { SearchProvider } from "@/lib/SearchContext";
+import { SearchOverlay } from "@/components/SearchOverlay";
 
 function AppRoutes() {
   return (
@@ -24,12 +25,9 @@ function AppRoutes() {
       <Route path="/" component={ManiDOroHome} />
       <Route path="/collection" component={CollectionPage} />
       <Route path="/contact" component={ContactPage} />
-      <Route path="/bespoke" component={BespokePage} />
       <Route path="/product/:id" component={ProductPage} />
       <Route path="/admin" component={AdminPage} />
-      <Route path="/archive" component={ArchivePage} />
       <Route path="/story" component={StoryPage} />
-      <Route path="/journal" component={JournalPage} />
       <Route path="/shipping" component={ShippingPage} />
       <Route path="/returns" component={ReturnsPage} />
       <Route path="/privacy" component={PrivacyPage} />
@@ -45,11 +43,17 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CartProvider>
-          <Toaster />
-          <CartDrawer />
-          <Router base={base}>
-            <AppRoutes />
-          </Router>
+          <WishlistProvider>
+            <SearchProvider>
+              <Toaster />
+              <CartDrawer />
+              <WishlistDrawer />
+              <SearchOverlay />
+              <Router base={base}>
+                <AppRoutes />
+              </Router>
+            </SearchProvider>
+          </WishlistProvider>
         </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>

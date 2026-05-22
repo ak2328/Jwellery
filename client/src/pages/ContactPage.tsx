@@ -35,18 +35,18 @@ export const ContactPage = (): JSX.Element => {
 
         <div className="relative z-10 mx-auto max-w-[1280px] px-4 sm:px-8 text-center flex flex-col items-center gap-4">
           <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#c9a84c] font-['Manrope',sans-serif]">
-            Let's Begin a Dialogue
+            Get In Touch
           </span>
           <h1
             className="text-[clamp(40px,5vw,72px)] font-normal text-[#fef9e9] tracking-[-0.02em] leading-none"
             style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
           >
-            Connect With <span className="italic text-[#c9a84c]">Our Ateliers</span>
+            Contact <span className="italic text-[#c9a84c]">Us</span>
           </h1>
           <p 
             className="text-sm md:text-base text-[#fef9e9]/60 max-w-[540px] leading-relaxed font-['Manrope',sans-serif] mt-2"
           >
-            Whether commissioning a singular heirloom, scheduling an atelier visit, or inquiring about our collection—we welcome your communication.
+            We invite you to reach out for a private consultation, bespoke inquiries, or to discuss our latest collections. Our concierge team is at your disposal for any assistance you may require.
           </p>
         </div>
       </section>
@@ -64,41 +64,19 @@ export const ContactPage = (): JSX.Element => {
                 className="text-xl text-[#fef9e9] font-normal italic"
                 style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
               >
-                "The artisan's work is a silent conversation that spans lifetimes."
+                Because great jewellery deserves great conversations too.
               </h3>
               <p className="text-xs text-[#fef9e9]/50 leading-relaxed font-['Manrope',sans-serif]">
-                We operate from two distinct sanctums: our design office in Milano, and our master craftsmanship foundry in the historical stone-forging city of Kishangarh, Rajasthan.
+                Reach out to us anytime and our team will get back to you as soon as possible.
+              </p>
+              <p className="text-xs text-[#fef9e9]/80 font-bold font-['Manrope',sans-serif] mt-2">
+                Working Hours: Monday – Saturday | 10 AM – 7 PM
               </p>
             </div>
 
-            {/* WhatsApp Integration */}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-testid="link-whatsapp"
-              className="group flex items-center gap-5 p-6 transition-all duration-500 border border-[#25d366]/20 bg-[#25d366]/[0.03] hover:bg-[#25d366]/[0.08] hover:border-[#25d366]/40"
-              style={{ textDecoration: "none" }}
-            >
-              <div className="w-12 h-12 rounded-full bg-[#25d366]/20 flex items-center justify-center transition-all group-hover:scale-105">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#25d366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                </svg>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold tracking-widest text-[#25d366] uppercase font-['Manrope',sans-serif]">Instant Liaison</span>
-                <span className="text-sm font-normal text-[#fef9e9] mt-0.5">Chat Directly on WhatsApp</span>
-                <span className="text-[11px] text-[#fef9e9]/40 font-['Manrope',sans-serif]">Live correspondence with master jewelers</span>
-              </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25d366" strokeWidth="2" className="ml-auto transition-transform group-hover:translate-x-1">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </a>
-
             {/* Email Contact */}
             <a
-              href="mailto:concierge@manidoro.com"
+              href="mailto:manidoro.official@gmail.com"
               className="group flex items-center gap-5 p-6 transition-all duration-500 border border-[#c9a84c]/10 bg-[#fef9e9]/[0.02] hover:bg-[#c9a84c]/[0.05] hover:border-[#c9a84c]/30"
               style={{ textDecoration: "none" }}
             >
@@ -109,8 +87,8 @@ export const ContactPage = (): JSX.Element => {
                 </svg>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold tracking-widest text-[#c9a84c] uppercase font-['Manrope',sans-serif]">General Inquiry</span>
-                <span className="text-sm font-normal text-[#fef9e9] mt-0.5">concierge@manidoro.com</span>
+                <span className="text-[10px] font-bold tracking-widest text-[#c9a84c] uppercase font-['Manrope',sans-serif]">Email</span>
+                <span className="text-sm font-normal text-[#fef9e9] mt-0.5">manidoro.official@gmail.com</span>
               </div>
             </a>
 
@@ -118,14 +96,8 @@ export const ContactPage = (): JSX.Element => {
             <div className="flex flex-col gap-4 pt-6">
               <h4 className="text-[10px] font-bold tracking-widest text-[#fef9e9]/40 uppercase font-['Manrope',sans-serif]">Follow Our Journey</h4>
               <div className="flex gap-4">
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-12 h-12 border border-[#fef9e9]/10 hover:border-[#c9a84c] flex items-center justify-center text-[#fef9e9]/60 hover:text-[#c9a84c] hover:bg-[#c9a84c]/5 transition-all rounded-full">
+                <a href="https://instagram.com/manidoro" target="_blank" rel="noopener noreferrer" className="w-12 h-12 border border-[#fef9e9]/10 hover:border-[#c9a84c] flex items-center justify-center text-[#fef9e9]/60 hover:text-[#c9a84c] hover:bg-[#c9a84c]/5 transition-all rounded-full">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                </a>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-12 h-12 border border-[#fef9e9]/10 hover:border-[#c9a84c] flex items-center justify-center text-[#fef9e9]/60 hover:text-[#c9a84c] hover:bg-[#c9a84c]/5 transition-all rounded-full">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                </a>
-                <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer" className="w-12 h-12 border border-[#fef9e9]/10 hover:border-[#c9a84c] flex items-center justify-center text-[#fef9e9]/60 hover:text-[#c9a84c] hover:bg-[#c9a84c]/5 transition-all rounded-full">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.406.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.72-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.024 0 1.518.769 1.518 1.688 0 1.029-.654 2.568-.993 3.995-.283 1.195.597 2.174 1.776 2.174 2.133 0 3.772-2.25 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.279 1.14c-.038.154-.128.184-.286.11-1.066-.496-1.731-2.053-1.731-3.303 0-2.686 1.952-5.155 5.632-5.155 2.96 0 5.264 2.112 5.264 4.933 0 2.942-1.854 5.312-4.428 5.312-.865 0-1.68-.45-1.958-.981l-.534 2.036c-.193.738-.716 1.661-1.067 2.225C10.054 23.856 11 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
                 </a>
               </div>
             </div>

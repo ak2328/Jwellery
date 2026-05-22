@@ -3,8 +3,6 @@ const footerGroups = [
     title: "Discovery",
     links: [
       { label: "Brand Story", href: "/story" },
-      { label: "Our Process", href: "/story" },
-      { label: "Journal", href: "/journal" },
       { label: "Contact", href: "/contact" },
     ],
   },
@@ -19,7 +17,7 @@ const footerGroups = [
     title: "Connect",
     links: [
       { label: "Instagram", href: "https://instagram.com/manidoro" },
-      { label: "Pinterest", href: "https://pinterest.com/manidoro" },
+      { label: "Facebook", href: "https://facebook.com/manidoro" },
     ],
   },
 ];
@@ -58,11 +56,11 @@ export const FooterSection = (): JSX.Element => {
               Mani D&apos;Oro
             </span>
             <p style={{
-              fontFamily: "'Manrope', sans-serif", fontSize: "10px", fontWeight: 700,
-              letterSpacing: "0.15em", textTransform: "uppercase", lineHeight: 1.8,
-              color: "rgba(254,249,233,0.35)", maxWidth: "220px",
+              fontFamily: "'Manrope', sans-serif", fontSize: "12px", fontWeight: 400,
+              lineHeight: 1.8,
+              color: "rgba(254,249,233,0.45)", maxWidth: "240px",
             }}>
-              An atelier dedicated to the preservation of artisanal excellence.
+              Thoughtfully crafted demi-fine jewellery designed for effortless everyday styling, modern individuality, and timeless wearability.
             </p>
           </div>
 
