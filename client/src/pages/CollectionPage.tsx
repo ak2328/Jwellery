@@ -72,23 +72,29 @@ export const CollectionPage = (): JSX.Element => {
         .order("created_at", { ascending: false });
 
       if (!error && data && data.length > 0) {
-        setProducts(data.map((p: any) => {
+        // Merge: use Supabase data but prefer local images from DEFAULT_PRODUCTS
+        const merged = data.map((p: any) => {
           const nameLC = (p.name || "").toLowerCase();
-          let customImage = p.image;
-          if (p.id === 'bar-pendant' || nameLC.includes('bar pendant')) customImage = '/products/new-bar-pendant.jpg';
-          if (p.id === 'fish-pendant' || nameLC.includes('fish pendant')) customImage = '/products/new-fish-pendant.png';
-          if (p.id === 'unisex-gold-bracelet' || nameLC.includes('unisex') || nameLC.includes('bracelet')) customImage = '/products/new-bracelet.png';
-          
+          const match = DEFAULT_PRODUCTS.find((dp) => dp.name.toLowerCase() === nameLC || dp.id === p.id);
+          if (match) {
+            // Use Supabase metadata but local image
+            return { ...match, price: `₹${Number(p.price).toLocaleString("en-IN")}`, isNew: p.is_new, description: p.description || match.description };
+          }
+          // Supabase-only product: check if image URL is valid (starts with http or exists locally)
+          const hasValidImage = p.image && (p.image.startsWith("http") || p.image.startsWith("/products/new-") || p.image.startsWith("/figma"));
+          if (!hasValidImage) return null;
           return {
             id: p.id,
-            category: p.categories?.name || p.category || p.material || "Pendants",
+            category: p.categories?.name || p.category || "Pendants",
             name: p.name,
             description: p.description,
             price: `₹${Number(p.price).toLocaleString("en-IN")}`,
-            image: customImage,
+            image: p.image,
             isNew: p.is_new,
           };
-        }));
+        }).filter(Boolean);
+        // If we got valid products, use them; otherwise keep defaults
+        if (merged.length > 0) setProducts(merged);
       }
     } catch (err) {
       console.error("Failed fetching from Supabase, using defaults.", err);

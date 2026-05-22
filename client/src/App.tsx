@@ -11,6 +11,9 @@ import { ContactPage } from "@/pages/ContactPage";
 import { StoryPage } from "@/pages/StoryPage";
 import { ProductPage } from "@/pages/ProductPage";
 import { AdminPage } from "@/pages/AdminPage";
+import { AuthPage } from "@/pages/AuthPage";
+import { CheckoutPage } from "@/pages/CheckoutPage";
+import { MyOrdersPage } from "@/pages/MyOrdersPage";
 import { ShippingPage, ReturnsPage, PrivacyPage, TermsPage } from "@/pages/PolicyPages";
 import { CartProvider } from "@/lib/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -18,6 +21,7 @@ import { WishlistProvider } from "@/lib/WishlistContext";
 import { WishlistDrawer } from "@/components/WishlistDrawer";
 import { SearchProvider } from "@/lib/SearchContext";
 import { SearchOverlay } from "@/components/SearchOverlay";
+import { AuthProvider } from "@/lib/AuthContext";
 
 function AppRoutes() {
   return (
@@ -28,6 +32,10 @@ function AppRoutes() {
       <Route path="/product/:id" component={ProductPage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/story" component={StoryPage} />
+      <Route path="/login" component={AuthPage} />
+      <Route path="/signup" component={AuthPage} />
+      <Route path="/checkout" component={CheckoutPage} />
+      <Route path="/orders" component={MyOrdersPage} />
       <Route path="/shipping" component={ShippingPage} />
       <Route path="/returns" component={ReturnsPage} />
       <Route path="/privacy" component={PrivacyPage} />
@@ -42,19 +50,21 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <SearchProvider>
-              <Toaster />
-              <CartDrawer />
-              <WishlistDrawer />
-              <SearchOverlay />
-              <Router base={base}>
-                <AppRoutes />
-              </Router>
-            </SearchProvider>
-          </WishlistProvider>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <SearchProvider>
+                <Toaster />
+                <CartDrawer />
+                <WishlistDrawer />
+                <SearchOverlay />
+                <Router base={base}>
+                  <AppRoutes />
+                </Router>
+              </SearchProvider>
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

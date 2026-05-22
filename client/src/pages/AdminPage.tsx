@@ -889,19 +889,40 @@ export const AdminPage = (): JSX.Element => {
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState(false);
   const [activeTab, setActiveTab] = useState<"products" | "categories" | "archive" | "settings">("products");
+  const [loginLoading, setLoginLoading] = useState(false);
 
-  const login = () => {
+  const login = async () => {
+    // Try hardcoded password first (backward compatible)
     if (pw === ADMIN_PASSWORD) {
       localStorage.setItem("admin_authed", "1");
       setAuthed(true);
-    } else {
-      setPwError(true);
-      setTimeout(() => setPwError(false), 2000);
+      return;
     }
+    // Try Supabase Auth: treat input as email, use a second field or fixed password
+    setLoginLoading(true);
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: pw.includes("@") ? pw : "",
+        password: ADMIN_PASSWORD,
+      });
+      if (!authError && authData.user) {
+        const { data: admin } = await supabase.from("admin_users").select("id").eq("email", authData.user.email).single();
+        if (admin) {
+          localStorage.setItem("admin_authed", "1");
+          setAuthed(true);
+          setLoginLoading(false);
+          return;
+        }
+      }
+    } catch {}
+    setLoginLoading(false);
+    setPwError(true);
+    setTimeout(() => setPwError(false), 2000);
   };
 
-  const logout = () => {
+  const logout = async () => {
     localStorage.removeItem("admin_authed");
+    await supabase.auth.signOut().catch(() => {});
     setAuthed(false);
   };
 

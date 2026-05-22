@@ -1,7 +1,9 @@
 import { useCart } from "@/lib/CartContext";
+import { useLocation } from "wouter";
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
+  const [, setLocation] = useLocation();
 
   return (
     <>
@@ -424,6 +426,7 @@ export function CartDrawer() {
             {/* CTA buttons */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <button
+                onClick={() => { closeCart(); setLocation("/checkout"); }}
                 style={{
                   width: "100%",
                   background: "#795900",

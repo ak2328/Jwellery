@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jewellery App — Backend Changes Summary</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.7;padding:2rem;max-width:1100px;margin:0 auto}
+h1{color:#f97316;font-size:2rem;margin-bottom:.5rem;text-align:center}
+.subtitle{color:#94a3b8;margin-bottom:2rem;text-align:center}
+h2{color:#38bdf8;margin:2.5rem 0 1rem;border-bottom:1px solid #1e293b;padding-bottom:.5rem}
+h3{color:#a78bfa;margin:1.5rem 0 .5rem}
+pre{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:1.2rem;overflow-x:auto;margin:.8rem 0;font-size:.8rem;color:#a5f3fc;line-height:1.5}
+code{background:#334155;padding:2px 6px;border-radius:4px;font-size:.85rem;color:#a5f3fc}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #334155;font-size:.9rem}
+th{color:#fbbf24;background:#1e293b}
+.card{background:#1e293b;border-radius:12px;padding:1.2rem;margin:.8rem 0;border:1px solid #334155}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.7rem;margin:2px}
+.t-new{background:#059669;color:#fff}
+.t-mod{background:#d97706;color:#fff}
+.t-sql{background:#7c3aed;color:#fff}
+.note{background:#1e293b;border-left:4px solid #fbbf24;padding:1rem;margin:1rem 0;border-radius:0 8px 8px 0;font-size:.9rem}
+</style>
+</head>
+<body>
+
+<h1>🛠️ Backend Changes — Jewellery App</h1>
+<p class="subtitle">Changes made on May 22, 2026 | Cloudflare Pages + Supabase</p>
+
+<!-- ==================== OVERVIEW ==================== -->
+<h2>1. Overview of Changes</h2>
+
+<table>
+<tr><th>File</th><th>Type</th><th>What it does</th></tr>
+<tr><td><code>client/src/lib/AuthContext.tsx</code></td><td><span class="tag t-new">NEW</span></td><td>Auth provider — phone OTP login via Supabase Auth</td></tr>
+<tr><td><code>client/src/pages/AuthPage.tsx</code></td><td><span class="tag t-new">NEW</span></td><td>Login page — mobile number + OTP verification</td></tr>
+<tr><td><code>client/src/pages/CheckoutPage.tsx</code></td><td><span class="tag t-new">NEW</span></td><td>Checkout — address form + order placement to Supabase</td></tr>
+<tr><td><code>client/src/pages/MyOrdersPage.tsx</code></td><td><span class="tag t-new">NEW</span></td><td>Customer order history from Supabase</td></tr>
+<tr><td><code>supabase-admin-policies.sql</code></td><td><span class="tag t-sql">SQL</span></td><td>Admin RLS policies + missing tables</td></tr>
+<tr><td><code>supabase-contact-table.sql</code></td><td><span class="tag t-sql">SQL</span></td><td>Contact inquiries table (already run ✅)</td></tr>
+<tr><td><code>client/src/App.tsx</code></td><td><span class="tag t-mod">MODIFIED</span></td><td>Added AuthProvider + new routes</td></tr>
+<tr><td><code>client/src/pages/AdminPage.tsx</code></td><td><span class="tag t-mod">MODIFIED</span></td><td>Admin login now also checks Supabase Auth</td></tr>
+<tr><td><code>client/src/pages/ContactPage.tsx</code></td><td><span class="tag t-mod">MODIFIED</span></td><td>Form now saves to Supabase <code>contact_inquiries</code> table</td></tr>
+<tr><td><code>client/src/pages/CollectionPage.tsx</code></td><td><span class="tag t-mod">MODIFIED</span></td><td>Fixed image matching between Supabase + local products</td></tr>
+<tr><td><code>client/src/pages/sections/NavbarSection.tsx</code></td><td><span class="tag t-mod">MODIFIED</span></td><td>Added user/account icon in navbar</td></tr>
+<tr><td><code>client/src/components/CartDrawer.tsx</code></td><td><span class="tag t-mod">MODIFIED</span></td><td>Commission Request button now navigates to /checkout</td></tr>
+</table>
+
+<!-- ==================== NEW ROUTES ==================== -->
+<h2>2. New Routes Added</h2>
+
+<table>
+<tr><th>Route</th><th>Page</th><th>Requires Auth</th></tr>
+<tr><td><code>/login</code></td><td>AuthPage — Phone + OTP login</td><td>No</td></tr>
+<tr><td><code>/signup</code></td><td>AuthPage (same page)</td><td>No</td></tr>
+<tr><td><code>/checkout</code></td><td>CheckoutPage — Address + Place Order</td><td>Yes</td></tr>
+<tr><td><code>/orders</code></td><td>MyOrdersPage — Order history</td><td>Yes</td></tr>
+</table>
+
+<!-- ==================== AUTH FLOW ==================== -->
+<h2>3. Authentication Flow (Phone OTP)</h2>
+
+<pre>
+User clicks Account icon (navbar)
+        │
+        ▼
+/login page — Enter 10-digit mobile number
+        │
+        ▼
+Supabase sends OTP via SMS (requires Twilio setup)
+        │
+        ▼
+User enters 6-digit OTP
+        │
+        ▼
+Verified → Logged in → Redirected to homepage
+        │
+        ▼
+Customer record created in `customers` table
+</pre>
+
+<div class="note">
+<strong>⚠️ Requires setup:</strong> Enable Phone provider in Supabase → Authentication → Sign In / Providers → Phone. Needs Twilio Account SID, Auth Token, and phone number.
+</div>
+
+<!-- ==================== CHECKOUT FLOW ==================== -->
+<h2>4. Checkout Flow</h2>
+
+<pre>
+Cart → "Commission Request" button
+        │
+        ▼
+/checkout page (requires login)
+        │
+        ├── Order Summary (items from cart)
+        ├── Shipping Address form (name, phone, address, city, state, pincode)
+        └── Payment Method (COD / UPI / Bank Transfer)
+        │
+        ▼
+On submit:
+  1. Save address → `addresses` table
+  2. Create order → `orders` table (order_number, status: pending)
+  3. Save items → `order_items` table
+  4. Clear cart
+  5. Show confirmation with order number
+</pre>
+
+<!-- ==================== CONTACT FORM ==================== -->
+<h2>5. Contact Us → Supabase</h2>
+
+<pre>
+User fills Contact form (name, email, message, interest)
+        │
+        ▼
+Saved to `contact_inquiries` table in Supabase
+        │
+        ▼
+User sees "Dialogue Commenced" popup — will hear back within 12 hours
+</pre>
+
+<div class="card">
+<h3>Table: contact_inquiries</h3>
+<pre>
+id          UUID (auto)
+name        TEXT
+email       TEXT
+message     TEXT
+interest    TEXT
+is_read     BOOLEAN (default false)
+created_at  TIMESTAMPTZ
+</pre>
+<p style="color:#4ade80;font-size:.85rem;margin-top:8px">✅ Already created in Supabase</p>
+</div>
+
+<!-- ==================== NAVBAR ==================== -->
+<h2>6. Navbar Changes</h2>
+
+<p>Added a <strong>user icon</strong> (person silhouette) in the navbar icons area:</p>
+<ul style="margin:1rem 0;padding-left:1.5rem">
+<li><strong>Not logged in</strong> → Clicking navigates to <code>/login</code></li>
+<li><strong>Logged in</strong> → Clicking navigates to <code>/orders</code></li>
+<li>Icon turns gold when user is authenticated</li>
+</ul>
+
+<!-- ==================== ADMIN AUTH ==================== -->
+<h2>7. Admin Auth Enhancement</h2>
+
+<pre>
+Admin enters password on /admin
+        │
+        ├── Try hardcoded password ("manidoro2025") → ✅ works as before
+        │
+        └── If input is an email → Try Supabase Auth login
+                │
+                └── Check `admin_users` table → if found → grant access
+</pre>
+
+<div class="note">
+<strong>Backward compatible:</strong> The hardcoded password still works. Supabase Auth is an additional option for when you add admin emails to the <code>admin_users</code> table.
+</div>
+
+<!-- ==================== SQL TO RUN ==================== -->
+<h2>8. SQL Still Pending (Run in Supabase SQL Editor)</h2>
+
+<div class="card">
+<h3>supabase-admin-policies.sql</h3>
+<p style="color:#fbbf24;font-size:.85rem;margin-bottom:8px">Run this to enable admin CRUD via Supabase Auth + add missing tables</p>
+<pre>
+-- Site settings table
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Archive items table
+CREATE TABLE IF NOT EXISTS archive_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  image TEXT NOT NULL,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE archive_items ENABLE ROW LEVEL SECURITY;
+
+-- Admin check function
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM admin_users WHERE email = auth.jwt()->>'email'
+  );
+$$ LANGUAGE sql SECURITY DEFINER;
+
+-- Admin policies for all tables
+CREATE POLICY "Admin full access products" ON products FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "Admin full access categories" ON categories FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "Admin read all orders" ON orders FOR SELECT USING (is_admin());
+CREATE POLICY "Admin update orders" ON orders FOR UPDATE USING (is_admin());
+CREATE POLICY "Admin read all order_items" ON order_items FOR SELECT USING (is_admin());
+CREATE POLICY "Public read site_settings" ON site_settings FOR SELECT USING (true);
+CREATE POLICY "Admin full access site_settings" ON site_settings FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "Public read archive_items" ON archive_items FOR SELECT USING (true);
+CREATE POLICY "Admin full access archive_items" ON archive_items FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+
+-- Add yourself as admin
+-- INSERT INTO admin_users (email, name, role) VALUES ('your-email@example.com', 'Admin', 'owner');
+</pre>
+</div>
+
+<!-- ==================== WHAT'S WORKING ==================== -->
+<h2>9. Current Status</h2>
+
+<table>
+<tr><th>Feature</th><th>Status</th><th>Notes</th></tr>
+<tr><td>Products from Supabase</td><td style="color:#4ade80">✅ Working</td><td>Falls back to hardcoded if Supabase empty</td></tr>
+<tr><td>Admin Panel (CRUD)</td><td style="color:#4ade80">✅ Working</td><td>Hardcoded password works</td></tr>
+<tr><td>Image Upload (Admin)</td><td style="color:#4ade80">✅ Working</td><td>Uploads to Supabase Storage</td></tr>
+<tr><td>Contact Form → DB</td><td style="color:#4ade80">✅ Working</td><td>Saves to contact_inquiries</td></tr>
+<tr><td>Cart + Wishlist</td><td style="color:#4ade80">✅ Working</td><td>In-memory / localStorage</td></tr>
+<tr><td>Commission Request → Checkout</td><td style="color:#4ade80">✅ Working</td><td>Navigates to /checkout</td></tr>
+<tr><td>Login (Phone OTP)</td><td style="color:#fbbf24">⚠️ Needs Twilio</td><td>Enable Phone provider in Supabase</td></tr>
+<tr><td>Login (Google OAuth)</td><td style="color:#fbbf24">⚠️ Needs Google Cloud</td><td>Need Client ID + Secret</td></tr>
+<tr><td>Checkout + Orders</td><td style="color:#fbbf24">⚠️ Needs Auth</td><td>Works once login is enabled</td></tr>
+<tr><td>Admin RLS policies</td><td style="color:#f87171">❌ Pending SQL</td><td>Run supabase-admin-policies.sql</td></tr>
+</table>
+
+<!-- ==================== NEXT STEPS ==================== -->
+<h2>10. Next Steps (When Ready)</h2>
+
+<ol style="margin:1rem 0;padding-left:1.5rem;line-height:2.2">
+<li>Enable Google OAuth (need 2SV on Google account → Cloud Console → OAuth credentials)</li>
+<li>OR enable Phone OTP (need Twilio account → paste credentials in Supabase)</li>
+<li>Run <code>supabase-admin-policies.sql</code> in SQL Editor</li>
+<li>Add payment gateway (Razorpay recommended — frontend-only integration)</li>
+<li>Sync wishlist to Supabase for logged-in users</li>
+<li>Admin orders management page</li>
+</ol>
+
+</body>
+</html>

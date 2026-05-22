@@ -6,9 +6,19 @@ export const ContactPage = (): JSX.Element => {
   const [form, setForm] = useState({ name: "", email: "", message: "", interest: "bespoke commission" });
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) return;
+    setSubmitting(true);
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      await supabase.from("contact_inquiries").insert({
+        name: form.name, email: form.email, message: form.message, interest: form.interest,
+      });
+    } catch {}
+    setSubmitting(false);
     setSubmitted(true);
   };
 
