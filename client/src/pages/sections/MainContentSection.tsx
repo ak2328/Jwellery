@@ -176,70 +176,52 @@ export const MainContentSection = (): JSX.Element => {
           </div>
 
           {/* Product grid: 1 col mobile → 2 col sm → 3 col lg */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-12">
             {DEFAULT_PRODUCTS.filter(p => p.isNew).slice(0, 6).map((product) => (
-              <article
-                key={product.id}
-                data-testid={`card-product-${product.id}`}
-                className="product-card relative overflow-hidden cursor-pointer select-none"
-                style={{ aspectRatio: "3/4" }}
-                onClick={() => setLocation(`/product/${product.id}`)}
-                onCopy={(e) => e.preventDefault()}
-              >
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  onContextMenu={(e) => e.preventDefault()}
-                  onDragStart={(e) => e.preventDefault()}
-                  className="w-full h-full object-cover select-none pointer-events-none" 
-                />
-                {/* Transparent Overlay for Copy Protection */}
-                <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
-                {/* Watermark Logo */}
-                <div className="absolute top-4 right-4 w-10 opacity-[0.25] pointer-events-none z-10 transition-opacity duration-500 group-hover:opacity-0">
-                  <img src="/logo.png" alt="Mani D'Oro" className="w-full h-auto drop-shadow-md" />
-                </div>
-                <div className="product-card-overlay" />
-                <div className="product-card-details">
-                  <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#c9a84c] mb-2" style={{ fontFamily: "'Manrope', sans-serif" }}>{product.category}</p>
-                  <h3 className="text-2xl font-normal italic text-[#fef9e9] mb-2 leading-snug" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.name}</h3>
-                  <p className="text-sm text-[#fef9e9]/70 mb-4 leading-relaxed" style={{ fontFamily: "'Manrope', sans-serif" }}>{product.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-normal text-[#c9a84c]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.price}</span>
-                    <button data-testid={`button-view-${product.id}`} className="font-['Manrope',sans-serif] text-[10px] font-bold tracking-[0.2em] uppercase text-[#fef9e9] border border-[#fef9e9]/60 px-4 py-2 hover:bg-[#fef9e9]/10 transition-colors">View Piece</button>
+              <div key={product.id} className="flex flex-col">
+                <article
+                  data-testid={`card-product-${product.id}`}
+                  className="product-card relative overflow-hidden cursor-pointer select-none"
+                  style={{ aspectRatio: "3/4" }}
+                  onClick={() => setLocation(`/product/${product.id}`)}
+                  onCopy={(e) => e.preventDefault()}
+                >
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    onContextMenu={(e) => e.preventDefault()}
+                    onDragStart={(e) => e.preventDefault()}
+                    className="w-full h-full object-cover select-none pointer-events-none" 
+                  />
+                  {/* Transparent Overlay for Copy Protection */}
+                  <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
+                  {/* Watermark Logo */}
+                  <div className="absolute top-4 right-4 w-10 opacity-[0.25] pointer-events-none z-10 transition-opacity duration-500 group-hover:opacity-0">
+                    <img src="/logo.png" alt="Mani D'Oro" className="w-full h-auto drop-shadow-md" />
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                  <div className="product-card-overlay" />
+                  <div className="product-card-details">
+                    <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#c9a84c] mb-2" style={{ fontFamily: "'Manrope', sans-serif" }}>{product.category}</p>
+                    <h3 className="text-2xl font-normal italic text-[#fef9e9] mb-2 leading-snug" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.name}</h3>
+                    <p className="text-sm text-[#fef9e9]/70 mb-4 leading-relaxed" style={{ fontFamily: "'Manrope', sans-serif" }}>{product.description}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-normal text-[#c9a84c]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.price}</span>
+                      <button data-testid={`button-view-${product.id}`} className="font-['Manrope',sans-serif] text-[10px] font-bold tracking-[0.2em] uppercase text-[#fef9e9] border border-[#fef9e9]/60 px-4 py-2 hover:bg-[#fef9e9]/10 transition-colors">View Piece</button>
+                    </div>
+                  </div>
+                </article>
 
-          {/* Product labels below grid — visible only on lg+ where there's room */}
-          <div className="hidden lg:grid grid-cols-3 gap-5 mt-0">
-            {DEFAULT_PRODUCTS.filter(p => p.isNew).slice(0, 3).map((product) => (
-              <div 
-                key={`label-${product.id}`} 
-                className="pt-4 pb-1 cursor-pointer" 
-                style={{ borderTop: "1px solid rgba(29,28,18,0.09)" }}
-                onClick={() => setLocation(`/product/${product.id}`)}
-              >
-                <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-[#43664b] mb-1" style={{ fontFamily: "'Manrope', sans-serif" }}>{product.category}</p>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-normal italic text-[#1d1c12]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.name}</h3>
-                  <span className="text-base font-normal text-[#795900]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.price}</span>
-                </div>
-              </div>
-            ))}
-            {DEFAULT_PRODUCTS.filter(p => p.isNew).slice(3, 6).map((product) => (
-              <div 
-                key={`label-${product.id}`} 
-                className="pt-4 pb-1 cursor-pointer" 
-                style={{ borderTop: "1px solid rgba(29,28,18,0.09)" }}
-                onClick={() => setLocation(`/product/${product.id}`)}
-              >
-                <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-[#43664b] mb-1" style={{ fontFamily: "'Manrope', sans-serif" }}>{product.category}</p>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-normal italic text-[#1d1c12]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.name}</h3>
-                  <span className="text-base font-normal text-[#795900]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.price}</span>
+                {/* Product label below grid — visible only on lg+ where there's room */}
+                <div 
+                  className="hidden lg:block pt-4 pb-1 cursor-pointer mt-2" 
+                  style={{ borderTop: "1px solid rgba(29,28,18,0.09)" }}
+                  onClick={() => setLocation(`/product/${product.id}`)}
+                >
+                  <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-[#43664b] mb-1" style={{ fontFamily: "'Manrope', sans-serif" }}>{product.category}</p>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-normal italic text-[#1d1c12]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.name}</h3>
+                    <span className="text-base font-normal text-[#795900]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{product.price}</span>
+                  </div>
                 </div>
               </div>
             ))}
