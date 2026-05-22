@@ -4,6 +4,11 @@ import { NavbarSection } from "./sections/NavbarSection";
 import { FooterSection } from "./sections/FooterSection";
 import { useAuth } from "@/lib/AuthContext";
 
+function EyeIcon({ open }: { open: boolean }) {
+  if (open) return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>;
+}
+
 export const AuthPage = (): JSX.Element => {
   const [, setLocation] = useLocation();
   const { user, sendOtp, verifyOtp } = useAuth();
@@ -64,6 +69,7 @@ export const AuthPage = (): JSX.Element => {
                     style={{ ...inputStyle, border: "none", flex: 1 }}
                   />
                 </div>
+                <p style={{ fontSize: 11, color: "rgba(254,249,233,0.3)", marginTop: 6 }}>We'll send a 6-digit OTP to this number</p>
               </div>
 
               {error && <ErrorBox msg={error} />}
@@ -78,9 +84,10 @@ export const AuthPage = (): JSX.Element => {
                 <label style={labelStyle}>Enter 6-digit OTP</label>
                 <input
                   type="text" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  placeholder="• • • • • •" required maxLength={6}
+                  placeholder="• • • • • •" required maxLength={6} autoFocus
                   style={{ ...inputStyle, textAlign: "center", fontSize: 20, letterSpacing: "0.5em" }}
                 />
+                <p style={{ fontSize: 11, color: "rgba(254,249,233,0.3)", marginTop: 6 }}>Check your SMS for the verification code</p>
               </div>
 
               {error && <ErrorBox msg={error} />}
@@ -105,8 +112,8 @@ export const AuthPage = (): JSX.Element => {
 
 function ErrorBox({ msg }: { msg: string }) {
   return (
-    <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", padding: "10px 14px", fontSize: 12, color: "#fca5a5" }}>
-      {msg}
+    <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", padding: "10px 14px", fontSize: 12, color: "#fca5a5", display: "flex", alignItems: "center", gap: 8 }}>
+      <span>⚠</span> {msg}
     </div>
   );
 }

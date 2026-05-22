@@ -317,6 +317,24 @@ export const NavbarSection = (): JSX.Element => {
 
         {/* ── HAMBURGER + CART (mobile only) ─────────────────────── */}
         <div className="flex md:hidden" style={{ display: undefined, alignItems: "center", gap: "8px", marginLeft: "auto" }}>
+          {/* Account icon — mobile */}
+          <button
+            onClick={() => setLocation(user ? "/orders" : "/login")}
+            aria-label={user ? "My orders" : "Sign in"}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              padding: "6px", position: "relative",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: user ? "#795900" : "rgba(29,28,18,0.55)",
+              transition: "color 0.2s",
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </button>
+
           {/* Search icon — mobile */}
           <button
             onClick={openSearch}
