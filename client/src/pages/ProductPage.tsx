@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type CSSProperties } from "react";
 import { useLocation } from "wouter";
 import { NavbarSection } from "./sections/NavbarSection";
 import { FooterSection } from "./sections/FooterSection";
@@ -83,6 +83,26 @@ const getGalleryImages = (prod: any) => {
     "/bespoke/sketch-design.png",
     "/figmaAssets/jeweler-working-on-a-custom-piece.png",
   ];
+};
+
+const ROTATED_PRODUCT_IDS = new Set(["boat-pendant", "pendant-set"]);
+
+const getProductImageStyle = (
+  productId: string,
+  zoom = 1,
+): CSSProperties => {
+  const shouldRotate = ROTATED_PRODUCT_IDS.has(productId);
+  return {
+    WebkitTouchCallout: "none",
+    imageOrientation: "from-image",
+    objectFit: shouldRotate ? "cover" : "contain",
+    transform: shouldRotate
+      ? `rotate(-90deg) scale(${1.35 * zoom})`
+      : zoom === 1
+        ? undefined
+        : `scale(${zoom})`,
+    transformOrigin: "center",
+  };
 };
 
 export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element => {
@@ -587,11 +607,10 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                       alt={product.name}
                       onContextMenu={(e) => e.preventDefault()}
                       onDragStart={(e) => e.preventDefault()}
-                      className="w-full h-full object-contain transition-all duration-700 select-none pointer-events-none"
+                      className="w-full h-full transition-all duration-700 select-none pointer-events-none"
                       style={{ 
+                        ...getProductImageStyle(product.id),
                         filter: "brightness(0.97) contrast(1.01)",
-                        WebkitTouchCallout: "none",
-                        imageOrientation: "from-image"
                       }}
                     />
                     {/* Transparent Overlay for Copy Protection */}
@@ -706,8 +725,11 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                           src={img} 
                           onContextMenu={(e) => e.preventDefault()}
                           onDragStart={(e) => e.preventDefault()}
-                          className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 select-none"
-                          style={{ WebkitTouchCallout: "none", imageOrientation: "from-image" }}
+                          className="w-full h-full transition-transform duration-700 select-none"
+                          style={getProductImageStyle(
+                            product.id,
+                            ROTATED_PRODUCT_IDS.has(product.id) ? 0.82 : 1,
+                          )}
                           alt={`${product.name} view ${idx + 1}`} 
                         />
                         <div className="absolute inset-0 bg-[#c9a84c]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -1119,8 +1141,8 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
               alt="Zoomed view"
               onContextMenu={(e) => e.preventDefault()}
               onDragStart={(e) => e.preventDefault()}
-              className="max-w-full max-h-[80vh] object-contain transition-transform duration-200 select-none pointer-events-none"
-              style={{ transform: `scale(${zoomLevel})`, imageOrientation: "from-image" }}
+              className="max-w-full max-h-[80vh] transition-transform duration-200 select-none pointer-events-none"
+              style={getProductImageStyle(product?.id ?? "", zoomLevel)}
             />
             {/* Transparent Overlay for Copy Protection */}
             <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
