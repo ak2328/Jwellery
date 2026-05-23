@@ -17,69 +17,51 @@ export const MainContentSection = (): JSX.Element => {
           <div className="flex flex-col md:grid md:grid-cols-12 min-h-[auto] md:min-h-[720px] bg-[#f5f0e4]">
 
             {/* Text column */}
-            <div
-              className="flex flex-col justify-center gap-7 md:gap-10 px-6 sm:px-10 md:px-14 py-14 md:py-20 col-span-7"
-              style={{ borderRight: undefined }}
-            >
-              {/* Right border only visible on md+ */}
-              <div
-                className="flex flex-col justify-center gap-7 md:gap-10"
-                style={{}}
-              >
-                <div className="flex flex-col leading-none">
-                  <h1
-                    className="font-normal text-[#1d1c12] tracking-[-0.04em]"
-                    style={{
-                      fontFamily: "'Noto Serif', Georgia, serif",
-                      lineHeight: 1.0,
-                      fontSize: "clamp(52px, 10vw, 112px)",
-                    }}
-                  >
-                    Gold In
-                  </h1>
-                  <h1
-                    className="font-normal text-[#795900] italic tracking-[-0.04em]"
-                    style={{
-                      fontFamily: "'Noto Serif', Georgia, serif",
-                      lineHeight: 1.0,
-                      fontSize: "clamp(52px, 10vw, 112px)",
-                    }}
-                  >
-                    Every
-                  </h1>
-                  <h1
-                    className="font-normal text-[#795900] italic tracking-[-0.04em]"
-                    style={{
-                      fontFamily: "'Noto Serif', Georgia, serif",
-                      lineHeight: 1.0,
-                      fontSize: "clamp(52px, 10vw, 112px)",
-                    }}
-                  >
-                    Hand
-                  </h1>
-                </div>
+            <div className="flex flex-col justify-center px-4 sm:px-8 py-8 md:py-12 col-span-7">
+              <div className="relative overflow-hidden rounded-[2rem] p-8 sm:p-12 md:p-16 flex flex-col justify-center gap-7 md:gap-10 shadow-xl border border-[rgba(201,168,76,0.2)]">
+                <img
+                  src="/website/gold_in_every_hand.jpg"
+                  alt="Gold In Every Hand"
+                  className="absolute inset-0 w-full h-full object-cover z-0"
+                  style={{ filter: "contrast(1.1) brightness(1.05)" }}
+                />
+                {/* Aesthetic frosted overlay to ensure text remains perfectly readable */}
+                <div className="absolute inset-0 bg-[#fef9e9]/65 backdrop-blur-[4px] z-0" />
+                
+                <div className="relative z-10 flex flex-col gap-7 md:gap-10">
+                  <div className="flex flex-col leading-none">
+                    <h1
+                      className="font-normal text-[#1d1c12] tracking-[-0.04em]"
+                      style={{ fontFamily: "'Noto Serif', Georgia, serif", lineHeight: 1.0, fontSize: "clamp(52px, 10vw, 112px)" }}
+                    >
+                      Gold In
+                    </h1>
+                    <h1
+                      className="font-normal text-[#795900] italic tracking-[-0.04em]"
+                      style={{ fontFamily: "'Noto Serif', Georgia, serif", lineHeight: 1.0, fontSize: "clamp(52px, 10vw, 112px)" }}
+                    >
+                      Every
+                    </h1>
+                    <h1
+                      className="font-normal text-[#795900] italic tracking-[-0.04em]"
+                      style={{ fontFamily: "'Noto Serif', Georgia, serif", lineHeight: 1.0, fontSize: "clamp(52px, 10vw, 112px)" }}
+                    >
+                      Hand
+                    </h1>
+                  </div>
 
-                <p
-                  className="text-base sm:text-lg leading-relaxed text-[#5a6b4e] max-w-[380px]"
-                  style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 400 }}
-                >
-                  Jewellery For Every Version Of You. Everyday pieces designed for workdays, weekends, celebrations, and everything in between.
-                </p>
+                  <p
+                    className="text-base sm:text-lg leading-relaxed text-[#4a5540] max-w-[380px]"
+                    style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 500 }}
+                  >
+                    Jewellery For Every Version Of You. Everyday pieces designed for workdays, weekends, celebrations, and everything in between.
+                  </p>
 
-                <div>
-                  <a href="/collection" data-testid="button-explore-collection" className="luxury-btn-gold" style={{ textDecoration: "none" }}>
-                    Explore Collection
-                  </a>
-                </div>
-
-                {/* Aesthetic image below text */}
-                <div className="mt-8 overflow-hidden relative w-full h-[200px] md:h-[280px]">
-                  <img
-                    src="/website/gold_in_every_hand.jpg"
-                    alt="Gold In Every Hand"
-                    className="absolute inset-0 w-full h-full object-cover"
-                    style={{ filter: "brightness(0.9) contrast(1.1)", objectPosition: "center 30%" }}
-                  />
+                  <div>
+                    <a href="/collection" data-testid="button-explore-collection" className="luxury-btn-gold" style={{ textDecoration: "none", display: "inline-block" }}>
+                      Explore Collection
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -117,11 +99,11 @@ export const MainContentSection = (): JSX.Element => {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {BASE_CATEGORIES.map((cat) => {
               const catImages: Record<string, string> = {
-                "Earrings": "/website/IMG_8755.PNG",
-                "Pendants": "/website/IMG_8761.PNG",
-                "Bracelets": "/website/IMG_8762.PNG",
-                "Rings": "/website/IMG_8763.PNG",
-                "Anklets": "/website/IMG_8764.PNG",
+                "Earrings": "/figmaAssets/molten-hoops---textured-gold-earrings.png",
+                "Pendants": "/products/pendant-flower-pendant-cover.png",
+                "Bracelets": "/figmaAssets2/product-gilded-drift-cuff.png",
+                "Rings": "/figmaAssets2/product-aurelius-band.png",
+                "Anklets": "/figmaAssets/the-aurelius-chain---detailed-gold-link-necklace.png",
               };
               return (
                 <div
@@ -233,28 +215,51 @@ export const MainContentSection = (): JSX.Element => {
 
       {/* ── BRAND STORY HOOK ─────────────────────────────────── */}
       <section className="w-full py-20 md:py-32" style={{ background: "#1a1c12" }}>
-        <div className="mx-auto max-w-[1280px] px-4 sm:px-8 text-center flex flex-col items-center">
-          <span style={{
-            fontFamily: "'Manrope', sans-serif", fontSize: 12, fontWeight: 700,
-            letterSpacing: "0.4em", textTransform: "uppercase", color: "#c9a84c",
-            display: "block", marginBottom: 24,
-          }}>
-            Our Origins
-          </span>
-          <h2 style={{
-            fontFamily: "'Noto Serif', Georgia, serif", fontSize: "clamp(32px, 5vw, 56px)",
-            fontWeight: 400, color: "#fef9e9", margin: "0 0 32px",
-            lineHeight: 1.1, maxWidth: 800
-          }}>
-            Born from the idea of creating Demi-fine jewellery that feels like a natural extension of personal style.
-          </h2>
-          <div style={{
-            width: 60, height: 1, background: "#c9a84c",
-            margin: "0 auto 40px",
-          }} />
-          <a href="/story" className="font-['Manrope',sans-serif] text-[11px] font-bold tracking-[0.2em] uppercase text-[#fef9e9] border border-[#c9a84c] px-8 py-4 hover:bg-[#c9a84c] hover:text-[#1a1c12] transition-colors" style={{ textDecoration: "none" }}>
-            Discover Our Story
-          </a>
+        <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+            
+            {/* Image Column */}
+            <div className="relative group overflow-hidden rounded-tl-[40px] rounded-br-[40px]">
+              <img
+                src="/website/IMG_8761.PNG"
+                alt="Craftsmanship Origins"
+                className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                style={{ filter: "brightness(0.85) contrast(1.1)", maxHeight: "600px" }}
+              />
+              <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-tl-[40px] rounded-br-[40px] pointer-events-none" />
+            </div>
+
+            {/* Text Column */}
+            <div className="flex flex-col items-start text-left">
+              <span style={{
+                fontFamily: "'Manrope', sans-serif", fontSize: 12, fontWeight: 700,
+                letterSpacing: "0.4em", textTransform: "uppercase", color: "#c9a84c",
+                display: "block", marginBottom: 24,
+              }}>
+                Our Origins
+              </span>
+              
+              <h2 style={{
+                fontFamily: "'Noto Serif', Georgia, serif", fontSize: "clamp(32px, 5vw, 52px)",
+                fontWeight: 300, color: "#fef9e9", margin: "0 0 32px",
+                lineHeight: 1.2, maxWidth: 600
+              }}>
+                Born from the idea of creating <br/>
+                <span className="italic text-[#c9a84c] font-normal" style={{ fontSize: "1.1em", letterSpacing: "-0.02em" }}>Demi-fine jewellery</span> <br/>
+                that feels like a natural extension of personal style.
+              </h2>
+              
+              <div style={{
+                width: 60, height: 1, background: "rgba(201,168,76,0.5)",
+                marginBottom: 40,
+              }} />
+              
+              <a href="/story" className="font-['Manrope',sans-serif] text-[11px] font-bold tracking-[0.2em] uppercase text-[#1a1c12] bg-[#c9a84c] border border-[#c9a84c] px-10 py-4 hover:bg-transparent hover:text-[#c9a84c] transition-colors" style={{ textDecoration: "none" }}>
+                Discover Our Story
+              </a>
+            </div>
+            
+          </div>
         </div>
       </section>
 

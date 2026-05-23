@@ -34,9 +34,9 @@ function Reveal({
 }) {
   const { ref, visible } = useInView(0.08);
   const offsets: Record<string, string> = {
-    up: "translateY(32px)",
-    left: "translateX(-32px)",
-    right: "translateX(32px)",
+    up: "translateY(40px)",
+    left: "translateX(-40px)",
+    right: "translateX(40px)",
     none: "none",
   };
   return (
@@ -46,8 +46,8 @@ function Reveal({
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "none" : offsets[direction],
-        transition: `opacity 0.95s cubic-bezier(0.4,0,0.2,1) ${delay}s,
-                     transform 0.95s cubic-bezier(0.4,0,0.2,1) ${delay}s`,
+        transition: `opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s,
+                     transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
       }}
     >
       {children}
@@ -86,7 +86,7 @@ export const StoryPage = (): JSX.Element => {
       <NavbarSection />
 
       {/* ══════════════════════════════════════════════════════════
-          1. HERO — full-bleed, bottom-anchored copy
+          1. HERO — Full Bleed Background Parallax
          ══════════════════════════════════════════════════════════ */}
       <section
         style={{
@@ -98,7 +98,6 @@ export const StoryPage = (): JSX.Element => {
           alignItems: "flex-end",
         }}
       >
-        {/* Parallax bg */}
         <div
           style={{
             position: "absolute",
@@ -108,15 +107,15 @@ export const StoryPage = (): JSX.Element => {
           }}
         >
           <img
-            src="/products/bracelet-unisex-1.jpg"
-            alt=""
+            src="/website/IMG_8755.PNG"
+            alt="Hero Background"
             aria-hidden="true"
             style={{
               width: "100%",
               height: "115%",
               objectFit: "cover",
               objectPosition: "center 30%",
-              filter: "brightness(0.45)",
+              filter: "brightness(0.65)",
               display: "block",
             }}
           />
@@ -127,8 +126,7 @@ export const StoryPage = (): JSX.Element => {
           style={{
             position: "absolute",
             inset: 0,
-            background:
-              "linear-gradient(to top, rgba(29,28,18,0.96) 0%, rgba(29,28,18,0.3) 50%, transparent 100%)",
+            background: "linear-gradient(to top, rgba(29,28,18,0.96) 0%, rgba(29,28,18,0.3) 50%, transparent 100%)",
           }}
         />
 
@@ -147,29 +145,12 @@ export const StoryPage = (): JSX.Element => {
         >
           <span
             onClick={() => setLocation("/")}
-            style={{
-              fontFamily: "'Manrope', sans-serif",
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: "rgba(254,249,233,0.38)",
-              cursor: "pointer",
-            }}
+            style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(254,249,233,0.38)", cursor: "pointer" }}
           >
             Mani D&apos;Oro
           </span>
           <span style={{ color: "rgba(254,249,233,0.18)", fontSize: 10 }}>/</span>
-          <span
-            style={{
-              fontFamily: "'Manrope', sans-serif",
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: "rgba(254,249,233,0.38)",
-            }}
-          >
+          <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(254,249,233,0.38)" }}>
             Our Story
           </span>
         </div>
@@ -185,38 +166,11 @@ export const StoryPage = (): JSX.Element => {
             padding: "0 clamp(24px, 5vw, 64px) clamp(56px, 8vh, 96px)",
           }}
         >
-          <p
-            style={{
-              fontFamily: "'Manrope', sans-serif",
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.38em",
-              textTransform: "uppercase",
-              color: "#c9a84c",
-              margin: "0 0 24px",
-              opacity: heroIn ? 1 : 0,
-              transform: heroIn ? "none" : "translateY(10px)",
-              transition: "all 0.8s ease 0.4s",
-            }}
-          >
+          <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.38em", textTransform: "uppercase", color: "#c9a84c", margin: "0 0 24px", opacity: heroIn ? 1 : 0, transform: heroIn ? "none" : "translateY(10px)", transition: "all 0.8s ease 0.4s" }}>
             Our Story
           </p>
 
-          <h1
-            style={{
-              fontFamily: "'Noto Serif', Georgia, serif",
-              fontSize: "clamp(52px, 9vw, 118px)",
-              fontWeight: 400,
-              fontStyle: "italic",
-              lineHeight: 0.94,
-              letterSpacing: "-0.02em",
-              color: "#fef9e9",
-              margin: "0 0 44px",
-              opacity: heroIn ? 1 : 0,
-              transform: heroIn ? "none" : "translateY(28px)",
-              transition: "all 1s ease 0.55s",
-            }}
-          >
+          <h1 style={{ fontFamily: "'Noto Serif', Georgia, serif", fontSize: "clamp(52px, 9vw, 118px)", fontWeight: 400, fontStyle: "italic", lineHeight: 0.94, letterSpacing: "-0.02em", color: "#fef9e9", margin: "0 0 44px", opacity: heroIn ? 1 : 0, transform: heroIn ? "none" : "translateY(28px)", transition: "all 1s ease 0.55s" }}>
             Effortless.
             <br />
             Expressive.
@@ -224,141 +178,54 @@ export const StoryPage = (): JSX.Element => {
             Every&nbsp;Day.
           </h1>
 
-          <div
-            style={{
-              width: heroIn ? 64 : 0,
-              height: 1,
-              background: "#c9a84c",
-              transition: "width 1s ease 1.1s",
-              marginBottom: 28,
-            }}
-          />
+          <div style={{ width: heroIn ? 64 : 0, height: 1, background: "#c9a84c", transition: "width 1s ease 1.1s", marginBottom: 28 }} />
 
-          <p
-            style={{
-              fontFamily: "'Manrope', sans-serif",
-              fontSize: "clamp(13px, 1.4vw, 15px)",
-              lineHeight: 1.9,
-              color: "rgba(254,249,233,0.55)",
-              maxWidth: 460,
-              margin: 0,
-              opacity: heroIn ? 1 : 0,
-              transition: "opacity 1s ease 1.15s",
-            }}
-          >
+          <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: "clamp(13px, 1.4vw, 15px)", lineHeight: 1.9, color: "rgba(254,249,233,0.55)", maxWidth: 460, margin: 0, opacity: heroIn ? 1 : 0, transition: "opacity 1s ease 1.15s" }}>
             Demi-fine jewellery designed to feel like a natural extension of who you are.
           </p>
         </div>
+      </section>
 
-        {/* Scroll cue */}
-        <div
-          style={{
-            position: "absolute",
-            right: "clamp(24px, 4vw, 48px)",
-            bottom: "clamp(36px, 5vh, 64px)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 10,
-            opacity: heroIn ? 0.4 : 0,
-            transition: "opacity 1s ease 1.5s",
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "'Manrope', sans-serif",
-              fontSize: 9,
-              fontWeight: 700,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              color: "#fef9e9",
-              writingMode: "vertical-rl",
-            }}
-          >
-            Scroll
-          </span>
-          <div
-            style={{ width: 1, height: 40, background: "linear-gradient(#c9a84c, transparent)" }}
-          />
+      {/* ══════════════════════════════════════════════════════════
+          2. THE IDEA — High Contrast with Aligned Image
+         ══════════════════════════════════════════════════════════ */}
+      <section style={{ background: "#1a1c12", padding: "clamp(80px, 12vh, 160px) clamp(24px, 5vw, 64px)" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(40px, 8vw, 100px)", alignItems: "center" }} className="story-split">
+          
+          <div style={{ order: 1 }}>
+            <Reveal delay={0.2} direction="left">
+              <div style={{ position: "relative", borderRadius: "16px", overflow: "hidden", boxShadow: "0 24px 48px rgba(0,0,0,0.12)", aspectRatio: "4/5" }}>
+                <img
+                  src="/website/IMG_8764.PNG"
+                  alt="Mani D'Oro wearable jewellery"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+                <div style={{ position: "absolute", inset: 0, border: "1px solid rgba(255,255,255,0.05)", pointerEvents: "none", borderRadius: "16px" }} />
+              </div>
+            </Reveal>
+          </div>
+
+          <div style={{ order: 2 }}>
+            <Reveal>
+              <p style={{ fontFamily: "'Manrope', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.32em", textTransform: "uppercase", color: "#c9a84c", margin: "0 0 32px" }}>
+                The Idea
+              </p>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p style={{ fontFamily: "'Noto Serif', Georgia, serif", fontSize: "clamp(26px, 3.8vw, 44px)", fontWeight: 300, lineHeight: 1.35, letterSpacing: "-0.01em", color: "#fef9e9", margin: 0 }}>
+                Mani D&apos;oro was born from the idea of creating Demi-fine jewellery that should feel
+                like a <em style={{ fontStyle: "italic", color: "#c9a84c" }}>natural extension of personal style</em> — effortless, expressive, and wearable every day.
+              </p>
+            </Reveal>
+          </div>
+
         </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          2. THE IDEA — spacious text, cream background
+          4. BELIEFS — elegant, cream typography, no images
          ══════════════════════════════════════════════════════════ */}
-      <section
-        style={{
-          padding: "clamp(96px, 14vh, 160px) clamp(24px, 5vw, 64px)",
-          maxWidth: 1280,
-          margin: "0 auto",
-        }}
-      >
-        <Reveal>
-          <p
-            style={{
-              fontFamily: "'Manrope', sans-serif",
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.32em",
-              textTransform: "uppercase",
-              color: "#795900",
-              margin: "0 0 36px",
-            }}
-          >
-            The Idea
-          </p>
-        </Reveal>
-
-        <Reveal delay={0.1}>
-          {/* Oversize editorial statement — the whole founding idea */}
-          <p
-            style={{
-              fontFamily: "'Noto Serif', Georgia, serif",
-              fontSize: "clamp(26px, 4.2vw, 56px)",
-              fontWeight: 400,
-              lineHeight: 1.22,
-              letterSpacing: "-0.01em",
-              color: "#1d1c12",
-              maxWidth: 880,
-              margin: 0,
-            }}
-          >
-            Mani D&apos;oro was born from the idea of creating Demi-fine jewellery that should feel
-            like a{" "}
-            <em style={{ fontStyle: "italic", color: "#795900" }}>
-              natural extension of personal style
-            </em>{" "}
-            — effortless, expressive, and wearable every day.
-          </p>
-        </Reveal>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════
-          3. ONE STRONG IMAGE — edge-to-edge, no clutter
-         ══════════════════════════════════════════════════════════ */}
-      <div style={{ overflow: "hidden" }}>
-        <Reveal direction="none">
-          <img
-            src="/products/bracelet-unisex-4.jpg"
-            alt="Mani D'Oro wearable jewellery"
-            style={{
-              width: "100%",
-              height: "clamp(360px, 58vh, 680px)",
-              objectFit: "cover",
-              objectPosition: "center 45%",
-              display: "block",
-              filter: "brightness(0.88)",
-              transition: "transform 3s cubic-bezier(0.4,0,0.2,1)",
-            }}
-            className="story-zoom"
-          />
-        </Reveal>
-      </div>
-
-      {/* ══════════════════════════════════════════════════════════
-          4. BELIEFS — dark, pure typography, no images
-         ══════════════════════════════════════════════════════════ */}
-      <section style={{ background: "#1d1c12" }}>
+      <section style={{ background: "#1a1c12" }}>
         <div
           style={{
             maxWidth: 1280,
@@ -366,7 +233,6 @@ export const StoryPage = (): JSX.Element => {
             padding: "clamp(80px, 12vh, 140px) clamp(24px, 5vw, 64px)",
           }}
         >
-          {/* Top label */}
           <Reveal>
             <p
               style={{
@@ -383,7 +249,6 @@ export const StoryPage = (): JSX.Element => {
             </p>
           </Reveal>
 
-          {/* Split: headline left, body right */}
           <div
             style={{
               display: "grid",
@@ -399,7 +264,7 @@ export const StoryPage = (): JSX.Element => {
                 style={{
                   fontFamily: "'Noto Serif', Georgia, serif",
                   fontSize: "clamp(30px, 4.2vw, 54px)",
-                  fontWeight: 400,
+                  fontWeight: 300,
                   fontStyle: "italic",
                   lineHeight: 1.15,
                   color: "#fef9e9",
@@ -430,7 +295,6 @@ export const StoryPage = (): JSX.Element => {
             </Reveal>
           </div>
 
-          {/* Three rules — full width, horizontal dividers */}
           <div>
             {BELIEFS.map((b, i) => (
               <Reveal key={b} delay={i * 0.08}>
@@ -438,7 +302,7 @@ export const StoryPage = (): JSX.Element => {
                   style={{
                     borderTop: "1px solid rgba(201,168,76,0.15)",
                     borderBottom: i === BELIEFS.length - 1 ? "1px solid rgba(201,168,76,0.15)" : undefined,
-                    padding: "clamp(20px, 3vh, 32px) 0",
+                    padding: "clamp(24px, 4vh, 40px) 0",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
@@ -447,8 +311,8 @@ export const StoryPage = (): JSX.Element => {
                   <span
                     style={{
                       fontFamily: "'Noto Serif', Georgia, serif",
-                      fontSize: "clamp(22px, 3.2vw, 42px)",
-                      fontWeight: 400,
+                      fontSize: "clamp(24px, 3.5vw, 48px)",
+                      fontWeight: 300,
                       fontStyle: "italic",
                       color: "#fef9e9",
                       letterSpacing: "-0.01em",
@@ -474,149 +338,23 @@ export const StoryPage = (): JSX.Element => {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          5. VISION — cream, asymmetric text columns
+          5. PULL QUOTE & IMAGE — Minimal Floating Layout
          ══════════════════════════════════════════════════════════ */}
-      <section
-        style={{
-          padding: "clamp(96px, 14vh, 160px) clamp(24px, 5vw, 64px)",
-          maxWidth: 1280,
-          margin: "0 auto",
-        }}
-      >
-        {/* Label */}
-        <Reveal>
-          <p
-            style={{
-              fontFamily: "'Manrope', sans-serif",
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.32em",
-              textTransform: "uppercase",
-              color: "#795900",
-              margin: "0 0 48px",
-            }}
-          >
-            Our Vision
-          </p>
-        </Reveal>
-
-        {/* Asymmetric 5 / 7 columns — heading left, body right */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "5fr 7fr",
-            gap: "clamp(40px, 7vw, 112px)",
-            alignItems: "start",
-          }}
-          className="story-split"
-        >
+      <section style={{ padding: "clamp(80px, 12vh, 160px) clamp(24px, 5vw, 64px)", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "clamp(40px, 8vw, 100px)", alignItems: "center" }} className="story-split">
+          
           <Reveal direction="left">
-            <h2
-              style={{
-                fontFamily: "'Noto Serif', Georgia, serif",
-                fontSize: "clamp(26px, 3.6vw, 46px)",
-                fontWeight: 400,
-                lineHeight: 1.2,
-                color: "#1d1c12",
-                margin: 0,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Designed for modern lifestyles and evolving identities.
-            </h2>
-          </Reveal>
-
-          <Reveal direction="right" delay={0.1}>
-            <div style={{ paddingTop: 6 }}>
-              <p
-                style={{
-                  fontFamily: "'Manrope', sans-serif",
-                  fontSize: 15,
-                  lineHeight: 2,
-                  color: "rgba(29,28,18,0.62)",
-                  margin: "0 0 24px",
-                }}
-              >
-                Our collections bring together contemporary silhouettes, versatile styling, and
-                pieces that move seamlessly across occasions.
-              </p>
-              <p
-                style={{
-                  fontFamily: "'Manrope', sans-serif",
-                  fontSize: 15,
-                  lineHeight: 2,
-                  color: "rgba(29,28,18,0.62)",
-                  margin: 0,
-                }}
-              >
-                Every piece reflects the balance between artistic design and expert making —
-                combining fresh aesthetics with timeless sophistication.
-              </p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════
-          6. PULL QUOTE — full-bleed image, centred quote
-         ══════════════════════════════════════════════════════════ */}
-      <div style={{ overflow: "hidden" }}>
-        <Reveal direction="none">
-          <section
-            style={{
-              position: "relative",
-              height: "clamp(380px, 58vh, 640px)",
-            }}
-          >
-            <img
-              src="/products/bracelet-unisex-2.jpg"
-              alt=""
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                objectPosition: "center 42%",
-                filter: "brightness(0.38)",
-                display: "block",
-              }}
-            />
-            {/* Scrim */}
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background:
-                  "linear-gradient(135deg, rgba(29,28,18,0.3) 0%, transparent 70%)",
-              }}
-            />
-
-            {/* Quote */}
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "0 clamp(24px, 12vw, 220px)",
-                textAlign: "center",
-              }}
-            >
+            <div>
               <Rule width={40} />
               <blockquote
                 style={{
                   fontFamily: "'Noto Serif', Georgia, serif",
                   fontStyle: "italic",
-                  fontSize: "clamp(20px, 3.2vw, 38px)",
-                  fontWeight: 400,
-                  lineHeight: 1.45,
-                  color: "#fef9e9",
-                  maxWidth: 800,
-                  margin: "32px 0",
+                  fontSize: "clamp(26px, 3.8vw, 48px)",
+                  fontWeight: 300,
+                  lineHeight: 1.35,
+                  color: "#1d1c12",
+                  margin: "40px 0",
                 }}
               >
                 "Every piece reflects the balance between artistic design and expert making —
@@ -624,12 +362,23 @@ export const StoryPage = (): JSX.Element => {
               </blockquote>
               <Rule width={40} />
             </div>
-          </section>
-        </Reveal>
-      </div>
+          </Reveal>
+
+          <Reveal direction="right" delay={0.2}>
+            <div style={{ position: "relative", borderRadius: "16px", overflow: "hidden", boxShadow: "0 24px 48px rgba(0,0,0,0.12)", aspectRatio: "4/5" }}>
+              <img
+                src="/website/IMG_8762.PNG"
+                alt="Mani D'Oro Sophistication"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
+            </div>
+          </Reveal>
+
+        </div>
+      </section>
 
       {/* ══════════════════════════════════════════════════════════
-          7. CTA — dark forest, text only (no image to clutter)
+          6. CTA — dark forest, elegant split
          ══════════════════════════════════════════════════════════ */}
       <section style={{ background: "#232919" }}>
         <div
@@ -639,7 +388,6 @@ export const StoryPage = (): JSX.Element => {
             padding: "clamp(80px, 12vh, 140px) clamp(24px, 5vw, 64px)",
           }}
         >
-          {/* Two-column: heading + actions */}
           <div
             style={{
               display: "grid",
@@ -668,7 +416,7 @@ export const StoryPage = (): JSX.Element => {
                   style={{
                     fontFamily: "'Noto Serif', Georgia, serif",
                     fontSize: "clamp(26px, 3.8vw, 50px)",
-                    fontWeight: 400,
+                    fontWeight: 300,
                     fontStyle: "italic",
                     lineHeight: 1.15,
                     color: "#fef9e9",
@@ -688,7 +436,7 @@ export const StoryPage = (): JSX.Element => {
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: 16,
+                  gap: 20,
                   alignItems: "flex-start",
                 }}
               >
@@ -717,7 +465,7 @@ export const StoryPage = (): JSX.Element => {
                       background: "#c9a84c",
                       color: "#1d1c12",
                       border: "none",
-                      padding: "15px 30px",
+                      padding: "16px 32px",
                       cursor: "pointer",
                       display: "inline-flex",
                       alignItems: "center",
@@ -742,7 +490,7 @@ export const StoryPage = (): JSX.Element => {
                       background: "transparent",
                       color: "rgba(254,249,233,0.55)",
                       border: "1px solid rgba(254,249,233,0.16)",
-                      padding: "15px 30px",
+                      padding: "16px 32px",
                       cursor: "pointer",
                       transition: "all 0.3s ease",
                     }}
@@ -761,14 +509,18 @@ export const StoryPage = (): JSX.Element => {
       <style>{`
         /* ── responsive ── */
         @media (max-width: 768px) {
-          .story-split {
+          .story-split, .story-hero-grid {
             grid-template-columns: 1fr !important;
-            gap: 32px !important;
+            gap: 48px !important;
+            text-align: center;
+          }
+          .story-split img, .story-hero-grid img {
+            margin: 0 auto;
+          }
+          .story-split blockquote {
+            text-align: center;
           }
         }
-
-        /* ── hover zoom on full-bleed images ── */
-        .story-zoom:hover { transform: scale(1.03); }
 
         /* ── buttons ── */
         .story-btn-gold:hover  { background: #b8963e !important; }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { NavbarSection } from "./sections/NavbarSection";
 import { FooterSection } from "./sections/FooterSection";
@@ -9,6 +9,29 @@ import { supabase } from "@/lib/supabase";
 const INDIAN_STATES = [
   "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli", "Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Ladakh", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
 ];
+
+const MAJOR_CITIES_BY_STATE: Record<string, string[]> = {
+  "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik", "Aurangabad", "Solapur"],
+  "Delhi": ["New Delhi", "North Delhi", "South Delhi", "West Delhi"],
+  "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi", "Belagavi"],
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem"],
+  "West Bengal": ["Kolkata", "Howrah", "Darjeeling", "Siliguri", "Asansol"],
+  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar"],
+  "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar"],
+  "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Bikaner"],
+  "Uttar Pradesh": ["Lucknow", "Kanpur", "Agra", "Varanasi", "Noida", "Ghaziabad", "Meerut"],
+  "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kannur"],
+  "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior", "Ujjain"],
+  "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda"],
+  "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala", "Rohtak"],
+  "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur"],
+  "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Tirupati"],
+  "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat"],
+  "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Berhampur"],
+  "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro"],
+  "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur", "Korba"],
+  "Uttarakhand": ["Dehradun", "Haridwar", "Roorkee", "Haldwani"]
+};
 
 export const CheckoutPage = (): JSX.Element => {
   const [, setLocation] = useLocation();
@@ -23,6 +46,8 @@ export const CheckoutPage = (): JSX.Element => {
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm({ ...form, [key]: e.target.value });
+
+  const setVal = (key: string, value: string) => setForm({ ...form, [key]: value });
 
   // Not logged in
   if (!user) {
@@ -77,6 +102,7 @@ export const CheckoutPage = (): JSX.Element => {
   const handleOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.state) { setError("Please select a state."); return; }
+    if (!form.city) { setError("Please select or enter a city."); return; }
     setError(""); setLoading(true);
     try {
       const { data: addr, error: addrErr } = await supabase.from("addresses").insert({
@@ -116,7 +142,6 @@ export const CheckoutPage = (): JSX.Element => {
           <div style={{ width: 48, height: 1, background: "#c9a84c", margin: "0 auto" }} />
         </div>
 
-        {/* Using a grid to put Form on left and Summary on right for desktop */}
         <div style={{ display: "grid", gap: "32px", alignItems: "start" }} className="grid-cols-1 md:grid-cols-[1.5fr_1fr]">
           
           {/* LEFT: Form */}
@@ -124,24 +149,29 @@ export const CheckoutPage = (): JSX.Element => {
             <form onSubmit={handleOrder} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <h3 style={sectionTitle}>Shipping Address</h3>
               
-              <Field label="Full Name" value={form.full_name} onChange={set("full_name")} />
-              <Field label="Phone Number" value={form.phone} onChange={set("phone")} type="tel" />
-              <Field label="Street Address" value={form.address_line} onChange={set("address_line")} />
+              <Field label="Full Name" value={form.full_name} onChange={set("full_name")} required />
+              <Field label="Phone Number" value={form.phone} onChange={set("phone")} type="tel" required />
+              <Field label="Street Address" value={form.address_line} onChange={set("address_line")} required />
               
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <Field label="City" value={form.city} onChange={set("city")} />
-                <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(254,249,233,0.6)", marginBottom: 8 }}>State</label>
-                  <select value={form.state} onChange={set("state")} required style={{ ...inputStyle, cursor: "pointer", appearance: "none" }}>
-                    <option value="" disabled style={{ background: "#1a1a1a", color: "rgba(255,255,255,0.4)" }}>Select State</option>
-                    {INDIAN_STATES.map((state) => (
-                      <option key={state} value={state} style={{ background: "#1a1a1a" }}>{state}</option>
-                    ))}
-                  </select>
-                </div>
+                <SearchableSelect 
+                  label="State" 
+                  options={INDIAN_STATES} 
+                  value={form.state} 
+                  onChange={(val) => { setVal("state", val); setVal("city", ""); }} 
+                  placeholder="Select State"
+                />
+                <SearchableSelect 
+                  label="City" 
+                  options={MAJOR_CITIES_BY_STATE[form.state] || []} 
+                  value={form.city} 
+                  onChange={(val) => setVal("city", val)} 
+                  placeholder={form.state ? "Select or type City" : "Select State first"}
+                  disabled={!form.state}
+                />
               </div>
               
-              <Field label="Pincode" value={form.pincode} onChange={set("pincode")} />
+              <Field label="Pincode" value={form.pincode} onChange={set("pincode")} required />
 
               <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "8px 0" }} />
 
@@ -207,11 +237,120 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string }) {
+function Field({ label, value, onChange, type = "text", required = false }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string, required?: boolean }) {
   return (
     <div>
       <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(254,249,233,0.6)", marginBottom: 8 }}>{label}</label>
-      <input type={type} value={value} onChange={onChange} required style={inputStyle} />
+      <input type={type} value={value} onChange={onChange} required={required} style={inputStyle} />
+    </div>
+  );
+}
+
+function SearchableSelect({ 
+  label, options, value, onChange, placeholder, disabled = false 
+}: { 
+  label: string, options: string[], value: string, onChange: (val: string) => void, placeholder: string, disabled?: boolean 
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const filtered = options.filter(o => o.toLowerCase().includes(search.toLowerCase()));
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [open]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (disabled) return;
+    if (!open) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        setOpen(true);
+      }
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setFocusedIndex(prev => (prev < filtered.length - 1 ? prev + 1 : prev));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setFocusedIndex(prev => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (focusedIndex >= 0 && focusedIndex < filtered.length) {
+        onChange(filtered[focusedIndex]);
+        setSearch("");
+        setOpen(false);
+      } else if (search.trim() !== "") {
+        onChange(search.trim());
+        setSearch("");
+        setOpen(false);
+      }
+    } else if (e.key === "Escape") {
+      setOpen(false);
+    }
+  };
+
+  return (
+    <div ref={wrapperRef} style={{ position: "relative", opacity: disabled ? 0.5 : 1 }}>
+      <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(254,249,233,0.6)", marginBottom: 8 }}>{label}</label>
+      <div 
+        onClick={() => { if (!disabled) { setOpen(true); setSearch(""); setFocusedIndex(-1); } }}
+        tabIndex={disabled ? -1 : 0}
+        onKeyDown={handleKeyDown}
+        style={{ ...inputStyle, cursor: disabled ? "not-allowed" : "text", display: "flex", justifyContent: "space-between", alignItems: "center", background: open ? "rgba(255,255,255,0.05)" : "rgba(0, 0, 0, 0.2)", border: open ? "1px solid rgba(201,168,76,0.6)" : inputStyle.border }}
+      >
+        {open ? (
+          <input 
+            ref={inputRef}
+            value={search} 
+            onChange={e => { setSearch(e.target.value); setFocusedIndex(-1); }}
+            onKeyDown={handleKeyDown}
+            placeholder={`Search ${label.toLowerCase()}...`}
+            style={{ background: "transparent", border: "none", color: "#fef9e9", outline: "none", width: "100%", fontSize: 14 }}
+          />
+        ) : (
+          <span style={{ color: value ? "#fef9e9" : "rgba(254,249,233,0.4)" }}>{value || placeholder}</span>
+        )}
+        <span style={{ fontSize: 10 }}>▼</span>
+      </div>
+      
+      {open && (
+        <div style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: 4, background: "#1a1a1a", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 8, maxHeight: 200, overflowY: "auto", zIndex: 50, boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
+          {filtered.length > 0 ? filtered.map((opt, i) => (
+            <div 
+              key={opt}
+              onClick={() => { onChange(opt); setOpen(false); setSearch(""); }}
+              onMouseEnter={() => setFocusedIndex(i)}
+              style={{ padding: "12px 16px", cursor: "pointer", fontSize: 14, background: focusedIndex === i ? "rgba(201,168,76,0.2)" : "transparent", color: focusedIndex === i ? "#c9a84c" : "#fef9e9", transition: "all 0.2s" }}
+            >
+              {opt}
+            </div>
+          )) : (
+            <div 
+              onClick={() => { if(search.trim()) { onChange(search.trim()); setOpen(false); setSearch(""); } }}
+              style={{ padding: "12px 16px", fontSize: 13, color: "#c9a84c", cursor: "pointer", background: "rgba(201,168,76,0.1)" }}
+            >
+              Use "{search}"
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

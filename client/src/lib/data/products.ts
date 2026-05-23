@@ -10,7 +10,7 @@ export const DEFAULT_PRODUCTS = [
   },
   {
     id: "mani-link-chain",
-    category: "Necklaces",
+    category: "Pendants",
     name: "Mani Link Chain",
     description: "Each link forged individually, carrying the mark of its maker.",
     price: "$1,240",
@@ -253,7 +253,7 @@ export const DEFAULT_PRODUCTS = [
   },
   {
     id: "aurelius-chain",
-    category: "Necklaces",
+    category: "Pendants",
     name: "The Aurelius Chain",
     description: "A heritage link necklace cast in 18k gold-plated silver alloy.",
     price: "$1,240",

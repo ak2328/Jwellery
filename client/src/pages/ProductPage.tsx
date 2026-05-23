@@ -169,7 +169,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
       },
           {
             id: "mani-link-chain",
-            category: "Necklaces",
+            category: "Pendants",
             name: "Mani Link Chain",
             description: "Each link forged individually, carrying the mark of its maker.",
             price: "$1,240",
@@ -178,7 +178,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
       },
           {
             id: "gilded-drift-cuff",
-            category: "Cuffs & Bangles",
+            category: "Bracelets",
             name: "Gilded Drift Cuff",
             description: "Molten gold shaped by hand � no two are exactly alike.",
             price: "$740",
@@ -412,7 +412,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
       },
           {
             id: "aurelius-chain",
-            category: "Necklaces",
+            category: "Pendants",
             name: "The Aurelius Chain",
             description: "A heritage link necklace cast in 18k gold-plated silver alloy.",
             price: "$1,240",
@@ -588,7 +588,11 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                       onContextMenu={(e) => e.preventDefault()}
                       onDragStart={(e) => e.preventDefault()}
                       className="w-full h-full object-cover transition-all duration-700 select-none pointer-events-none"
-                      style={{ filter: "brightness(0.97) contrast(1.01)" }}
+                      style={{ 
+                        filter: "brightness(0.97) contrast(1.01)",
+                        WebkitTouchCallout: "none",
+                        imageOrientation: "none"
+                      }}
                     />
                     {/* Transparent Overlay for Copy Protection */}
                     <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
@@ -702,8 +706,9 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                           src={img} 
                           onContextMenu={(e) => e.preventDefault()}
                           onDragStart={(e) => e.preventDefault()}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 select-none pointer-events-none" 
-                          alt={`Detail ${idx + 1}`} 
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 select-none"
+                          style={{ WebkitTouchCallout: "none", imageOrientation: "none" }}
+                          alt={`${product.name} view ${idx + 1}`} 
                         />
                         <div className="absolute inset-0 bg-[#c9a84c]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                         {/* Transparent Overlay for Copy Protection */}
@@ -1115,7 +1120,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
               onContextMenu={(e) => e.preventDefault()}
               onDragStart={(e) => e.preventDefault()}
               className="max-w-full max-h-[80vh] object-contain transition-transform duration-200 select-none pointer-events-none"
-              style={{ transform: `scale(${zoomLevel})` }}
+              style={{ transform: `scale(${zoomLevel})`, imageOrientation: "none" }}
             />
             {/* Transparent Overlay for Copy Protection */}
             <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
