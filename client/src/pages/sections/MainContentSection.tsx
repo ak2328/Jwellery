@@ -8,74 +8,71 @@ export const MainContentSection = (): JSX.Element => {
     <main className="relative w-full bg-[#fef9e9]">
 
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="w-full">
-        <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
-          {/*
-            Mobile:  single column — text on top, image below
-            Desktop: 12-col grid — text left (7), image right (5)
-          */}
-          <div className="flex flex-col md:grid md:grid-cols-12 min-h-[auto] md:min-h-[720px] bg-[#f5f0e4]">
+      <section className="w-full relative bg-[#0d0d07]">
+        <style>{`
+          @keyframes cinematicReveal {
+            0%   { transform: scale(1.08); filter: blur(12px) contrast(1) brightness(0.4); }
+            100% { transform: scale(1); filter: blur(0px) contrast(1.05) brightness(0.92); }
+          }
+          @keyframes fadeUpIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+          .hero-img-zoom {
+            animation: cinematicReveal 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+          }
+          .fade-up-1 { animation: fadeUpIn 1s cubic-bezier(0.22,1,0.36,1) 0.8s both; }
+          .fade-up-2 { animation: fadeUpIn 1s cubic-bezier(0.22,1,0.36,1) 1.0s both; }
+          .fade-up-3 { animation: fadeUpIn 1s cubic-bezier(0.22,1,0.36,1) 1.2s both; }
+        `}</style>
 
-            {/* Text column */}
-            <div className="flex flex-col justify-center px-4 sm:px-8 py-8 md:py-12 col-span-7">
-              <div className="relative overflow-hidden rounded-[2rem] p-8 sm:p-12 md:p-16 flex flex-col justify-center gap-7 md:gap-10 shadow-xl border border-[rgba(201,168,76,0.2)]">
-                <img
-                  src="/website/gold_in_every_hand.jpg"
-                  alt="Gold In Every Hand"
-                  className="absolute inset-0 w-full h-full object-cover z-0"
-                  style={{ filter: "contrast(1.1) brightness(1.05)" }}
-                />
-                {/* Aesthetic frosted overlay to ensure text remains perfectly readable */}
-                <div className="absolute inset-0 bg-[#fef9e9]/65 backdrop-blur-[4px] z-0" />
-                
-                <div className="relative z-10 flex flex-col gap-7 md:gap-10">
-                  <div className="flex flex-col leading-none">
-                    <h1
-                      className="font-normal text-[#1d1c12] tracking-[-0.04em]"
-                      style={{ fontFamily: "'Noto Serif', Georgia, serif", lineHeight: 1.0, fontSize: "clamp(52px, 10vw, 112px)" }}
-                    >
-                      Gold In
-                    </h1>
-                    <h1
-                      className="font-normal text-[#795900] italic tracking-[-0.04em]"
-                      style={{ fontFamily: "'Noto Serif', Georgia, serif", lineHeight: 1.0, fontSize: "clamp(52px, 10vw, 112px)" }}
-                    >
-                      Every
-                    </h1>
-                    <h1
-                      className="font-normal text-[#795900] italic tracking-[-0.04em]"
-                      style={{ fontFamily: "'Noto Serif', Georgia, serif", lineHeight: 1.0, fontSize: "clamp(52px, 10vw, 112px)" }}
-                    >
-                      Hand
-                    </h1>
-                  </div>
+        <div className="relative w-full overflow-hidden" style={{ height: "95vh", minHeight: "700px" }}>
+          
+          {/* Single clean image, cinematic bloom entrance */}
+          <img
+            src="/website/gieh.PNG"
+            alt="Mani D'Oro Jewelry"
+            className="hero-img-zoom absolute inset-0 w-full h-full object-cover object-[50%_25%]"
+          />
+          
+          {/* Very clean, soft gradient just to ensure text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a05] via-[#0a0a05]/5 to-transparent" />
 
-                  <p
-                    className="text-base sm:text-lg leading-relaxed text-[#4a5540] max-w-[380px]"
-                    style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 500 }}
-                  >
-                    Jewellery For Every Version Of You. Everyday pieces designed for workdays, weekends, celebrations, and everything in between.
-                  </p>
+          {/* Top Bar - Ultra Minimal */}
+          <div className="fade-up-1 absolute top-10 left-0 right-0 flex justify-center z-10">
+            <span style={{ fontFamily:"'Manrope',sans-serif", fontSize:11, fontWeight:600, letterSpacing:"0.4em", textTransform:"uppercase", color:"#c9a84c" }}>
+              Mani D'Oro
+            </span>
+          </div>
 
-                  <div>
-                    <a href="/collection" data-testid="button-explore-collection" className="luxury-btn-gold" style={{ textDecoration: "none", display: "inline-block" }}>
-                      Explore Collection
-                    </a>
-                  </div>
-                </div>
-              </div>
+          {/* Main Content - Centered, Clean, Breathable */}
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-20 px-6 text-center z-10">
+            
+            {/* The "Wear your story" quote as a delicate intro */}
+            <p className="fade-up-1 text-[#c9a84c] mb-6" style={{ fontFamily: "'Noto Serif', Georgia, serif", fontStyle: "italic", fontSize: "clamp(18px, 1.8vw, 24px)" }}>
+              Wear your story, every single day.
+            </p>
+
+            {/* Huge, elegant, clean headline */}
+            <h1 className="fade-up-2 text-[#fef9e9] font-normal leading-[1.1] mb-8 tracking-[-0.02em]" 
+                style={{ fontFamily: "'Noto Serif', Georgia, serif", fontSize: "clamp(50px, 8vw, 110px)" }}>
+              Gold In <span style={{ color: "#c9a84c", fontStyle: "italic" }}>Every</span> Hand.
+            </h1>
+
+            {/* Clean body text */}
+            <div className="fade-up-3 flex flex-col items-center gap-8 max-w-[500px]">
+              <p className="text-[#fef9e9]/70 leading-relaxed text-sm sm:text-base" style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 400 }}>
+                <strong className="text-[#fef9e9] font-medium tracking-wide">Jewellery For Every Version Of You.</strong><br/>
+                <span className="mt-2 block">
+                  Everyday pieces designed for workdays, weekends, celebrations, and everything in between.
+                </span>
+              </p>
+              
+              <a href="/collection" className="luxury-btn-gold" style={{ textDecoration: "none", padding: "14px 36px" }}>
+                Explore Collection
+              </a>
             </div>
 
-            {/* Image column */}
-            <div className="col-span-5 relative overflow-hidden flex items-center justify-center" style={{ minHeight: "380px" }}>
-              <img
-                src="/website/IMG_0273.jpg"
-                alt="Artisanal gold jewelry craftsmanship"
-                className="absolute inset-0 w-full h-full object-cover object-center"
-                style={{ filter: "grayscale(15%) contrast(1.05)" }}
-              />
-
-            </div>
           </div>
         </div>
       </section>
