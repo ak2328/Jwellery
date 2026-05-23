@@ -37,8 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const formatted = phone.startsWith("+") ? phone : `+91${phone}`;
     const { data, error } = await supabase.auth.verifyOtp({ phone: formatted, token, type: "sms" });
     if (!error && data.user) {
-      // Create customer record if first time
-      await supabase.from("customers").upsert({ id: data.user.id, phone: formatted, name: "" }, { onConflict: "id" }).catch(() => {});
+      try {
+        await supabase.from("customers").upsert(
+          { id: data.user.id, phone: formatted, name: "" },
+          { onConflict: "id" },
+        );
+      } catch {
+        // Customer rows are a convenience layer; auth should still succeed if this insert is blocked by RLS.
+      }
     }
     return { error: error?.message ?? null };
   };

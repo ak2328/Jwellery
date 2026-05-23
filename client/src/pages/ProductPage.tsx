@@ -572,7 +572,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
               return (
                 <>
                   <div 
-                    className="relative border border-[#1d1c12]/10 bg-[#fef9e9]/50 aspect-[4/5] overflow-hidden group cursor-pointer select-none"
+                    className="relative border border-[#1d1c12]/10 bg-[#f8f3e4] aspect-[4/5] overflow-hidden group cursor-pointer select-none"
                     onClick={() => {
                       setZoomLevel(1);
                       setIsLightboxOpen(true);
@@ -587,11 +587,11 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                       alt={product.name}
                       onContextMenu={(e) => e.preventDefault()}
                       onDragStart={(e) => e.preventDefault()}
-                      className="w-full h-full object-cover transition-all duration-700 select-none pointer-events-none"
+                      className="w-full h-full object-contain transition-all duration-700 select-none pointer-events-none"
                       style={{ 
                         filter: "brightness(0.97) contrast(1.01)",
                         WebkitTouchCallout: "none",
-                        imageOrientation: "none"
+                        imageOrientation: "from-image"
                       }}
                     />
                     {/* Transparent Overlay for Copy Protection */}
@@ -696,7 +696,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                           setSelectedImage(img);
                           setSelectedImageIndex(idx);
                         }}
-                        className={`aspect-square bg-[#fef9e9]/80 border overflow-hidden cursor-pointer group relative transition-all select-none ${
+                        className={`aspect-square bg-[#f8f3e4] border overflow-hidden cursor-pointer group relative transition-all select-none ${
                           selectedImageIndex === idx
                             ? 'border-[#c9a84c] ring-2 ring-[#c9a84c]/30'
                             : 'border-[#1d1c12]/10 opacity-75 hover:opacity-100'
@@ -706,8 +706,8 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
                           src={img} 
                           onContextMenu={(e) => e.preventDefault()}
                           onDragStart={(e) => e.preventDefault()}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 select-none"
-                          style={{ WebkitTouchCallout: "none", imageOrientation: "none" }}
+                          className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 select-none"
+                          style={{ WebkitTouchCallout: "none", imageOrientation: "from-image" }}
                           alt={`${product.name} view ${idx + 1}`} 
                         />
                         <div className="absolute inset-0 bg-[#c9a84c]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -1120,7 +1120,7 @@ export const ProductPage = ({ params }: { params: { id: string } }): JSX.Element
               onContextMenu={(e) => e.preventDefault()}
               onDragStart={(e) => e.preventDefault()}
               className="max-w-full max-h-[80vh] object-contain transition-transform duration-200 select-none pointer-events-none"
-              style={{ transform: `scale(${zoomLevel})`, imageOrientation: "none" }}
+              style={{ transform: `scale(${zoomLevel})`, imageOrientation: "from-image" }}
             />
             {/* Transparent Overlay for Copy Protection */}
             <div className="absolute inset-0 z-0 select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />

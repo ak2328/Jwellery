@@ -92,7 +92,7 @@ export const CollectionPage = (): JSX.Element => {
             image: p.image,
             isNew: p.is_new,
           };
-        }).filter(Boolean);
+        }).filter((product): product is (typeof DEFAULT_PRODUCTS)[number] => Boolean(product));
         // If we got valid products, use them; otherwise keep defaults
         if (merged.length > 0) setProducts(merged);
       }
