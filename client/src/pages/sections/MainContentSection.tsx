@@ -1,8 +1,52 @@
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { DEFAULT_PRODUCTS, BASE_CATEGORIES } from "@/lib/data/products";
 
+const HERO_SLIDES = [
+  { src: "/website/IMG_8764.PNG", objectPosition: "50% 25%" },
+  { src: "/website/gold_in_every_hand.jpg", objectPosition: "50% 50%" },
+  { src: "/website/IMG_8755.PNG", objectPosition: "50% 25%" },
+];
+
 export const MainContentSection = (): JSX.Element => {
   const [, setLocation] = useLocation();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const minSwipeDistance = 50;
+
+  // Auto-advance slider, resets timer when user manually changes slide
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [currentSlide]);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe) {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    } else if (isRightSwipe) {
+      setCurrentSlide((prev) => (prev === 0 ? HERO_SLIDES.length - 1 : prev - 1));
+    }
+  };
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? HERO_SLIDES.length - 1 : prev - 1));
 
   return (
     <main className="relative w-full bg-[#fef9e9]">
@@ -14,6 +58,10 @@ export const MainContentSection = (): JSX.Element => {
             0%   { transform: scale(1.08); filter: blur(12px) contrast(1) brightness(0.4); }
             100% { transform: scale(1); filter: blur(0px) contrast(1.05) brightness(0.92); }
           }
+          @keyframes slideFadeIn {
+            0%   { opacity: 0.6; transform: scale(1.03); }
+            100% { opacity: 1; transform: scale(1); }
+          }
           @keyframes fadeUpIn {
             from { opacity: 0; transform: translateY(20px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -21,22 +69,58 @@ export const MainContentSection = (): JSX.Element => {
           .hero-img-zoom {
             animation: cinematicReveal 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
           }
+          .slide-active {
+            animation: slideFadeIn 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+          }
           .fade-up-1 { animation: fadeUpIn 1s cubic-bezier(0.22,1,0.36,1) 0.8s both; }
           .fade-up-2 { animation: fadeUpIn 1s cubic-bezier(0.22,1,0.36,1) 1.0s both; }
           .fade-up-3 { animation: fadeUpIn 1s cubic-bezier(0.22,1,0.36,1) 1.2s both; }
         `}</style>
 
-        <div className="relative w-full overflow-hidden" style={{ height: "95vh", minHeight: "700px" }}>
+        <div 
+          className="relative w-full overflow-hidden" 
+          style={{ height: "95vh", minHeight: "700px" }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
           
-          {/* Single clean image, cinematic bloom entrance */}
-          <img
-            src="/website/gieh.PNG"
-            alt="Mani D'Oro Jewelry"
-            className="hero-img-zoom absolute inset-0 w-full h-full object-cover object-[50%_25%]"
-          />
+          {/* Slider Images */}
+          {HERO_SLIDES.map((slide, index) => (
+            <img
+              key={index}
+              src={slide.src}
+              alt="Mani D'Oro Jewelry"
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[1500ms] ${
+                index === currentSlide ? "opacity-100 slide-active z-0" : "opacity-0 z-[-1]"
+              }`}
+              style={{ objectPosition: slide.objectPosition }}
+            />
+          ))}
           
-          {/* Very clean, soft gradient just to ensure text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a05] via-[#0a0a05]/5 to-transparent" />
+          {/* Stronger gradient to ensure text readability over light images */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050503]/90 via-[#050503]/40 to-transparent z-0" />
+
+          {/* Navigation Arrows (Desktop) */}
+          <button 
+            onClick={prevSlide}
+            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 items-center justify-center rounded-full bg-black/20 hover:bg-black/40 text-white/70 hover:text-white transition-all backdrop-blur-sm"
+            aria-label="Previous image"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          
+          <button 
+            onClick={nextSlide}
+            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 items-center justify-center rounded-full bg-black/20 hover:bg-black/40 text-white/70 hover:text-white transition-all backdrop-blur-sm"
+            aria-label="Next image"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
 
           {/* Top Bar - Ultra Minimal */}
           <div className="fade-up-1 absolute top-10 left-0 right-0 flex justify-center z-10">
@@ -46,22 +130,22 @@ export const MainContentSection = (): JSX.Element => {
           </div>
 
           {/* Main Content - Centered, Clean, Breathable */}
-          <div className="absolute inset-0 flex flex-col items-center justify-end pb-20 px-6 text-center z-10">
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-[90px] px-6 text-center z-10">
             
             {/* The "Wear your story" quote as a delicate intro */}
-            <p className="fade-up-1 text-[#c9a84c] mb-6" style={{ fontFamily: "'Noto Serif', Georgia, serif", fontStyle: "italic", fontSize: "clamp(18px, 1.8vw, 24px)" }}>
+            <p className="fade-up-1 text-[#c9a84c] mb-6" style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: "clamp(18px, 1.8vw, 24px)", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>
               Wear your story, every single day.
             </p>
 
             {/* Huge, elegant, clean headline */}
             <h1 className="fade-up-2 text-[#fef9e9] font-normal leading-[1.1] mb-8 tracking-[-0.02em]" 
-                style={{ fontFamily: "'Noto Serif', Georgia, serif", fontSize: "clamp(50px, 8vw, 110px)" }}>
+                style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(50px, 8vw, 110px)", textShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
               Gold In <span style={{ color: "#c9a84c", fontStyle: "italic" }}>Every</span> Hand.
             </h1>
 
             {/* Clean body text */}
             <div className="fade-up-3 flex flex-col items-center gap-8 max-w-[500px]">
-              <p className="text-[#fef9e9]/70 leading-relaxed text-sm sm:text-base" style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 400 }}>
+              <p className="text-[#fef9e9]/90 leading-relaxed text-sm sm:text-base" style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 400, textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>
                 <strong className="text-[#fef9e9] font-medium tracking-wide">Jewellery For Every Version Of You.</strong><br/>
                 <span className="mt-2 block">
                   Everyday pieces designed for workdays, weekends, celebrations, and everything in between.
@@ -73,6 +157,20 @@ export const MainContentSection = (): JSX.Element => {
               </a>
             </div>
 
+          </div>
+
+          {/* Pagination Dots */}
+          <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-3 z-10">
+            {HERO_SLIDES.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                  index === currentSlide ? "bg-[#c9a84c] w-6" : "bg-white/40 hover:bg-white/70"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>
